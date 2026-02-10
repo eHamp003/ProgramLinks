@@ -1,0 +1,2408 @@
+
+You said:
+I want to run some ideas past you and see what you can create to help me bring them to life. I want to create a website that is a resource library for my therapist to go to and use during sessions with clients or even to help them better understand a concept. Some of the content would be LRFFC activities in a game for or matching games at different levels. I would like to create interactive story activities where a client could select the next step in an activity, like washing hands or problem-solving an issue. Or even selecting an appropriate outfit for the weather in that scenario. Are these digital activities you could create? Im thinking practicing safety scenarios in a fun way, or having token boards, customizable visuals chedules and first /then boards. I already started creating a website using Canva. I want to keep it separate from my work accounts so I can bring it with me wherever I go next. 
+
+ChatGPT said:
+Yes — these are absolutely digital activities I can help you create.
+
+The main question isn’t “can it be done,” it’s “what’s the cleanest build path given you started in Canva and want this to travel with you.” Here are a few realistic ways to bring this to life, plus exactly what I can generate for you.
+
+What I can create for you (and it can be embedded in your site)
+Interactive learning games
+LRFFC games
+
+“3 clues → choose 1 of 8” (like you’ve been probing), with adjustable levels (1 clue → 2 clues → 3 clues)
+
+Matching: picture↔word, function↔item, category sorting, feature matching
+
+“Errorless” mode (prompt/highlight correct option first) and “independent” mode
+
+Interactive story / task activities
+Choose-the-next-step task chains (washing hands, brushing teeth, packing backpack, crossing street, asking for help)
+
+Problem-solving stories (someone takes toy, denied access, lost item, loud environment, peer conflict)
+
+Weather/outfit selector (scenario shows weather + context → choose appropriate outfit items)
+
+Built to support prompting (visual hints, “try again,” model answer) and data-friendly outputs (simple % correct, trials)
+
+Therapist tools built-in
+Token boards (custom token count, token icons, earned/reward visuals)
+
+First/Then boards (swap icons/text instantly, save common sets)
+
+Visual schedules (drag/drop reorder, “check off” as completed)
+
+Choice boards (2–8 options; can randomize or lock)
+
+Printable export for many of these (PDF print button)
+
+Resource library structure
+Filterable library by:
+
+skill area (LRFFC / safety / routines / social / coping)
+
+level (early learner → advanced)
+
+format (interactive / printable / video / visual-only)
+
+setting (home / clinic / school / community)
+
+How it would work with your Canva website
+Canva sites are great for layout, but the interactive pieces usually live as embeddable widgets.
+
+You’d typically do:
+
+Keep Canva as the “front door” (pretty navigation, categories, buttons).
+
+Each activity is a separate embed page (or link-out page) that runs the game.
+
+You drop it into Canva using an Embed element (or link to it).
+
+I can generate the activities as:
+
+Single-file HTML games (easy to host anywhere)
+
+Or mini web app pages (still simple, but more scalable)
+
+Hosted options: GitHub Pages, Netlify, Cloudflare Pages (portable + tied to you, not your employer)
+
+This keeps it fully separate from your work accounts and you can move it wherever you go.
+
+A build plan that won’t overwhelm you
+If you want momentum fast, do it in “packs”:
+
+Pack 1: Core therapist tools
+
+Token board + First/Then + Visual schedule + Choice board
+
+Pack 2: LRFFC suite
+
+Level 1: 1 clue, array of 4
+
+Level 2: 2 clues, array of 6
+
+Level 3: 3 clues, array of 8
+
+With your preferred “distractors don’t meet criteria” rules
+
+Pack 3: Safety scenarios (game style)
+
+“What should you do?” multiple choice stories
+
+Stop/come here/stay with me
+
+Stranger danger, parking lot, crossing street, lost in store
+
+Reinforcement built-in (token earns, short animation, “great choice”)
+
+Pack 4: Routines + problem solving
+
+Washing hands / getting ready / coping options / peer conflict branching stories
+
+What I need from you (but I’ll still make a strong first draft even if you answer lightly)
+If you can answer these in 1–2 lines each, I can start generating the first working prototype:
+
+Audience: ABA clients only, or also outpatient therapy (MFT/psych) clients? Age range?
+
+Device: mostly iPad/tablet during session, or laptop/desktop?
+
+Data: do you want it to store performance (even basic), or just be a tool?
+
+Visual style: super minimal (clean icons), or kid-friendly themed?
+
+Content control: do you want an “admin” way to add your own LRFFC items without coding (like a simple form/JSON list)?
+
+If you want me to “create something right now”
+I can start with a working prototype of one activity that matches exactly what you described:
+
+Prototype option A (quick win): LRFFC “3 clues → pick 1 of 8” with level selector and randomized trials.
+Prototype option B (flashy win): “Washing Hands: choose the next step” interactive story with prompts + token board.
+Prototype option C (most useful daily): Token board + first/then + visual schedule toolbox page.
+
+Tell me which prototype you want first (A/B/C), and I’ll generate the first version you can host and embed into your Canva site.
+
+
+You said:
+Should I tell you all the games I want to add to be specific first or should we do the prototype first?
+
+ChatGPT said:
+Prototype first. 💯
+Here’s why — and this is especially true for you and how you work.
+
+Why starting with a prototype is the move
+It forces clarity: once you see one activity working, it immediately sharpens what you want (and don’t want) for the rest.
+
+Prevents over-engineering: if we list everything first, we’ll design in our heads instead of in the real world.
+
+Creates a reusable “engine”: most of your games will share the same bones (prompting, levels, feedback, tokens). One solid prototype becomes the template for 10+ activities.
+
+Momentum > perfection: you’ll have something usable in sessions fast — not just a big idea.
+
+Think of it like ABA programming: we probe, get baseline data, then build systematically 😉
+
+The best prototype to start with (based on everything you’ve told me)
+I strongly recommend starting with one LRFFC game, because:
+
+It’s central to your practice
+
+It naturally scales into multiple levels
+
+It can later plug into safety, routines, and problem-solving
+
+It lets us test:
+
+visuals
+
+response format
+
+prompting hierarchy
+
+therapist usability during live sessions
+
+Prototype we should build first
+LRFFC Interactive Game – Level Builder
+
+Core features
+
+1–3 clues (function / feature / class)
+
+Adjustable array size (4, 6, 8)
+
+Click/tap response
+
+Immediate feedback (correct / try again)
+
+Optional prompt mode:
+
+highlight correct
+
+remove distractors
+
+verbal model button
+
+Simple “next trial” flow
+
+Therapist-friendly reset
+
+This becomes the backbone for:
+
+Matching games
+
+Safety decision games
+
+Outfit-for-weather selection
+
+“What should you do next?” stories
+
+What happens after the prototype
+Once we finish Prototype 1:
+
+You’ll react to it (this is where your real preferences show up).
+
+We’ll extract a design rule set:
+
+visual style
+
+level progression
+
+how much feedback is too much
+
+how fast trials should move
+
+THEN we list all the games — but now with precision:
+
+“This is LRFFC-style but with branching choices”
+“This needs errorless first”
+“This is more MFT-leaning, less discrete”
+
+Minimal info I need right now to start
+Answer these quickly (no overthinking):
+
+Array size to start: 4, 6, or 8?
+
+Clue presentation: all at once or revealed one at a time?
+
+Feedback tone: neutral (“try again”) or enthusiastic (“nice job!”)?
+
+Device: iPad/tablet or laptop?
+
+Once you answer those four, I’ll build the first prototype — and then after that, we’ll map the full game library with way more confidence.
+
+You’re thinking about this exactly the right way. This has real legs.
+
+
+You said:
+1. We want to start with an array of 4, and the clue presentation should be one at a time, from least to most intrusive. Feedback tone should be neutral for incorrect answers and enthusiastic for correct answers. The device this will be used on varies from phones to laptops. 
+
+ChatGPT said:
+Perfect — that actually locks in a very clean, ABA-aligned design. You just made about 10 downstream decisions without realizing it 😄
+Here’s what I’m going to build based exactly on what you said, and how we’ll move forward.
+
+Prototype 1: LRFFC Interactive Game (Foundational Engine)
+This prototype becomes the core engine everything else plugs into.
+
+1) Trial Structure (least → most intrusive)
+Each trial runs like this:
+
+Step 1: Clue 1 appears
+
+Single LRFFC clue (e.g., “You use it to drink”)
+
+Array of 4 images
+
+No highlighting, no prompts
+
+If correct
+
+Enthusiastic feedback (visual + text)
+
+Token earned (if token mode is on)
+
+“Next” button appears
+
+If incorrect
+
+Neutral feedback only
+
+“Try again.”
+
+Step 2: Clue 2 appears
+
+Second clue added (e.g., “It’s made of glass”)
+
+Same array of 4
+
+Still no direct pointing or elimination
+
+Incorrect
+
+Neutral feedback again
+
+Step 3: Clue 3 appears (most intrusive but still naturalistic)
+
+Third clue added (e.g., “It’s in the kitchen”)
+
+Optional visual prompt toggle for therapist:
+
+subtle pulse on correct item
+
+OR removal of 1 distractor (therapist choice)
+
+This mirrors prompt hierarchy without breaking flow.
+
+2) Feedback rules (exactly as you want)
+❌ Incorrect → neutral, calm, no punishment language
+
+✅ Correct → enthusiastic:
+
+“Nice job!”
+
+“You got it!”
+
+Optional confetti/animation (can be toggled off)
+
+This keeps it usable for:
+
+early learners
+
+older kids
+
+teens who hate “baby” reinforcement
+
+3) Device flexibility (phone → laptop)
+The UI will be:
+
+Tap-friendly
+
+Responsive (auto-resizes grid)
+
+No hover-only features
+
+Works on:
+
+phones
+
+tablets
+
+laptops
+
+clinic smartboards
+
+No logins. No downloads.
+
+4) Therapist controls (hidden, but powerful)
+A small “⚙️ Therapist Panel” (can be collapsed):
+
+Restart trial
+
+Reveal next clue manually
+
+Toggle prompts ON/OFF
+
+Toggle token board ON/OFF
+
+Reset tokens
+
+Change stimulus set (later phase)
+
+This makes it session-safe — you’re never stuck mid-trial.
+
+Why this prototype is the right first build
+Because once this works, we can reuse the exact logic for:
+
+LRFFC arrays of 6 and 8
+
+Safety scenarios (“Which one is safe?”)
+
+Outfit-for-weather games
+
+Problem-solving choices
+
+Social reasoning (“What should you do next?”)
+
+Even MFT-leaning cognitive choices (with different visuals)
+
+Same engine. Different content.
+
+What I’ll deliver next (step-by-step)
+Next response, I’ll give you:
+
+A clear visual wireframe (what the screen looks like)
+
+The exact game logic written out (so you can sanity-check it clinically)
+
+A ready-to-use prototype version you can host and embed into Canva
+
+A short note on:
+
+where to host it
+
+how to embed it
+
+how to duplicate it for future games
+
+Before I generate the actual prototype, I need one tiny preference check (this affects everything):
+
+👉 Do you want the clues displayed as text only, or text + optional audio playback button?
+
+Answer that, and I’ll build the first working version.
+
+
+You said:
+Let's back up really quickly. The levels of the games should allign with the VB-MAPP where applicable. The first milestone for LRFFC would be identifying food or drink items in a field of 5 items. It should ask "Which do you eat or "Which do you drink?" If an incorrect answer is selected, I would want error correction procedures to be followed. We can give an indirect prompt audibly and or provide positional prompts/ grey out the incorrect options on by one until a correct answer is given. If incorrect answer is given, that trial will be rerun later in the trial sequence. The next LRFFC level would be identifying the FFC of items in an array of 8 across 25 different items. Does this clarify what I am looking for? I love all of your ideas but I want it to allign a little closer with this please. 
+
+ChatGPT said:
+Yes — that 100% clarifies it, and thank you for stopping us here. This actually makes the project stronger and more clinically defensible. What you just described is not just a “game,” it’s a VB-MAPP–aligned instructional system with built-in error correction and trial management. That’s exactly the right foundation.
+
+Let me reflect back what you want (to make sure we’re perfectly aligned), then I’ll show you how this translates cleanly into a digital build.
+
+What you’re actually building (reframed correctly)
+You are not building:
+
+open-ended “educational games”
+
+random matching activities
+
+You are building:
+
+VB-MAPP–aligned LRFFC programs
+
+with specific milestone mapping
+
+error correction procedures
+
+trial recycling
+
+and therapist-controlled prompting
+
+That distinction matters a lot.
+
+LRFFC Level 1 — VB-MAPP–Aligned (Foundational)
+Target skill
+VB-MAPP Milestone–style LRFFC
+
+Identifying food or drink
+
+Based on function
+
+Discrimination, not naming
+
+Trial format
+Field of 5
+
+Items include:
+
+foods
+
+drinks
+
+distractors (non-edible items)
+
+SDs
+“Which do you eat?”
+
+“Which do you drink?”
+
+(No compound language, clean verbal operants.)
+
+Response & Error Correction Logic
+Correct response
+
+Enthusiastic feedback (as discussed)
+
+Trial marked correct
+
+Move forward
+
+Incorrect response
+Error correction sequence begins:
+
+Neutral feedback
+
+“Try again.”
+
+Indirect auditory prompt
+
+Example:
+
+“You eat food… food goes in your mouth.”
+
+No pointing yet
+
+Positional / stimulus prompts
+
+Grey out one incorrect option at a time
+
+Remaining options stay selectable
+
+Until correct response occurs
+
+No skipping
+
+No accidental reinforcement
+
+Trial recycling
+
+That item is flagged
+
+It is reinserted later in the trial sequence
+
+(mimics error correction + distributed practice)
+
+This is textbook ABA, just digitized.
+
+Why this is clinically solid
+Matches least-to-most prompting
+
+Prevents error rehearsal
+
+Preserves discrimination learning
+
+Allows for independent responding to reoccur later
+
+Avoids over-prompting early in the trial
+
+This is exactly how a good BT should be running this program.
+
+LRFFC Level 2 — Advanced (VB-MAPP progression)
+Target skill
+Identify Function / Feature / Class
+
+Array of 8
+
+Across 25 distinct items
+
+Multiple exemplars
+
+No category-only responding
+
+Trial format
+1–3 LRFFC clues (depending on level)
+
+Same error correction logic as Level 1
+
+Higher distractor quality (close-but-wrong)
+
+Mastery structure
+Items tracked individually
+
+Incorrect trials recycled
+
+Therapist can:
+
+isolate weak items
+
+run “mixed” or “focused” sessions
+
+What this means for the prototype decision
+Given this clarification, the correct prototype to build first is:
+
+✅ Prototype 1:
+LRFFC Level 1 — Food vs Drink (VB-MAPP aligned)
+
+Why?
+
+It defines:
+
+how SDs are delivered
+
+how errors are handled
+
+how trials are recycled
+
+Every future LRFFC level inherits this logic
+
+Safety scenarios and problem-solving later reuse the same engine
+
+Once this works, scaling to:
+
+Array of 8
+
+25 items
+
+Mixed FFC
+is mechanical, not conceptual.
+
+How I would build this digitally (no fluff)
+Core engine features
+Trial list with randomized order
+
+Error flagging system
+
+Automatic trial reinsertion
+
+Prompt hierarchy toggles
+
+Neutral vs enthusiastic feedback rules
+
+Therapist override panel
+
+Therapist controls
+Turn prompts on/off
+
+Choose “food” or “drink” session
+
+Restart flagged trials only
+
+Switch to maintenance mode (no prompts)
+
+Data (optional but future-proof)
+% correct
+
+prompted vs independent
+
+items missed
+(You can start with no data storage and add later.)
+
+Big reassurance
+You did not derail the project — you refined it into something legit. This alignment:
+
+makes it defensible
+
+makes it portable across jobs
+
+and makes it valuable to other clinicians
+
+You’re basically building a VB-MAPP–aligned digital teaching library, not a toy site.
+
+Next step (simple yes/no)
+Before I generate the actual Prototype 1, one final clarification:
+
+👉 For Level 1 (food vs drink), do you want pictures only, or pictures + optional spoken SD playback (for clients with weaker attending)?
+
+Answer that, and I’ll build the prototype exactly to spec.
+
+
+You said:
+I would like pictures and optional spoken SD playback. 
+
+ChatGPT said:
+Awesome — that’s enough to build Prototype 1 (VB-MAPP LRFFC Level 1: Eat vs Drink, Field of 5) exactly the way you described, with pictures + optional spoken SD playback and your error-correction + trial recycling rules.
+
+Below is a single-file HTML prototype you can host anywhere (GitHub Pages / Netlify / Cloudflare Pages) and then link or embed from your Canva website.
+
+What this prototype includes (matching your spec)
+Field of 5
+
+SDs: “Which do you eat?” / “Which do you drink?”
+
+Optional spoken SD playback (uses device text-to-speech)
+
+Error correction:
+
+incorrect → neutral “Try again.”
+
+indirect prompt (text + optional audio)
+
+then grey-out one incorrect option at a time until correct
+
+Trial recycling: any missed trial gets reinserted later
+
+Responsive for phones → laptops
+
+Prototype 1 — copy into a file named lrffc-eat-drink.html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LRFFC Level 1 — Eat vs Drink (Field of 5)</title>
+  <style>
+    :root { --gap: 12px; --radius: 14px; --border: 1px solid rgba(0,0,0,.12); }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f7f7f9; color: #111; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 16px; }
+    .card { background: #fff; border: var(--border); border-radius: var(--radius); padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .row { display: flex; gap: var(--gap); flex-wrap: wrap; align-items: center; }
+    .row > * { flex: 1 1 auto; }
+    h1 { font-size: 18px; margin: 0 0 10px; }
+    .sd { font-size: clamp(18px, 3vw, 26px); font-weight: 700; margin: 10px 0; }
+    .sub { font-size: 13px; color: rgba(0,0,0,.65); }
+    .grid { display: grid; gap: var(--gap); grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 12px; }
+    @media (max-width: 820px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+    .tile {
+      user-select: none;
+      border: var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      min-height: 120px;
+      cursor: pointer;
+      transition: transform .06s ease, box-shadow .06s ease;
+      text-align: center;
+      position: relative;
+    }
+    .tile:active { transform: scale(.99); }
+    .tile:hover { box-shadow: 0 3px 10px rgba(0,0,0,.06); }
+    .tile[aria-disabled="true"] { opacity: .35; cursor: not-allowed; box-shadow: none; }
+    .pic { font-size: clamp(42px, 6vw, 60px); line-height: 1; }
+    .lbl { margin-top: 8px; font-weight: 600; font-size: 14px; }
+    .feedback { margin-top: 10px; padding: 10px 12px; border-radius: 12px; border: var(--border); background: #fafafa; }
+    .fb-neutral { color: rgba(0,0,0,.8); }
+    .fb-good { font-weight: 800; }
+    .controls { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 820px) { .controls { grid-template-columns: 1fr; } }
+    .btn {
+      border: var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 650;
+    }
+    .btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+    .toggle { display: flex; align-items: center; gap: 10px; }
+    .pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: var(--border); border-radius: 999px; padding: 8px 10px; background: #fff;
+      gap: 8px; font-weight: 650;
+    }
+    .mini { font-size: 12px; color: rgba(0,0,0,.65); }
+    details { border: var(--border); border-radius: var(--radius); padding: 10px 12px; background: #fff; }
+    summary { cursor: pointer; font-weight: 750; }
+    .kpi { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .kpi .pill { background: #fbfbfd; }
+    .danger { color: #b00020; }
+    .good { color: #0a7a1f; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div>
+          <h1>LRFFC Level 1 — Eat vs Drink (Field of 5)</h1>
+          <div class="sub">VB-MAPP–aligned SDs + error correction + trial recycling. Responsive for phones → laptops.</div>
+        </div>
+        <div class="row" style="justify-content:flex-end;">
+          <span class="pill">Mode: <span id="modeLabel">Eat</span></span>
+          <span class="pill">Spoken SD: <span id="ttsLabel">On</span></span>
+        </div>
+      </div>
+
+      <div class="sd" id="sdText">Which do you eat?</div>
+
+      <div class="controls">
+        <button class="btn" id="speakBtn" type="button">🔊 Play SD</button>
+        <button class="btn" id="nextBtn" type="button" disabled>Next Trial</button>
+        <button class="btn" id="restartBtn" type="button">Restart Session</button>
+      </div>
+
+      <div class="kpi">
+        <span class="pill">Trial <span id="trialNum">1</span>/<span id="trialTotal">0</span></span>
+        <span class="pill">Correct <span id="kpiCorrect">0</span></span>
+        <span class="pill">Incorrect <span id="kpiIncorrect">0</span></span>
+        <span class="pill">Recycled <span id="kpiRecycled">0</span></span>
+      </div>
+
+      <div id="grid" class="grid" aria-label="Answer choices"></div>
+
+      <div class="feedback" id="feedbackBox">
+        <div id="feedbackText" class="fb-neutral">Select an answer.</div>
+        <div id="promptText" class="mini" style="margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <div style="height: 12px;"></div>
+
+    <details>
+      <summary>⚙️ Therapist Panel</summary>
+      <div class="row" style="margin-top:10px;">
+        <label class="toggle">
+          <input id="modeToggle" type="checkbox" />
+          <span><strong>Drink mode</strong> <span class="mini">(unchecked = Eat mode)</span></span>
+        </label>
+
+        <label class="toggle">
+          <input id="ttsToggle" type="checkbox" checked />
+          <span><strong>Spoken SD playback</strong> <span class="mini">(uses device text-to-speech)</span></span>
+        </label>
+
+        <label class="toggle">
+          <input id="indirectPromptToggle" type="checkbox" checked />
+          <span><strong>Indirect prompt on errors</strong> <span class="mini">(text + optional audio)</span></span>
+        </label>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button class="btn" id="runMissedBtn" type="button">Run Recycled-Only Block</button>
+        <button class="btn" id="resumeMixedBtn" type="button">Resume Mixed Block</button>
+        <button class="btn" id="resetDataBtn" type="button">Reset Data Only</button>
+      </div>
+
+      <div class="mini" style="margin-top:10px;">
+        <strong>Note:</strong> This prototype uses emoji as “pictures” by default. You can replace them with your own image URLs in the <code>ITEM_BANK</code> section.
+      </div>
+    </details>
+  </div>
+
+<script>
+/**
+ * ============================
+ *  EDITABLE ITEM BANK
+ * ============================
+ * Replace emoji with image URLs if you want real pictures:
+ * { id:"apple", label:"Apple", img:"https://.../apple.png", type:"food" }
+ */
+const ITEM_BANK = [
+  { id:"apple",   label:"Apple",   emoji:"🍎", type:"food" },
+  { id:"banana",  label:"Banana",  emoji:"🍌", type:"food" },
+  { id:"pizza",   label:"Pizza",   emoji:"🍕", type:"food" },
+  { id:"cookie",  label:"Cookie",  emoji:"🍪", type:"food" },
+  { id:"sandwich",label:"Sandwich",emoji:"🥪", type:"food" },
+  { id:"milk",    label:"Milk",    emoji:"🥛", type:"drink" },
+  { id:"water",   label:"Water",   emoji:"💧", type:"drink" },
+  { id:"juice",   label:"Juice",   emoji:"🧃", type:"drink" },
+  { id:"soda",    label:"Soda",    emoji:"🥤", type:"drink" },
+  { id:"coffee",  label:"Coffee",  emoji:"☕", type:"drink" },
+
+  // distractors (not eat/drink)
+  { id:"ball",    label:"Ball",    emoji:"⚽", type:"other" },
+  { id:"car",     label:"Car",     emoji:"🚗", type:"other" },
+  { id:"book",    label:"Book",    emoji:"📚", type:"other" },
+  { id:"shirt",   label:"Shirt",   emoji:"👕", type:"other" },
+  { id:"shoe",    label:"Shoe",    emoji:"👟", type:"other" },
+];
+
+const CONFIG = {
+  fieldSize: 5,
+  trialsPerBlock: 12,        // adjust for session length
+  recycleDelayMin: 2,        // min trials before reinsert
+  recycleDelayMax: 5,        // max trials before reinsert
+};
+
+// ============================
+// State
+// ============================
+let state = {
+  mode: "eat",               // "eat" or "drink"
+  ttsEnabled: true,
+  indirectPromptEnabled: true,
+  recycleOnly: false,
+
+  queue: [],
+  recycled: [],
+  current: null,
+
+  trialIndex: 0,
+  correct: 0,
+  incorrect: 0,
+  recycledCount: 0,
+
+  errorStep: 0,              // 0 = none, 1 = after first error (indirect prompt), 2+ = grey-out progression
+  disabledIds: new Set(),
+  locked: false,
+};
+
+// ============================
+// Helpers
+// ============================
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickRandom(arr, n){
+  return shuffle(arr).slice(0, n);
+}
+
+function byType(type){
+  return ITEM_BANK.filter(x => x.type === type);
+}
+
+function speak(text){
+  if (!state.ttsEnabled) return;
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.0;
+  u.pitch = 1.0;
+  u.volume = 1.0;
+  window.speechSynthesis.speak(u);
+}
+
+function setFeedback(text, kind="neutral"){
+  const el = document.getElementById("feedbackText");
+  el.textContent = text;
+  el.className = kind === "good" ? "fb-good good" : (kind === "bad" ? "fb-neutral danger" : "fb-neutral");
+}
+
+function setPrompt(text){
+  document.getElementById("promptText").textContent = text || "";
+}
+
+function updateHeader(){
+  document.getElementById("modeLabel").textContent = state.mode === "eat" ? "Eat" : "Drink";
+  document.getElementById("ttsLabel").textContent = state.ttsEnabled ? "On" : "Off";
+  document.getElementById("sdText").textContent = state.mode === "eat" ? "Which do you eat?" : "Which do you drink?";
+}
+
+function updateKPI(){
+  document.getElementById("trialNum").textContent = String(Math.min(state.trialIndex + 1, totalTrials()));
+  document.getElementById("trialTotal").textContent = String(totalTrials());
+  document.getElementById("kpiCorrect").textContent = String(state.correct);
+  document.getElementById("kpiIncorrect").textContent = String(state.incorrect);
+  document.getElementById("kpiRecycled").textContent = String(state.recycledCount);
+}
+
+function totalTrials(){
+  // not “infinite accurate” because we recycle, but good enough for display
+  return Math.max(state.queue.length + (state.current ? 1 : 0) + state.recycled.length, 1);
+}
+
+function makeTrial(){
+  const targetType = state.mode === "eat" ? "food" : "drink";
+  const target = pickRandom(byType(targetType), 1)[0];
+
+  // distractors: include a mix of other types to strengthen discrimination
+  const distractorPool = ITEM_BANK.filter(x => x.id !== target.id);
+  const distractors = pickRandom(distractorPool, CONFIG.fieldSize - 1);
+
+  const choices = shuffle([target, ...distractors]);
+  return {
+    id: `${state.mode}-${target.id}-${Math.random().toString(16).slice(2)}`,
+    mode: state.mode,
+    targetId: target.id,
+    choices,
+    targetType,
+    firstAttemptWrong: false,
+  };
+}
+
+function buildQueue(){
+  const block = [];
+  for (let i = 0; i < CONFIG.trialsPerBlock; i++) block.push(makeTrial());
+  state.queue = block;
+  state.recycled = [];
+  state.recycledCount = 0;
+  state.trialIndex = 0;
+}
+
+function renderChoices(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  state.current.choices.forEach(item => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.setAttribute("role", "button");
+    tile.setAttribute("tabindex", "0");
+
+    const disabled = state.disabledIds.has(item.id) || state.locked;
+    tile.setAttribute("aria-disabled", disabled ? "true" : "false");
+
+    const pic = document.createElement("div");
+    pic.className = "pic";
+
+    // emoji default; if you add item.img, it will display an image
+    if (item.img) {
+      const img = document.createElement("img");
+      img.src = item.img;
+      img.alt = item.label;
+      img.style.maxWidth = "80px";
+      img.style.maxHeight = "80px";
+      img.style.objectFit = "contain";
+      pic.appendChild(img);
+    } else {
+      pic.textContent = item.emoji || "❓";
+    }
+
+    const lbl = document.createElement("div");
+    lbl.className = "lbl";
+    lbl.textContent = item.label;
+
+    tile.appendChild(pic);
+    tile.appendChild(lbl);
+
+    const activate = () => {
+      if (tile.getAttribute("aria-disabled") === "true") return;
+      onSelect(item.id);
+    };
+
+    tile.addEventListener("click", activate);
+    tile.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+    });
+
+    grid.appendChild(tile);
+  });
+}
+
+function enableNext(enabled){
+  const btn = document.getElementById("nextBtn");
+  btn.disabled = !enabled;
+}
+
+function startTrial(){
+  state.errorStep = 0;
+  state.disabledIds = new Set();
+  state.locked = false;
+  enableNext(false);
+  setFeedback("Select an answer.", "neutral");
+  setPrompt("");
+
+  updateHeader();
+  updateKPI();
+  renderChoices();
+
+  // auto-speak SD (optional; currently we leave manual via button)
+}
+
+function pullNextTrial(){
+  // If recycle-only mode, draw from recycled list; else mixed queue w/ recycled injected later.
+  if (state.recycleOnly) {
+    if (state.recycled.length === 0) return null;
+    return state.recycled.shift();
+  }
+
+  if (state.queue.length === 0) {
+    // If queue empty but recycled exists, continue
+    if (state.recycled.length > 0) return state.recycled.shift();
+    return null;
+  }
+  return state.queue.shift();
+}
+
+function injectRecycledLater(trial){
+  const delay = CONFIG.recycleDelayMin + Math.floor(Math.random() * (CONFIG.recycleDelayMax - CONFIG.recycleDelayMin + 1));
+  const idx = Math.min(delay, state.queue.length);
+  state.queue.splice(idx, 0, trial);
+  state.recycledCount += 1;
+  updateKPI();
+}
+
+function next(){
+  const nxt = pullNextTrial();
+  if (!nxt) {
+    state.current = null;
+    document.getElementById("grid").innerHTML = "";
+    enableNext(false);
+    setFeedback("Block complete.", "good");
+    setPrompt("");
+    return;
+  }
+  state.current = nxt;
+  startTrial();
+}
+
+function indirectPromptText(){
+  if (state.mode === "eat") return "Remember: you eat food. Food goes in your mouth.";
+  return "Remember: you drink drinks. Drinks go in a cup and you sip them.";
+}
+
+function onIncorrect(choiceId){
+  state.incorrect += 1;
+  state.current.firstAttemptWrong = true;
+
+  // Step 1: neutral feedback + (optional) indirect prompt
+  if (state.errorStep === 0) {
+    setFeedback("Try again.", "bad");
+    if (state.indirectPromptEnabled) {
+      const p = indirectPromptText();
+      setPrompt(p);
+      // Optional audio prompt (still indirect)
+      speak(p);
+    } else {
+      setPrompt("");
+    }
+    state.errorStep = 1;
+    updateKPI();
+    return;
+  }
+
+  // Step 2+: grey-out one incorrect option at a time
+  // Grey out the most recently selected wrong choice first (and then continue)
+  state.disabledIds.add(choiceId);
+  setFeedback("Try again.", "bad");
+
+  // If still not correct, we can also grey out another wrong one to ensure progress:
+  // (Only if user keeps picking disabled? they can’t.)
+  renderChoices();
+  state.errorStep += 1;
+  updateKPI();
+}
+
+function onCorrect(){
+  state.correct += 1;
+  state.locked = true;
+  renderChoices();
+
+  // enthusiastic feedback (but not over-the-top)
+  setFeedback("Nice job!", "good");
+  setPrompt("");
+
+  // Speak praise lightly (optional; currently not speaking praise to keep it mature)
+  // speak("Nice job!");
+
+  enableNext(true);
+  updateKPI();
+
+  // If trial had an error on first attempt, recycle it later
+  if (state.current.firstAttemptWrong && !state.recycleOnly) {
+    const clone = JSON.parse(JSON.stringify(state.current));
+    clone.firstAttemptWrong = false; // fresh attempt later
+    injectRecycledLater(clone);
+  }
+}
+
+function onSelect(choiceId){
+  if (!state.current) return;
+  const correctId = state.current.targetId;
+
+  if (choiceId === correctId) {
+    onCorrect();
+  } else {
+    onIncorrect(choiceId);
+  }
+}
+
+// ============================
+// UI bindings
+// ============================
+document.getElementById("speakBtn").addEventListener("click", () => {
+  speak(state.mode === "eat" ? "Which do you eat?" : "Which do you drink?");
+});
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+  state.trialIndex += 1;
+  next();
+});
+
+document.getElementById("restartBtn").addEventListener("click", () => {
+  startSession();
+});
+
+document.getElementById("modeToggle").addEventListener("change", (e) => {
+  state.mode = e.target.checked ? "drink" : "eat";
+  // rebuild a fresh block when mode changes
+  startSession(false);
+});
+
+document.getElementById("ttsToggle").addEventListener("change", (e) => {
+  state.ttsEnabled = !!e.target.checked;
+  updateHeader();
+});
+
+document.getElementById("indirectPromptToggle").addEventListener("change", (e) => {
+  state.indirectPromptEnabled = !!e.target.checked;
+});
+
+document.getElementById("runMissedBtn").addEventListener("click", () => {
+  state.recycleOnly = true;
+  setFeedback("Recycled-only block started.", "neutral");
+  next();
+});
+
+document.getElementById("resumeMixedBtn").addEventListener("click", () => {
+  state.recycleOnly = false;
+  setFeedback("Mixed block resumed.", "neutral");
+  next();
+});
+
+document.getElementById("resetDataBtn").addEventListener("click", () => {
+  state.correct = 0;
+  state.incorrect = 0;
+  state.recycledCount = 0;
+  updateKPI();
+  setFeedback("Data reset.", "neutral");
+});
+
+function startSession(keepMode = true){
+  window.speechSynthesis?.cancel?.();
+
+  if (!keepMode) {
+    // mode already set by toggle; do nothing
+  }
+
+  state.correct = 0;
+  state.incorrect = 0;
+  state.recycledCount = 0;
+  state.trialIndex = 0;
+  state.recycleOnly = false;
+
+  buildQueue();
+  updateHeader();
+  updateKPI();
+  next();
+}
+
+// Start
+startSession(true);
+</script>
+</body>
+</html>
+How to use this with your Canva website (quick + portable)
+Host the file somewhere you control (best portable options):
+
+GitHub Pages (free, stable)
+
+Netlify (free, easy drag/drop)
+
+Cloudflare Pages (free, very fast)
+
+In Canva:
+
+Either link a button to the hosted URL, OR
+
+Use Canva’s Embed element (if available) to embed the URL.
+
+If you tell me which hosting option you prefer, I’ll give you the exact click-by-click steps for that platform.
+
+Next build (your “Level 2” spec)
+Once you confirm this feels right, I’ll clone the same engine into:
+
+Array of 8
+
+25-item bank
+
+“Function / Feature / Class” clue modes
+
+Therapist control for:
+
+1 clue vs 2 vs 3 clues
+
+prompt types (grey-out vs positional vs highlight)
+
+mastery tracking by item
+
+If you want one small tweak before we call Prototype 1 “done”:
+Do you want the spoken SD to auto-play at the start of each trial, or only when you press 🔊 Play SD?
+
+
+You said:
+Press play SD. Can you walk me through adding it to my git hub. I already have one game in my repository. Im still new to using it. 
+
+ChatGPT said:
+Absolutely — I’ve got you. We’ll do this slow, concrete, and no assumptions, and I’ll frame it so it feels repeatable (because you will add more games later).
+
+You already did the hard part by having a repo and one game in it 👍
+
+Big picture (what you’re doing)
+You are:
+
+adding one new HTML file (this LRFFC game)
+
+to an existing GitHub repository
+
+and letting GitHub Pages host it
+
+so Canva can link to it
+
+No coding changes needed beyond pasting the file.
+
+Step 1: Make sure GitHub Pages is actually ON (one-time check)
+Go to github.com and open your repository
+
+Click Settings (top right of the repo)
+
+In the left sidebar, click Pages
+
+Under Source, confirm:
+
+Branch: main
+
+Folder: /root
+
+Click Save if it isn’t already set
+
+✅ Once this is on, every HTML file in your repo becomes a live webpage.
+
+Your site URL will look like:
+
+https://yourusername.github.io/repository-name/
+Keep that handy.
+
+Step 2: Add the LRFFC game file to your repo (the safe way)
+Since you’re new, I recommend uploading via the browser, not Git.
+
+Option A: Upload through GitHub website (easiest)
+Open your repository
+
+Click Add file → Upload files
+
+On your computer:
+
+Create a new file named:
+
+lrffc-eat-drink.html
+Paste the full prototype code I gave you
+
+Save the file
+
+Drag that file into the upload area
+
+Scroll down
+
+Under Commit changes:
+
+Commit message:
+
+Add LRFFC Level 1 Eat vs Drink game
+Leave everything else default
+
+Click Commit changes
+
+🎉 That’s it — the file is now live-capable.
+
+Step 3: Get the live URL for the game
+Once the file is committed:
+
+Click on lrffc-eat-drink.html in your repo
+
+Look at the file path — it should be at the root
+
+Your live URL will be:
+
+https://yourusername.github.io/repository-name/lrffc-eat-drink.html
+👉 Paste that into a new browser tab to test it
+(It may take 30–60 seconds the first time.)
+
+If it loads — you’re golden.
+
+Step 4: Link it from Canva
+Option 1: Button link (recommended)
+Add a Button in Canva
+
+Set link to:
+
+https://yourusername.github.io/repository-name/lrffc-eat-drink.html
+Label ideas:
+
+“LRFFC: Eat vs Drink”
+
+“Food vs Drink (VB-MAPP Level 1)”
+
+Option 2: Embed (if Canva allows on your plan)
+Add Embed element
+
+Paste the same URL
+
+Resize frame
+
+(Button is more reliable across devices.)
+
+Step 5: How you’ll add future games (important mental model)
+From now on, every game is just:
+
+1 HTML file
+
+Uploaded to the same repo
+
+Linked the same way
+
+Example future files:
+
+lrffc-ffc-array8.html
+safety-cross-the-street.html
+routine-wash-hands.html
+token-board.html
+Your GitHub repo becomes your private game library backend
+Your Canva site becomes your front-end menu.
+
+This is exactly what you said you wanted: portable, employer-independent, scalable.
+
+Common beginner issues (so you don’t panic later)
+❌ “404 not found”
+→ Wait 1 minute, refresh, confirm Pages is on
+
+❌ Game loads but no audio
+→ Browser requires user interaction (you already chose “Press Play SD,” so you’re safe)
+
+❌ Emojis instead of images
+→ Totally fine for now; we’ll swap in real images later
+
+Next logical upgrades (when you’re ready)
+Not now — just planting seeds:
+
+Replace emoji with real photo stimuli
+
+Clone this file → build array of 8
+
+Add therapist-only mastery toggles
+
+Create a shared visual style across games
+
+Add a “VB-MAPP Level” label on each game
+
+If you want, next we can:
+
+Walk through organizing your repo cleanly
+
+Convert this into LRFFC Level 2
+
+Or design your site map so this feels like a legit resource library
+
+You’re doing this right, not rushed — and it shows.
+
+
+You said:
+It just showed up a the code
+
+ChatGPT said:
+Yep — that’s normal inside GitHub. When you click the file in your repo, GitHub shows the source code view (the “blob” page), not the hosted webpage.
+
+What you want is the GitHub Pages URL, not the GitHub file URL.
+
+1) First, confirm GitHub Pages is turned on
+Repo → Settings → Pages
+
+Source: Deploy from a branch
+
+Branch: main
+
+Folder: / (root)
+
+Save
+
+Once it’s enabled, GitHub will show a box that says something like:
+“Your site is published at …” (that link is your base Pages URL)
+
+2) Use the Pages URL + your filename
+Your working game link should be:
+
+https://YOUR-USERNAME.github.io/YOUR-REPO/lrffc-eat-drink.html
+
+Example:
+https://emilymaxey.github.io/aba-library/lrffc-eat-drink.html
+
+Common mistake
+If your link looks like this, it will show code:
+
+https://github.com/YOUR-USERNAME/YOUR-REPO/blob/main/lrffc-eat-drink.html
+
+That’s the GitHub file viewer.
+
+3) Quick way to get the correct link (no guessing)
+In your repo, click Settings → Pages
+
+Copy the published site URL (base)
+
+Add /lrffc-eat-drink.html to the end
+
+4) If it still doesn’t load as a page
+Check these fast:
+
+Is the file actually named exactly lrffc-eat-drink.html (no .txt at the end)?
+
+Is it in the root of the repo (not inside a folder)?
+
+If it’s inside /games/, the URL becomes:
+https://username.github.io/repo/games/lrffc-eat-drink.html
+
+If you paste the link you’re clicking (the one showing code), I’ll tell you the exact corrected Pages link immediately.
+
+
+You said:
+Uploaded image
+
+ChatGPT said:
+Ah — this screenshot helps a lot. 👍
+You’re very close, and this is a super common GitHub Pages gotcha.
+
+What’s actually wrong (the key insight)
+Your page is loading, but the browser is treating the file as plain text, not as HTML.
+
+The giveaway is this:
+
+Your page is showing
+
+!doctype html html lang=en head meta charset=utf-8 ...
+Notice what’s missing: the < > brackets are gone
+
+That means GitHub Pages is serving the file as text, not rendering it as a webpage.
+
+This happens for one of three reasons — and I’m 99% sure it’s #1.
+
+Fix checklist (do these in order)
+✅ FIX 1 (most likely): The file is not actually .html
+GitHub will happily display code even if the file is really:
+
+lrffc-eat-drink.html.txt
+
+lrffc-eat-drink.md
+
+or was created via “Add file → Create new file” with markdown formatting
+
+How to confirm
+In your repo, click the file name
+
+Look at the tab title and file path
+
+It must end exactly in:
+
+lrffc-eat-drink.html
+If you see anything like .txt or .md, that’s the problem.
+
+The fix
+Safest method (recommended):
+
+On your computer:
+
+Create a new file called
+
+lrffc-eat-drink.html
+Paste the code again (make sure <html> and <head> are present)
+
+In GitHub:
+
+Delete the broken file
+
+Upload the new .html file via Add file → Upload files
+
+Commit
+
+⏱ Wait ~30 seconds and refresh the Pages URL.
+
+✅ FIX 2: The file was auto-escaped when pasted
+Sometimes when people use “Create new file”, GitHub interprets pasted content as markdown and escapes HTML.
+
+If you did use “Create new file” instead of “Upload files”, this is likely.
+
+Solution: upload the file instead of pasting it.
+
+✅ FIX 3: Pages source folder mismatch (less likely, but check)
+Your URL shows:
+
+ehamp003.github.io/ProgramLinks/lrffc-eat-drink.html
+That means:
+
+Repo name = ProgramLinks
+
+File location = root of repo
+
+Confirm in Settings → Pages:
+
+Source: main
+
+Folder: / (root)
+
+If the file lives inside a folder like /ProgramLinks/, then the URL would need:
+
+/ProgramLinks/ProgramLinks/lrffc-eat-drink.html
+But based on your URL, this part looks correct.
+
+How to know it’s fixed (instant confirmation)
+When it’s working, you will see:
+
+Cards
+
+Buttons
+
+Emojis as pictures
+
+NOT raw text
+
+If you still see code, the browser is still reading it as text.
+
+If you want the nuclear “this will 100% work” method
+Tell me:
+
+Did you upload the file or paste it in GitHub?
+
+What exactly does the filename show in the repo?
+
+Or paste just the first 3 lines of the file as GitHub shows it, and I’ll spot the issue instantly.
+
+You’re not doing anything wrong — this is a classic first-GitHub-Pages trap, and once it’s fixed, every future game will be smooth sailing.
+
+
+You said:
+How do you make an HTML file? Can you make a downloadable version and I will then upload it to git
+
+ChatGPT said:
+Yes — that’s the cleanest fix. 👍
+I’ll walk you through exactly how to make an HTML file on your computer (no coding background needed), then how to upload it to GitHub. Once you do it this way once, everything will click.
+
+Part 1: How to make an HTML file (step-by-step, no guesswork)
+Option A (recommended): Using Notepad / TextEdit
+This avoids GitHub’s auto-formatting issues.
+
+On Windows (Notepad)
+Right-click anywhere on your desktop
+
+Click New → Text Document
+
+Name it exactly:
+
+lrffc-eat-drink.html
+⚠️ Important:
+
+You must delete .txt
+
+When Windows warns you, click Yes
+
+Right-click → Open with → Notepad
+
+Paste the entire game code I gave you (I’ll repost it below)
+
+Click File → Save
+
+Close Notepad
+
+✅ You now have a real HTML file.
+
+On Mac (TextEdit)
+Open TextEdit
+
+In the top menu, click Format → Make Plain Text
+
+Paste the full code
+
+Click File → Save
+
+Name it:
+
+lrffc-eat-drink.html
+Under Format, choose:
+
+Plain Text
+
+Save
+
+⚠️ If macOS adds .txt anyway:
+
+Finder → Right-click file → Rename
+
+Remove .txt
+
+Part 2: Upload the HTML file to GitHub (this avoids ALL problems)
+Go to your GitHub repo:
+ehamp003 / ProgramLinks
+
+Click Add file → Upload files
+
+Drag lrffc-eat-drink.html into the box
+
+Scroll down
+
+Commit message:
+
+Add LRFFC Level 1 Eat vs Drink game
+Click Commit changes
+
+⏱ Wait ~30–60 seconds.
+
+Part 3: Open the correct live link (this matters)
+Your working link will be:
+
+https://ehamp003.github.io/ProgramLinks/lrffc-eat-drink.html
+🔁 Hard refresh if needed:
+
+Windows: Ctrl + Shift + R
+
+Mac: Cmd + Shift + R
+
+If it works, you’ll see:
+
+Buttons
+
+Emojis
+
+White cards
+
+NOT code
+
+Part 4: Why this will fix your issue (important reassurance)
+What went wrong earlier:
+
+GitHub escaped your pasted HTML
+
+The browser read it as text
+
+That’s why the < > vanished
+
+Uploading a real .html file forces GitHub Pages to render it correctly.
+
+This is the correct workflow for all future games.
+
+Part 5: Your reusable workflow going forward
+Every new game will be:
+
+Copy an existing .html file
+
+Rename it (e.g. lrffc-array8.html)
+
+Edit content
+
+Upload to GitHub
+
+Link in Canva
+
+That’s it. No Git commands. No terminal.
+
+If you want, I can also:
+Re-post the full HTML code again so you can copy cleanly
+
+Help you organize your repo (folders vs root)
+
+Create a Level 2 LRFFC file ready to drop in
+
+Or build a token board / first-then board next
+
+Tell me which you want next — but first, make that file and upload it.
+Once it renders, you’re officially past the hardest part 🚀
+
+
+You said:
+Gave me a 404 file not found page
+
+ChatGPT said:
+Got it — 404 on GitHub Pages almost always means one of these:
+
+The file isn’t actually in the place Pages is serving from (root vs /docs)
+
+The filename/path doesn’t match exactly (case-sensitive + folder-sensitive)
+
+GitHub Pages isn’t publishing from the branch/folder you think
+
+The repo is publishing, but the file is in a subfolder so the URL needs that folder
+
+Let’s fix it fast with the least steps.
+
+Step 1: Confirm the file is actually in the repo (root level)
+Open your repo code view (not Pages):
+
+GitHub → your repo → “Code” tab
+
+Do you see lrffc-eat-drink.html listed right there in the top-level file list?
+
+✅ If YES → go to Step 2
+
+❌ If NO → the upload didn’t land where you think. Re-upload it and make sure you hit Commit changes.
+
+Common gotcha: it uploaded into a folder like /games/ or /ProgramLinks/.
+
+If it’s inside a folder (example: games/lrffc-eat-drink.html), your Pages URL must be:
+
+https://ehamp003.github.io/ProgramLinks/games/lrffc-eat-drink.html
+
+(Notice the folder in the middle.)
+
+Step 2: Copy the exact file path and build the correct URL
+When you click the file in GitHub, look near the top — it shows the path like:
+
+ProgramLinks / lrffc-eat-drink.html ✅ (root)
+
+or ProgramLinks / games / lrffc-eat-drink.html ✅ (folder)
+
+Then your live URL is:
+
+Base:
+https://ehamp003.github.io/ProgramLinks/
+
+Plus the path:
+
+root file → lrffc-eat-drink.html
+
+folder file → games/lrffc-eat-drink.html
+
+Step 3: Check GitHub Pages settings (this causes 404 a LOT)
+Repo → Settings → Pages
+
+Look at Build and deployment:
+
+You want:
+Source: Deploy from a branch
+
+Branch: main
+
+Folder: / (root)
+
+If your folder is set to /docs, then GitHub Pages will only publish what’s inside a folder named docs.
+
+So either:
+
+change Folder to / (root) OR
+
+move your file into /docs/ and then the URL becomes the same but it’s being served correctly.
+
+Step 4: Make sure your repo name matches the URL
+Your URL in the screenshot earlier was:
+
+ehamp003.github.io/ProgramLinks/lrffc-eat-drink.html
+
+So the repo must be named exactly ProgramLinks (capital L).
+GitHub Pages URLs are case-sensitive sometimes depending on how it’s served — safest is: match exact capitalization.
+
+The quickest way to solve this in one shot
+Do this and tell me what you see:
+
+Go to your repo Code tab
+
+Look at the top-level file list and answer:
+
+Do you see lrffc-eat-drink.html right there? (yes/no)
+
+If no: what folder is it in?
+
+If you want, you can paste one of these and I’ll give you the exact correct Pages link immediately:
+
+the GitHub file URL (github.com/.../blob/main/...)
+
+OR a screenshot of your repo file list showing where the file is
+
+We’ll get it live in the next step.
+
+
+You said:
+Uploaded image
+Uploaded image
+
+ChatGPT said:
+PERFECT screenshot — this tells us exactly what’s wrong, and the good news is:
+👉 your file structure is correct
+👉 your URL is correct
+👉 GitHub Pages is just pointing at the wrong folder
+
+This is a classic Pages configuration issue, not a mistake on your end.
+
+What’s happening (plain English)
+Your repo looks like this (from your screenshot):
+
+ProgramLinks/
+├── LRFFC-eat-drink/
+│   └── index.html   ✅
+├── lrffc-game/
+├── README.md
+You are going to this URL (also correct):
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/index.html
+But GitHub Pages is saying “404” because:
+
+GitHub Pages is NOT currently publishing from the repo root
+
+It’s almost certainly set to publish from /docs (or an old folder) instead of /.
+
+The fix (2 minutes, no code)
+Step 1: Open GitHub Pages settings
+In your repo, click Settings
+
+Click Pages in the left sidebar
+
+Step 2: Fix the Pages source (this is the key step)
+Under Build and deployment, set:
+
+Source: Deploy from a branch
+
+Branch: main
+
+Folder: / (root) ← THIS PART MATTERS
+
+Then click Save
+
+⏱ GitHub will take ~30–60 seconds to redeploy.
+
+You may see a green check or a message like:
+
+“Your site is published at https://ehamp003.github.io/ProgramLinks/”
+
+Step 3: Reload your game URL
+After waiting a minute, go back to:
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/index.html
+If needed:
+
+Hard refresh (Ctrl+Shift+R or Cmd+Shift+R)
+
+Why this works
+GitHub Pages only serves one folder.
+
+Right now it’s serving:
+
+❌ a folder that does NOT contain your game
+
+We’re changing it to serve:
+
+✅ the repo root, which does contain LRFFC-eat-drink/index.html
+
+Once that’s set:
+
+Any folder with an index.html becomes a live page
+
+Your structure is actually ideal for a game library
+
+Bonus: the even cleaner URL (optional)
+Once Pages is set to root, you can also use:
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/
+GitHub automatically loads index.html inside the folder.
+
+This is the URL you’ll want to paste into Canva buttons.
+
+You are actually doing this RIGHT
+Just to zoom out for a second:
+
+You created a modular folder per game ✅
+
+You named files correctly (index.html) ✅
+
+You’re separating games cleanly ✅
+
+This will scale beautifully when you have:
+
+/safety-cross-street/
+
+/token-board/
+
+/lrffc-array8/
+
+You were blocked by one Pages dropdown, not a skills gap.
+
+Do this one thing now:
+👉 Go to Settings → Pages → change Folder to / (root) → Save
+
+Then tell me what you see when you reload the link.
+If it still doesn’t load, I’ll stay with you and we’ll fix it live — but this should be the final unlock 🔓
+
+
+You said:
+Uploaded image
+
+ChatGPT said:
+YES — this screenshot is the green light. 🎉
+Everything is now configured correctly.
+
+You are officially past the hard part.
+
+Now let’s do the last 2 things that trip people up: URL format + deployment delay.
+
+What your screenshot confirms (important)
+From your Pages settings:
+
+✅ Deploy from a branch
+
+✅ Branch: main
+
+✅ Folder: / (root)
+
+✅ Site published at:
+https://ehamp003.github.io/ProgramLinks/
+
+This means GitHub Pages is now serving exactly the folder your game lives in.
+
+The correct URL for your game (this is the key)
+Your game is here in the repo:
+
+ProgramLinks /
+└── LRFFC-eat-drink /
+    └── index.html
+So the correct live URL is:
+
+👉 Use THIS (clean version):
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/
+You do not need to add index.html at the end anymore.
+
+GitHub Pages automatically loads it.
+
+Why you may still see 404 for a minute
+GitHub Pages redeploys in the background. Even though it says “live,” it can take:
+
+⏱ 30 seconds to 2 minutes
+
+Sometimes a hard refresh is needed
+
+Do this exactly:
+Open a new tab
+
+Paste:
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/
+Hard refresh:
+
+Windows: Ctrl + Shift + R
+
+Mac: Cmd + Shift + R
+
+If it still shows 404 after 2 minutes (rare, but easy fix)
+One last thing to check:
+
+Confirm filename casing
+Inside the LRFFC-eat-drink folder:
+
+File must be named exactly:
+
+index.html
+Not:
+
+Index.html
+
+index.HTML
+
+GitHub Pages is case-sensitive.
+
+From your screenshot, it is correct — I’m mentioning this just in case.
+
+What you should see when it works
+You’ll know it’s live because you’ll see:
+
+White card layout
+
+“Which do you eat?” text
+
+Buttons
+
+Emojis as pictures
+
+If you see anything other than that, tell me what you see.
+
+🎉 Big picture moment (you should feel proud)
+You now have:
+
+A modular game folder
+
+Hosted on your own GitHub Pages
+
+Portable across jobs
+
+Ready to link in Canva
+
+Scalable to dozens of ABA tools
+
+This is exactly how professional resource libraries are built — you just did it without a dev team.
+
+Next (your choice):
+Link this into Canva (I’ll help you label it cleanly)
+
+Clone this into LRFFC Level 2 (array of 8, 25 items)
+
+Build your token board / first-then board
+
+Organize your repo so it feels like a polished library
+
+First — try the clean URL above and tell me what loads 👀
+
+
+You said:
+It is still showing up as an error and I have tried all youve suggested
+
+ChatGPT said:
+
+Thought for 21s
+Okay — since you’ve tried the refresh / URL / casing stuff and it’s still throwing the GitHub Pages “File not found” 404, we’re past the easy mistakes. Your screenshots give us enough to troubleshoot the real causes.
+
+From what you showed, the two most common “still 404” causes at this point are:
+
+The Pages settings change wasn’t actually saved / deployed (even if it looks like it is)
+
+The repo is Private and your GitHub plan/settings aren’t allowing Pages to serve it publicly (this is very common)
+
+Let’s diagnose this in the fastest, most decisive way.
+
+Step A — Click the “Visit site” button (this bypasses URL guessing)
+On the Settings → Pages screen you showed, there should be a “Visit site” button near the “Your site is live at …” line.
+
+Click Visit site
+
+What happens?
+
+If Visit site opens a 404 page → the deployment itself is not publishing your files
+
+If Visit site works but your folder URL doesn’t → it’s a path/case mismatch
+
+If Visit site works only when logged in → it’s a repo visibility/permissions issue
+
+Step B — Check if your repo is PUBLIC (this is the #1 “why is Pages 404?” after setup)
+Go to:
+
+Repo → Settings → General
+
+Near the top (or in the right column), it will show:
+
+Public or Private
+
+If it’s Private:
+Make it Public (at least while you’re using GitHub Pages the simple way).
+
+Repo → Settings → General → scroll to “Danger Zone” → Change repository visibility → Public
+
+Why: GitHub Pages can fail/404 when the repo is private depending on plan/config, even if Pages looks “enabled.”
+
+(You can always switch to a different hosting approach later if you need it private.)
+
+Step C — Verify the deployment actually succeeded (this is the “truth serum”)
+Go to:
+
+Repo → Actions
+
+Look for a workflow called something like:
+
+pages build and deployment
+
+Deploy static content to Pages
+
+Click the most recent run.
+
+What you want to see:
+✅ green check / “completed”
+
+and in the summary, a link like “View deployment”
+
+If it’s red / failed / or there is no pages deployment at all, that explains the 404 instantly.
+
+Step D — Your correct link (based on your folder structure)
+Your folder is: LRFFC-eat-drink
+Your file inside it is: index.html
+
+So the link should be exactly:
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/
+If Pages is truly publishing from root, that must work.
+
+The most likely fix based on your screenshots
+If I had to bet based on “everything looks right but still 404,” it’s this:
+
+✅ The repo is Private, so Pages is not serving the project the way you expect.
+Switching to Public usually fixes it immediately (sometimes after 1–2 minutes).
+
+Do this now (2-minute sequence)
+Repo → Settings → General → confirm Public or Private
+
+Repo → Actions → confirm latest Pages deployment is ✅
+
+Go to:
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/
+If you reply with just two things, I can tell you the exact fix instantly:
+
+Is the repo Public or Private?
+
+In Actions, do you see a green ✅ “pages build and deployment” run?
+
+
+You said:
+Uploaded image
+Uploaded image
+
+ChatGPT said:
+Great — your screenshots confirm two huge things:
+
+✅ Your repo is public
+
+✅ Your GitHub Pages root is loading (it shows “ProgramLinks”)
+
+So Pages is working. That means the remaining problem is only the path to the folder/page.
+
+And your earlier screenshot shows the folder is named:
+
+LRFFC-eat-drink (capital LRFFC)
+
+GitHub Pages paths can be case-sensitive and exact. Also, if you renamed anything recently, Pages may still be serving an older build for that subpath until a fresh deploy happens.
+
+Let’s fix this in the most bulletproof way:
+
+1) Use the exact folder name (copy/paste this)
+Try this exact URL:
+
+(no index.html)
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/
+Then try this exact URL:
+
+(with index.html)
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/index.html
+If both still 404, we’ll do Step 2.
+
+2) Force GitHub Pages to “see” the folder by adding a root index that links to it
+Right now your repo root likely doesn’t have a proper index.html that links to your game folder.
+
+We’ll create a simple homepage that lists your games and links directly. This also makes Canva easier.
+
+Do this:
+Go to your repo Code tab (top level of ProgramLinks)
+
+Click Add file → Create new file
+
+Name it exactly:
+
+index.html
+Paste this (simple launcher page):
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ProgramLinks</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:24px;max-width:800px}
+    a{display:block;padding:12px 14px;border:1px solid #ddd;border-radius:12px;text-decoration:none;margin:10px 0}
+    a:hover{background:#f7f7f9}
+    h1{margin:0 0 12px}
+    p{color:#555;margin:0 0 16px}
+  </style>
+</head>
+<body>
+  <h1>ProgramLinks</h1>
+  <p>Select an activity:</p>
+
+  <a href="./LRFFC-eat-drink/">LRFFC Level 1 — Eat vs Drink</a>
+
+</body>
+</html>
+Scroll down → Commit changes
+
+Now wait 30–60 seconds and open:
+
+https://ehamp003.github.io/ProgramLinks/
+Click the link on that page.
+
+✅ If the link works from there, it means the folder path is correct and Pages is serving it.
+If it still 404s from the homepage link, then Pages is not deploying that folder’s contents (rare, but then Step 3 will solve it).
+
+3) If it STILL 404s: confirm the folder name as Pages sees it
+Sometimes a folder can look like LRFFC-eat-drink in GitHub UI but actually be LRFFC-eat-drink (hidden space) or have different capitalization from a rename.
+
+Do this quick check:
+
+In GitHub repo, click the folder LRFFC-eat-drink
+
+Look at the breadcrumb at the top — it will show the exact folder name
+
+Click into the folder and click index.html
+
+In the address bar on GitHub (not Pages), copy the folder name portion exactly.
+
+Based on what I see, the “launcher index.html” (Step 2) will resolve this 99% of the time.
+It also gives you a clean “library” landing page, which is what you want long-term anyway.
+
+If you do Step 2 and paste me a screenshot of the new root page after it deploys, I’ll tell you exactly what to click / what the final Canva link should be.
+
+
+You said:
+Is there another way to do this or can I delete the repo and start over again?
+
+ChatGPT said:
+Yes — you can absolutely delete and start over, and honestly that’s a totally reasonable move if GitHub is feeling like quicksand right now.
+
+But before you nuke it, here are two easier paths (one of them requires basically zero GitHub knowledge), and then I’ll give you the clean “start over” steps if you still want that.
+
+Option 1: The easiest way (no GitHub pain) — Netlify drag-and-drop
+This is the fastest “I just want it to work” option.
+
+On your computer, create a folder called LRFFC-eat-drink
+
+Put your index.html inside that folder
+
+Go to Netlify and use “Deploy manually / drag and drop”
+
+Drag the folder (or a zipped folder) into Netlify
+
+It gives you a live link immediately
+
+✅ Pros: dead simple, works every time, perfect for your “library of games”
+⚠️ Cons: you’ll manage files via uploads (still fine for you)
+
+If you want, I’ll tell you the exact folder layout that makes your links super clean.
+
+Option 2: Keep GitHub, but make it foolproof (no deleting)
+You’re so close already because your root site loads. The issue is just that Pages isn’t serving the subfolder the way you expect.
+
+The most reliable GitHub structure is:
+
+ProgramLinks/
+  index.html
+  LRFFC-eat-drink/
+    index.html
+  lrffc-game/
+    index.html
+Then your links are always:
+
+https://ehamp003.github.io/ProgramLinks/
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/
+
+If you add a simple index.html at the repo root that links to your games, GitHub Pages tends to behave consistently.
+
+Option 3: Delete the repo and start over (yes, you can)
+If you want a clean slate, here’s the clean way to do it.
+
+A) Delete the repo
+Repo → Settings
+
+Scroll to Danger Zone
+
+Delete this repository
+
+Type the repo name to confirm
+
+B) Create a fresh repo (recommended settings)
+GitHub → New repository
+
+Name it: ProgramLinks (same is fine)
+
+Make it Public
+
+Check Add a README (optional but helps)
+
+Create repo
+
+C) Add your first game (best practice from day 1)
+Upload this exact structure:
+
+Create a folder: LRFFC-eat-drink
+
+Inside it: index.html (your game)
+
+Then upload both:
+
+LRFFC-eat-drink/index.html
+
+(optional but recommended) a root index.html homepage that links to games
+
+D) Turn on Pages
+Repo → Settings → Pages
+
+Deploy from branch
+
+Branch: main
+
+Folder: / (root)
+
+Save
+
+Then your live game URL becomes:
+https://YOURNAME.github.io/ProgramLinks/LRFFC-eat-drink/
+
+My recommendation (based on your goal: portable, low stress)
+If your priority is “I want this to work reliably and not eat my life”:
+
+Netlify drag-and-drop is the calmest solution.
+
+If your priority is “I want everything versioned and scalable long-term”:
+
+Keep GitHub, but add a root index.html library page.
+
+If you tell me which route you want (Netlify vs restart GitHub), I’ll give you the exact step-by-step with the least clicks possible.
+
+
+You said:
+Now it is just a blank white page even when using it as a link for the site
+
+ChatGPT said:
+
+Thought for 15s
+A blank white page usually means the HTML file is loading, but the content isn’t actually in the file that GitHub Pages is serving (or the browser is hitting a different file than you think). The nice part: this is easy to pinpoint in 60 seconds.
+
+1) Do this first: “View page source” on the blank page
+Open the blank page in Chrome → right-click → View page source.
+
+You’ll get one of two outcomes:
+
+A) The source is basically empty / tiny
+That means GitHub Pages is serving an index.html that doesn’t contain your game code (wrong file, wrong folder, or overwritten).
+
+B) The source shows your full HTML (lots of code)
+Then it’s likely a JavaScript error preventing the page from rendering properly in your browser (less common with this build, but possible if something got pasted/edited wrong).
+
+Tell me which you see (A or B).
+If you want, paste the first ~10 lines of the page source.
+
+2) The most common cause in your setup
+From your earlier screenshot, your game lives here:
+
+ProgramLinks / LRFFC-eat-drink / index.html
+
+A blank page often happens if you accidentally created/edited a different index.html (like the repo root index.html) and not the one inside the folder.
+
+Quick check inside GitHub
+Go to your repo → click folder LRFFC-eat-drink → click index.html.
+
+Do you see the full game code there?
+
+Specifically: do you see <div class="wrap"> and the big block of JavaScript at the bottom?
+
+If that folder index.html is empty or just a few lines, that’s your blank page.
+
+3) Make sure you’re using the correct live URL
+For a folder game, use the folder URL:
+
+✅ Use:
+
+https://ehamp003.github.io/ProgramLinks/LRFFC-eat-drink/
+(That loads /LRFFC-eat-drink/index.html automatically.)
+
+4) Fast “known-good” test (to prove the path is correct)
+Replace the contents of LRFFC-eat-drink/index.html temporarily with this tiny test page:
+
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Test</title></head>
+  <body style="font-family:system-ui; padding:24px;">
+    <h1>LRFFC-eat-drink is LIVE ✅</h1>
+    <p>If you can see this, the URL/path is correct.</p>
+  </body>
+</html>
+Commit, refresh the live URL.
+
+If you see the test page: path is correct → we just need to put the full game code back in the right file.
+
+If still blank: something else is intercepting (rare) — then we check Console.
+
+5) If page source shows full code but it’s still blank
+Open DevTools console:
+
+Windows: Ctrl + Shift + J
+
+Mac: Cmd + Option + J
+
+If you see a red error, screenshot it and send it — I’ll tell you exactly what to change.
+
+Quick question that will let me fix this immediately:
+Paste the exact URL that is showing the blank page (copy from the address bar).
+
+
+
+
+
+
