@@ -251,7 +251,7 @@
       <!-- SCENE -->
       <div class="card">
         <div class="sceneWrap" id="sceneWrap" aria-label="Living room scene">
-          <img class="sceneImg" id="sceneImg" src="assets/scenes/scene-livingroom.png" alt="Living room scene" />
+          <img class="sceneImg" id="sceneImg" src="Assets/scenes/scene-livingroom.png" alt="Living room scene" />
 
           <!-- DROP ZONES (percent-based, forgiving rectangles)
                NOTE: These are tuned for your provided living-room image.
@@ -308,16 +308,16 @@
     // 1) IMAGE LIBRARY (your PNGs)
     // -----------------------------
     const ITEMS = [
-      { id:"chips",   label:"Chips",   src:"assets/items/item-chips.png" },
-      { id:"phone",   label:"Phone",   src:"assets/items/item-phone.png" },
-      { id:"mug",     label:"Mug",     src:"assets/items/item-mug.png" },
-      { id:"teddy",   label:"Teddy",   src:"assets/items/item-teddy.png" },
-      { id:"car",     label:"Toy Car", src:"assets/items/item-car.png" },
-      { id:"book",    label:"Book",    src:"assets/items/item-book.png" },
-      { id:"remote",  label:"Remote",  src:"assets/items/item-remote.png" },
-      { id:"blanket", label:"Blanket", src:"assets/items/item-blanket.png" },
-      { id:"pillow",  label:"Pillow",  src:"assets/items/item-pillow.png" },
-      { id:"ball",    label:"Ball",    src:"assets/items/item-ball.png" },
+      { id:"chips",   label:"Chips",   src:"Assets/items/item-chips.png" },
+      { id:"phone",   label:"Phone",   src:"Assets/items/item-phone.png" },
+      { id:"mug",     label:"Mug",     src:"Assets/items/item-mug.png" },
+      { id:"teddy",   label:"Teddy",   src:"Assets/items/item-teddy.png" },
+      { id:"car",     label:"Toy Car", src:"Assets/items/item-car.png" },
+      { id:"book",    label:"Book",    src:"Assets/items/item-book.png" },
+      { id:"remote",  label:"Remote",  src:"Assets/items/item-remote.png" },
+      { id:"blanket", label:"Blanket", src:"Assets/items/item-blanket.png" },
+      { id:"pillow",  label:"Pillow",  src:"Assets/items/item-pillow.png" },
+      { id:"ball",    label:"Ball",    src:"Assets/items/item-ball.png" },
     ];
 
     // -----------------------------------------
@@ -731,7 +731,7 @@
 
     // If image missing, show a helpful note
     document.getElementById("sceneImg").addEventListener("error", ()=>{
-      setFeedback("Scene image not found. Check: assets/scenes/scene-livingroom.png", "bad");
+      setFeedback("Scene image not found. Check: Assets/scenes/scene-livingroom.png", "bad");
       sdTextEl.textContent = "Missing scene image.";
     });
     // Warn if any item images fail (optional)
