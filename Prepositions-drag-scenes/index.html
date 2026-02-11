@@ -3,82 +3,113 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Receptive Prepositions — Drag & Drop Scenes</title>
+  <title>Living Room — Receptive Prepositions (Drag & Drop)</title>
   <style>
     :root{
-      --gap: 12px;
-      --radius: 16px;
-      --border: 1px solid rgba(0,0,0,.12);
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111;
+      --muted:rgba(0,0,0,.6);
+      --border:1px solid rgba(0,0,0,.12);
+      --radius:16px;
+      --gap:12px;
+      --good:#0a7a1f;
+      --bad:#b00020;
+      --shadow:0 8px 20px rgba(0,0,0,.07);
     }
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #f7f7f9;
-      color:#111;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--ink);
     }
-    .wrap{ max-width: 1100px; margin: 0 auto; padding: 16px; }
-    .card{
-      background:#fff;
-      border: var(--border);
-      border-radius: 20px;
-      padding: 14px;
-      box-shadow: 0 1px 2px rgba(0,0,0,.04);
-    }
-    .row{ display:flex; gap: var(--gap); align-items:center; flex-wrap:wrap; }
-    h1{ margin:0; font-size:18px; }
-    .sub{ margin-top:4px; font-size:13px; color: rgba(0,0,0,.65); }
-
-    .sd{
-      margin-top: 10px;
-      font-size: clamp(18px, 3vw, 28px);
-      font-weight: 950;
-      line-height: 1.2;
-    }
-    .sdmeta{ font-size: 12px; color: rgba(0,0,0,.6); margin-top:4px; }
-
-    .controls{
-      margin-top: 10px;
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:16px;
       display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
+      gap:var(--gap);
     }
-    @media (max-width: 820px){
-      .controls{ grid-template-columns: 1fr; }
+    .card{
+      background:var(--card);
+      border:var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .top{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    h1{
+      font-size:18px;
+      margin:0;
+    }
+    .sub{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
     }
     .btn{
-      border: var(--border);
-      background: #fff;
-      border-radius: 14px;
-      padding: 10px 12px;
-      cursor: pointer;
-      font-weight: 850;
+      border:var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:650;
     }
-    .btn:hover{ box-shadow: 0 2px 8px rgba(0,0,0,.05); }
-    .btn:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
-
-    .kpi{
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+    .toggle{
       display:flex;
-      gap: 10px;
+      align-items:center;
+      gap:8px;
+      border:var(--border);
+      border-radius:999px;
+      padding:8px 10px;
+      background:#fff;
+      font-weight:650;
+    }
+    .mini{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:600;
+    }
+
+    .kpis{
+      display:flex;
+      gap:10px;
       flex-wrap:wrap;
-      margin-top: 10px;
+      margin-top:10px;
     }
     .pill{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
+      border:var(--border);
+      background:#fff;
+      border-radius:999px;
       padding:8px 10px;
-      border-radius: 999px;
-      border: var(--border);
-      background: #fbfbfd;
-      font-weight: 850;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-weight:700;
     }
 
     .layout{
-      margin-top: 12px;
       display:grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 12px;
+      gap:var(--gap);
+      grid-template-columns: 1.3fr .7fr;
+      align-items:start;
     }
     @media (max-width: 980px){
       .layout{ grid-template-columns: 1fr; }
@@ -86,751 +117,625 @@
 
     /* Scene */
     .sceneWrap{
-      border: var(--border);
-      border-radius: 20px;
-      background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
-      overflow: hidden;
-    }
-    .sceneHeader{
-      padding: 10px 12px;
-      border-bottom: var(--border);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 10px;
-      flex-wrap:wrap;
-    }
-    .sceneTitle{ font-weight: 950; }
-    .mini{ font-size: 12px; color: rgba(0,0,0,.65); }
-
-    .scene{
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 10;
-      background: radial-gradient(circle at 20% 10%, #fff6ff 0%, #f3fbff 35%, #f7f7f9 100%);
-      touch-action: none; /* allow pointer dragging */
-    }
-
-    /* Static objects in scene */
-    .obj{
-      position:absolute;
-      display:grid;
-      place-items:center;
+      position:relative;
+      border:var(--border);
+      border-radius:var(--radius);
+      overflow:hidden;
+      background:#e9ecf6;
       user-select:none;
-      pointer-events:none;
-      transform: translate(-50%, -50%);
-      text-align:center;
+      touch-action:none; /* important for drag on mobile */
     }
-    .obj .emoji{ font-size: clamp(30px, 5vw, 62px); line-height: 1; }
-    .obj .label{ margin-top: 4px; font-size: 12px; font-weight: 850; color: rgba(0,0,0,.75); }
+    .sceneImg{
+      width:100%;
+      height:auto;
+      display:block;
+    }
 
-    /* Drop zones */
+    /* Zones are invisible but can be debugged */
     .zone{
       position:absolute;
-      transform: translate(-50%, -50%);
-      border-radius: 18px;
-      border: 2px dashed rgba(0,0,0,.15);
-      background: rgba(255,255,255,.35);
-      backdrop-filter: blur(2px);
-      pointer-events:none;
-      opacity: .45;
+      border-radius:10px;
+      /* outline: 2px dashed rgba(0,0,0,.25);  Uncomment to debug zones */
     }
-    .zoneHint{
-      position:absolute;
-      inset: 0;
+
+    /* Item tray */
+    .tray{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+    @media (max-width: 520px){
+      .tray{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+
+    .tile{
+      border:var(--border);
+      border-radius:14px;
+      background:#fff;
+      padding:10px;
       display:grid;
       place-items:center;
-      font-weight: 950;
-      font-size: 12px;
-      color: rgba(0,0,0,.35);
-      text-transform: uppercase;
-      letter-spacing: .06em;
+      min-height:92px;
+      cursor:grab;
+      user-select:none;
+      position:relative;
     }
-    .zone.highlight{
-      opacity: 1;
-      border-color: rgba(10,122,31,.9);
-      box-shadow: 0 0 0 6px rgba(10,122,31,.18);
-      animation: pulse 1.1s ease-in-out infinite;
+    .tile:active{ cursor:grabbing; }
+    .tile img{
+      max-width:100%;
+      max-height:70px;
+      height:auto;
+      width:auto;
+      display:block;
     }
-    @keyframes pulse{
-      0%{ box-shadow: 0 0 0 4px rgba(10,122,31,.12); }
-      50%{ box-shadow: 0 0 0 10px rgba(10,122,31,.18); }
-      100%{ box-shadow: 0 0 0 4px rgba(10,122,31,.12); }
+    .tile .label{
+      margin-top:6px;
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+      text-align:center;
     }
 
-    /* Draggable item */
-    .dragTray{
-      border: var(--border);
-      border-radius: 20px;
-      padding: 12px;
-      background: #fff;
-      display:grid;
-      gap: 10px;
-      align-content:start;
-    }
-    .trayTitle{ font-weight: 950; }
-    .draggable{
-      border: var(--border);
-      border-radius: 18px;
-      background: #fff;
-      padding: 12px;
-      display:flex;
-      gap: 12px;
-      align-items:center;
-      cursor: grab;
+    /* Draggable on scene */
+    .floatingItem{
+      position:absolute;
+      left:0; top:0;
+      width: clamp(52px, 9vw, 110px);
+      height:auto;
+      cursor:grab;
       user-select:none;
-      touch-action: none;
-      box-shadow: 0 6px 16px rgba(0,0,0,.06);
+      touch-action:none;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,.18));
     }
-    .draggable:active{ cursor: grabbing; }
-    .draggable .emoji{ font-size: 44px; line-height: 1; }
-    .draggable .text{ display:grid; gap:2px; }
-    .draggable .name{ font-weight: 950; }
-    .draggable .hint{ font-size: 12px; color: rgba(0,0,0,.6); }
+    .floatingItem:active{ cursor:grabbing; }
 
     .feedback{
-      border: var(--border);
-      border-radius: 16px;
-      padding: 10px 12px;
-      background: #fafafa;
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:var(--border);
+      background:#fafafa;
+      font-weight:750;
     }
-    .fbGood{ color: #0a7a1f; font-weight: 950; }
-    .fbBad{ color: #b00020; font-weight: 850; }
-    .fbNeutral{ color: rgba(0,0,0,.78); font-weight: 850; }
-
-    details{ border: var(--border); border-radius: 20px; padding: 10px 12px; background:#fff; }
-    summary{ cursor:pointer; font-weight: 950; }
-    select, label input{ accent-color: #111; }
-    .select{
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: var(--border);
-      font-weight: 850;
-      background: #fff;
+    .fbGood{ color:var(--good); }
+    .fbBad{ color:var(--bad); }
+    .prompt{
+      font-size: clamp(18px, 3vw, 28px);
+      font-weight:900;
+      margin-top:8px;
+      line-height:1.15;
     }
 
-    /* Confetti (simple) */
-    .confetti{
-      position: fixed;
-      inset: 0;
-      pointer-events:none;
-      overflow:hidden;
-      z-index: 9999;
-    }
-    .confetti i{
-      position:absolute;
-      top:-14px;
-      width: 10px;
-      height: 14px;
-      border-radius: 3px;
-      opacity: .92;
-      animation: fall linear forwards;
-    }
-    @keyframes fall{
-      to{ transform: translateY(110vh) rotate(720deg); }
+    .helper{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.3;
     }
   </style>
 </head>
-
 <body>
   <div class="wrap">
     <div class="card">
-      <div class="row" style="justify-content:space-between;">
+      <div class="top">
         <div>
-          <h1>Receptive Prepositions — Drag & Drop</h1>
-          <div class="sub">Drag the item into the scene where the instruction says. Multiple scenes + error correction.</div>
+          <h1>Living Room — Receptive Prepositions</h1>
+          <div class="sub">Drag the item into the scene where the instruction says. (Snaps to zones • Approx OK • Wrong = snap back)</div>
         </div>
-        <div class="row" style="justify-content:flex-end;">
-          <span class="pill">Spoken SD: <span id="ttsLabel">On</span></span>
+        <div class="controls">
+          <label class="toggle">
+            <input id="ttsToggle" type="checkbox" checked />
+            Spoken SD
+          </label>
+          <button class="btn" id="playBtn" type="button">▶ Play SD</button>
+          <button class="btn" id="nextBtn" type="button">Next</button>
+          <button class="btn" id="restartBtn" type="button">Restart</button>
         </div>
       </div>
 
-      <div class="sd" id="sdText">Loading…</div>
-      <div class="sdmeta" id="sdMeta"></div>
-
-      <div class="controls">
-        <button class="btn" id="playBtn" type="button">🔊 Play SD</button>
-        <button class="btn" id="nextBtn" type="button" disabled>Next Trial</button>
-        <button class="btn" id="restartBtn" type="button">Restart</button>
+      <div class="kpis">
+        <div class="pill">Trial <span id="trialNum">1</span>/<span id="trialTotal">25</span></div>
+        <div class="pill">Correct <span id="kpiCorrect">0</span></div>
+        <div class="pill">Incorrect <span id="kpiIncorrect">0</span></div>
       </div>
 
-      <div class="kpi">
-        <span class="pill">Trial <span id="trialNum">1</span>/<span id="trialTotal">0</span></span>
-        <span class="pill">Correct <span id="kpiCorrect">0</span></span>
-        <span class="pill">Incorrect <span id="kpiIncorrect">0</span></span>
+      <div class="prompt" id="sdText">Loading…</div>
+      <div class="feedback" id="feedback">Drag an item into the living room scene.</div>
+      <div class="helper">
+        Tip: If “under” doesn’t look right, it will still grade correctly by zone — but we’re also using z-index to make it look under when possible.
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- SCENE -->
+      <div class="card">
+        <div class="sceneWrap" id="sceneWrap" aria-label="Living room scene">
+          <img class="sceneImg" id="sceneImg" src="assets/scenes/scene-livingroom.png" alt="Living room scene" />
+
+          <!-- DROP ZONES (percent-based, forgiving rectangles)
+               NOTE: These are tuned for your provided living-room image.
+               If you swap to a different crop, you may adjust these numbers. -->
+          <!-- Couch area -->
+          <div class="zone" data-zone="couch" style="left:6%; top:53%; width:38%; height:34%;"></div>
+
+          <!-- Coffee table top area -->
+          <div class="zone" data-zone="table_top" style="left:34%; top:62%; width:26%; height:12%;"></div>
+
+          <!-- Under the coffee table -->
+          <div class="zone" data-zone="table_under" style="left:34%; top:74%; width:26%; height:10%;"></div>
+
+          <!-- Rug center area -->
+          <div class="zone" data-zone="rug" style="left:22%; top:70%; width:52%; height:22%;"></div>
+
+          <!-- TV screen area (for above/below targets too) -->
+          <div class="zone" data-zone="tv" style="left:80%; top:43%; width:16%; height:22%;"></div>
+
+          <!-- TV stand / console area -->
+          <div class="zone" data-zone="tvstand" style="left:70%; top:63%; width:28%; height:20%;"></div>
+
+          <!-- Lamp area (left side) -->
+          <div class="zone" data-zone="lamp" style="left:10%; top:40%; width:16%; height:34%;"></div>
+
+          <!-- Window area (center) -->
+          <div class="zone" data-zone="window" style="left:40%; top:18%; width:22%; height:26%;"></div>
+
+          <!-- Between couch and table (a forgiving rectangle in the gap) -->
+          <div class="zone" data-zone="between_couch_table" style="left:28%; top:60%; width:18%; height:12%;"></div>
+
+          <!-- Next to lamp (right of lamp, empty-ish area) -->
+          <div class="zone" data-zone="next_to_lamp" style="left:20%; top:58%; width:12%; height:16%;"></div>
+
+          <!-- Above TV (wall area just above screen) -->
+          <div class="zone" data-zone="above_tv" style="left:78%; top:30%; width:18%; height:12%;"></div>
+
+          <!-- Below window (area under window frame) -->
+          <div class="zone" data-zone="below_window" style="left:40%; top:44%; width:22%; height:10%;"></div>
+
+        </div>
       </div>
 
-      <div class="layout">
-        <div class="sceneWrap">
-          <div class="sceneHeader">
-            <div>
-              <div class="sceneTitle" id="sceneTitle">Scene</div>
-              <div class="mini" id="sceneHint">Drag the item into the correct spot.</div>
-            </div>
-            <div class="mini">Zones are hidden during sessions (therapist can enable in panel).</div>
-          </div>
-          <div class="scene" id="scene"></div>
-        </div>
-
-        <div class="dragTray">
-          <div class="trayTitle">Your item</div>
-
-          <div class="draggable" id="draggable" role="button" tabindex="0" aria-label="Draggable item">
-            <div class="emoji" id="dragEmoji">🧸</div>
-            <div class="text">
-              <div class="name" id="dragName">Teddy</div>
-              <div class="hint" id="dragHint">Drag me into the scene.</div>
-            </div>
-          </div>
-
-          <div class="feedback">
-            <div id="fbText" class="fbNeutral">Drag the item where the instruction says.</div>
-            <div id="promptText" class="mini" style="margin-top:6px;"></div>
-          </div>
-
-          <details>
-            <summary>⚙️ Therapist Panel</summary>
-
-            <div class="row" style="margin-top:10px;">
-              <label style="display:flex; align-items:center; gap:10px;">
-                <input id="ttsToggle" type="checkbox" checked />
-                <span><strong>Spoken SD playback</strong></span>
-              </label>
-
-              <label style="display:flex; align-items:center; gap:10px;">
-                <input id="showZonesToggle" type="checkbox" />
-                <span><strong>Show drop zones</strong> <span class="mini">(for teaching/setup)</span></span>
-              </label>
-            </div>
-
-            <div class="row" style="margin-top:10px;">
-              <label style="display:flex; align-items:center; gap:10px;">
-                <input id="autoPlaceToggle" type="checkbox" checked />
-                <span><strong>Auto-place after 2 errors</strong></span>
-              </label>
-
-              <label style="display:flex; align-items:center; gap:10px;">
-                <select id="prepFilter" class="select">
-                  <option value="all" selected>Prepositions: All</option>
-                  <option value="basic">Basic (on/in/under/next to)</option>
-                  <option value="advanced">Advanced (between/inside/outside/above/below)</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="mini" style="margin-top:10px;">
-              Tip: This is a prototype. Add more scenes or trials by duplicating entries in <code>TRIALS</code>.
-            </div>
-          </details>
-        </div>
+      <!-- ITEM TRAY -->
+      <div class="card">
+        <div class="sub" style="margin-bottom:10px;">Drag an item from the tray into the scene.</div>
+        <div class="tray" id="tray"></div>
       </div>
     </div>
   </div>
 
-  <div class="confetti" id="confetti"></div>
+  <script>
+    // -----------------------------
+    // 1) IMAGE LIBRARY (your PNGs)
+    // -----------------------------
+    const ITEMS = [
+      { id:"chips",   label:"Chips",   src:"assets/items/item-chips.png" },
+      { id:"phone",   label:"Phone",   src:"assets/items/item-phone.png" },
+      { id:"mug",     label:"Mug",     src:"assets/items/item-mug.png" },
+      { id:"teddy",   label:"Teddy",   src:"assets/items/item-teddy.png" },
+      { id:"car",     label:"Toy Car", src:"assets/items/item-car.png" },
+      { id:"book",    label:"Book",    src:"assets/items/item-book.png" },
+      { id:"remote",  label:"Remote",  src:"assets/items/item-remote.png" },
+      { id:"blanket", label:"Blanket", src:"assets/items/item-blanket.png" },
+      { id:"pillow",  label:"Pillow",  src:"assets/items/item-pillow.png" },
+      { id:"ball",    label:"Ball",    src:"assets/items/item-ball.png" },
+    ];
 
-<script>
-/* =========================
-   Core helpers
-========================= */
-function shuffle(arr){
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-function speak(text){
-  if (!state.ttsEnabled) return;
-  if (!("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 1.0; u.pitch = 1.0; u.volume = 1.0;
-  window.speechSynthesis.speak(u);
-}
-function confettiBurst(){
-  const wrap = document.getElementById("confetti");
-  wrap.innerHTML = "";
-  const pieces = 28;
-  for (let i = 0; i < pieces; i++){
-    const p = document.createElement("i");
-    p.style.left = (Math.random() * 100) + "vw";
-    p.style.animationDuration = (1.1 + Math.random()*1.1) + "s";
-    const hue = Math.floor(Math.random()*360);
-    p.style.background = `hsl(${hue} 90% 60%)`;
-    wrap.appendChild(p);
-  }
-  setTimeout(() => wrap.innerHTML = "", 1600);
-}
-function setFB(text, kind="neutral"){
-  const el = document.getElementById("fbText");
-  el.textContent = text;
-  el.className = kind === "good" ? "fbGood" : (kind === "bad" ? "fbBad" : "fbNeutral");
-}
-function setPrompt(text=""){ document.getElementById("promptText").textContent = text; }
+    // -----------------------------------------
+    // 2) TRIAL BANK (25 trials, living-room)
+    // relation -> correct zone mapping
+    // -----------------------------------------
+    const TRIALS = [
+      // ON
+      { item:"remote",  relation:"on",       target:"table_top" },
+      { item:"book",    relation:"on",       target:"table_top" },
+      { item:"mug",     relation:"on",       target:"table_top" },
+      { item:"chips",   relation:"on",       target:"couch" }, // "on the couch" is OK (big forgiving zone)
+      { item:"pillow",  relation:"on",       target:"couch" },
 
-/* =========================
-   Scenes + objects + zones
-   All positioning uses percentages of the scene box.
-========================= */
-const SCENES = {
-  livingroom: {
-    title: "Living Room",
-    objects: [
-      { id:"couch", emoji:"🛋️", label:"couch", x: 30, y: 55 },
-      { id:"table", emoji:"🪑", label:"table", x: 68, y: 58 },
-      { id:"box",   emoji:"📦", label:"box",   x: 76, y: 72 },
-      { id:"lamp",  emoji:"💡", label:"lamp",  x: 82, y: 42 },
-    ],
-    zones: [
-      // id, label, x,y,w,h (all in %)
-      { id:"on_couch",    label:"on",      anchor:"couch", x: 30, y: 42, w: 30, h: 20 },
-      { id:"under_table", label:"under",   anchor:"table", x: 68, y: 78, w: 28, h: 18 },
-      { id:"next_lamp",   label:"next to", anchor:"lamp",  x: 70, y: 42, w: 22, h: 22 },
-      { id:"in_box",      label:"in",      anchor:"box",   x: 76, y: 74, w: 18, h: 18 },
-      { id:"above_table", label:"above",   anchor:"table", x: 68, y: 35, w: 26, h: 18 },
-      { id:"below_couch", label:"below",   anchor:"couch", x: 30, y: 78, w: 30, h: 18 },
-    ],
-    outsideArea: { id:"outside_room", label:"outside", x: 10, y: 15, w: 18, h: 20 } // “outside” demo
-  },
+      // UNDER
+      { item:"ball",    relation:"under",    target:"table_under" },
+      { item:"car",     relation:"under",    target:"table_under" },
+      { item:"teddy",   relation:"under",    target:"table_under" },
 
-  playground: {
-    title: "Playground",
-    objects: [
-      { id:"slide", emoji:"🛝", label:"slide", x: 30, y: 60 },
-      { id:"tree",  emoji:"🌳", label:"tree",  x: 70, y: 45 },
-      { id:"bench", emoji:"🪑", label:"bench", x: 70, y: 72 },
-      { id:"tent",  emoji:"⛺", label:"tent",  x: 46, y: 74 },
-    ],
-    zones: [
-      { id:"on_bench",      label:"on",      anchor:"bench", x: 70, y: 58, w: 28, h: 18 },
-      { id:"under_tree",    label:"under",   anchor:"tree",  x: 70, y: 62, w: 30, h: 26 },
-      { id:"next_slide",    label:"next to", anchor:"slide", x: 50, y: 60, w: 24, h: 26 },
-      { id:"inside_tent",   label:"inside",  anchor:"tent",  x: 46, y: 76, w: 26, h: 18 },
-      { id:"outside_tent",  label:"outside", anchor:"tent",  x: 20, y: 78, w: 22, h: 18 },
-      { id:"above_slide",   label:"above",   anchor:"slide", x: 30, y: 35, w: 26, h: 18 },
-      { id:"below_bench",   label:"below",   anchor:"bench", x: 70, y: 88, w: 28, h: 16 },
-    ]
-  },
+      // NEXT TO
+      { item:"phone",   relation:"next to",  target:"next_to_lamp" },
+      { item:"book",    relation:"next to",  target:"next_to_lamp" },
+      { item:"mug",     relation:"next to",  target:"tvstand" }, // next to TV stand (we allow tvstand as "next to" target too)
 
-  bedroom: {
-    title: "Bedroom",
-    objects: [
-      { id:"bed",   emoji:"🛏️", label:"bed",   x: 34, y: 62 },
-      { id:"pillow1",emoji:"🛌", label:"pillow",x: 24, y: 52 },
-      { id:"pillow2",emoji:"🛌", label:"pillow",x: 44, y: 52 },
-      { id:"drawer",emoji:"🗄️", label:"drawer",x: 76, y: 62 },
-    ],
-    zones: [
-      { id:"on_bed",        label:"on",       anchor:"bed",    x: 34, y: 48, w: 32, h: 22 },
-      { id:"under_bed",     label:"under",    anchor:"bed",    x: 34, y: 82, w: 34, h: 18 },
-      { id:"between_pillows",label:"between", anchor:"pillow", x: 34, y: 52, w: 20, h: 18 },
-      { id:"next_drawer",   label:"next to",  anchor:"drawer", x: 60, y: 62, w: 22, h: 24 },
-      { id:"in_drawer",     label:"in",       anchor:"drawer", x: 76, y: 64, w: 22, h: 26 },
-      { id:"above_bed",     label:"above",    anchor:"bed",    x: 34, y: 30, w: 30, h: 18 },
-      { id:"below_drawer",  label:"below",    anchor:"drawer", x: 76, y: 86, w: 22, h: 16 },
-    ]
-  }
-};
+      // BETWEEN
+      { item:"ball",    relation:"between",  target:"between_couch_table" },
+      { item:"car",     relation:"between",  target:"between_couch_table" },
+      { item:"teddy",   relation:"between",  target:"between_couch_table" },
 
-/* =========================
-   Fun draggable items (the “thing” the learner moves)
-========================= */
-const MOVE_ITEMS = [
-  { id:"cat",   name:"cat",   emoji:"🐱" },
-  { id:"kid",   name:"kid",   emoji:"🧒" },
-  { id:"ball",  name:"ball",  emoji:"⚽" },
-  { id:"cake",  name:"cake",  emoji:"🍰" },
-  { id:"car",   name:"car",   emoji:"🚗" },
-  { id:"duck",  name:"duck",  emoji:"🦆" },
-  { id:"star",  name:"star",  emoji:"⭐" },
-  { id:"bear",  name:"bear",  emoji:"🧸" },
-];
+      // ABOVE
+      { item:"pillow",  relation:"above",    target:"above_tv" },
+      { item:"ball",    relation:"above",    target:"above_tv" },
 
-/* =========================
-   Trials
-   - sceneId: which scene
-   - moveId: which draggable item
-   - prep: preposition
-   - landmark: which object (for the text)
-   - zoneId: which drop zone is correct
-========================= */
-const TRIALS_ALL = [
-  // Living room
-  { sceneId:"livingroom", moveId:"cat",  prep:"on",      landmark:"couch", zoneId:"on_couch" },
-  { sceneId:"livingroom", moveId:"ball", prep:"under",   landmark:"table", zoneId:"under_table" },
-  { sceneId:"livingroom", moveId:"star", prep:"next to", landmark:"lamp",  zoneId:"next_lamp" },
-  { sceneId:"livingroom", moveId:"duck", prep:"in",      landmark:"box",   zoneId:"in_box" },
-  { sceneId:"livingroom", moveId:"bear", prep:"above",   landmark:"table", zoneId:"above_table" },
-  { sceneId:"livingroom", moveId:"car",  prep:"below",   landmark:"couch", zoneId:"below_couch" },
+      // BELOW
+      { item:"book",    relation:"below",    target:"below_window" },
+      { item:"remote",  relation:"below",    target:"below_window" },
 
-  // Playground
-  { sceneId:"playground", moveId:"kid",  prep:"inside",  landmark:"tent",  zoneId:"inside_tent" },
-  { sceneId:"playground", moveId:"ball", prep:"outside", landmark:"tent",  zoneId:"outside_tent" },
-  { sceneId:"playground", moveId:"duck", prep:"under",   landmark:"tree",  zoneId:"under_tree" },
-  { sceneId:"playground", moveId:"cat",  prep:"next to", landmark:"slide", zoneId:"next_slide" },
-  { sceneId:"playground", moveId:"star", prep:"on",      landmark:"bench", zoneId:"on_bench" },
-  { sceneId:"playground", moveId:"bear", prep:"above",   landmark:"slide", zoneId:"above_slide" },
-  { sceneId:"playground", moveId:"car",  prep:"below",   landmark:"bench", zoneId:"below_bench" },
+      // MIX / REVIEW
+      { item:"chips",   relation:"on",       target:"table_top" },
+      { item:"phone",   relation:"on",       target:"couch" },
+      { item:"blanket", relation:"on",       target:"couch" },
+      { item:"blanket", relation:"under",    target:"table_under" },
+      { item:"mug",     relation:"below",    target:"below_window" },
+      { item:"remote",  relation:"next to",  target:"tvstand" },
+    ];
 
-  // Bedroom
-  { sceneId:"bedroom", moveId:"cat",  prep:"on",       landmark:"bed",    zoneId:"on_bed" },
-  { sceneId:"bedroom", moveId:"ball", prep:"under",    landmark:"bed",    zoneId:"under_bed" },
-  { sceneId:"bedroom", moveId:"star", prep:"between",  landmark:"pillows",zoneId:"between_pillows" },
-  { sceneId:"bedroom", moveId:"duck", prep:"next to",  landmark:"drawer", zoneId:"next_drawer" },
-  { sceneId:"bedroom", moveId:"bear", prep:"in",       landmark:"drawer", zoneId:"in_drawer" },
-  { sceneId:"bedroom", moveId:"kid",  prep:"above",    landmark:"bed",    zoneId:"above_bed" },
-  { sceneId:"bedroom", moveId:"cake", prep:"below",    landmark:"drawer", zoneId:"below_drawer" },
-];
+    // -----------------------------------------
+    // 3) SIMPLE FEEDBACK SOUNDS (no files needed)
+    // -----------------------------------------
+    function beep(freq=440, dur=0.09, type="sine", vol=0.06){
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        g.gain.value = vol;
+        o.connect(g); g.connect(ctx.destination);
+        o.start();
+        o.stop(ctx.currentTime + dur);
+        o.onended = ()=> ctx.close();
+      }catch(e){}
+    }
+    function soundCorrect(){
+      beep(660,0.08,"triangle",0.06);
+      setTimeout(()=>beep(880,0.10,"triangle",0.06), 90);
+    }
+    function soundIncorrect(){
+      beep(220,0.11,"sine",0.05);
+    }
 
-function prepCategory(prep){
-  const basic = ["on","in","under","next to"];
-  const advanced = ["between","inside","outside","above","below"];
-  if (basic.includes(prep)) return "basic";
-  if (advanced.includes(prep)) return "advanced";
-  return "all";
-}
+    // -----------------------------------------
+    // 4) TTS (spoken SD)
+    // -----------------------------------------
+    function speak(text){
+      const ttsOn = document.getElementById("ttsToggle").checked;
+      if(!ttsOn) return;
+      if(!("speechSynthesis" in window)) return;
 
-/* =========================
-   State
-========================= */
-let state = {
-  ttsEnabled: true,
-  showZones: false,
-  autoPlaceAfter2: true,
-  filter: "all",
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.95;
+      u.pitch = 1.05;
+      window.speechSynthesis.speak(u);
+    }
 
-  queue: [],
-  current: null,
+    // -----------------------------------------
+    // 5) GAME STATE
+    // -----------------------------------------
+    const trayEl = document.getElementById("tray");
+    const sceneWrap = document.getElementById("sceneWrap");
+    const sdTextEl = document.getElementById("sdText");
+    const feedbackEl = document.getElementById("feedback");
+    const trialNumEl = document.getElementById("trialNum");
+    const trialTotalEl = document.getElementById("trialTotal");
+    const kpiCorrectEl = document.getElementById("kpiCorrect");
+    const kpiIncorrectEl = document.getElementById("kpiIncorrect");
 
-  errorsThisTrial: 0,
-  correct: 0,
-  incorrect: 0,
+    const playBtn = document.getElementById("playBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
 
-  dragging: false,
-  dragOffset: { x: 0, y: 0 },
-  dragStart: { x: 0, y: 0 },
-};
+    trialTotalEl.textContent = TRIALS.length;
 
-/* =========================
-   DOM refs
-========================= */
-const sceneEl = document.getElementById("scene");
-const draggableEl = document.getElementById("draggable");
+    let trialIndex = 0;
+    let correct = 0;
+    let incorrect = 0;
 
-function updateHeader(){
-  document.getElementById("ttsLabel").textContent = state.ttsEnabled ? "On" : "Off";
-}
-function updateKPI(){
-  document.getElementById("trialTotal").textContent = String(state.queue.length + 1); // includes current remaining; gets reset in startSession
-  document.getElementById("kpiCorrect").textContent = String(state.correct);
-  document.getElementById("kpiIncorrect").textContent = String(state.incorrect);
-}
-function setTrialCounters(){
-  document.getElementById("trialTotal").textContent = String(state.totalTrials);
-  document.getElementById("trialNum").textContent = String(state.trialIndex + 1);
-}
-function sdTextFor(trial){
-  const move = MOVE_ITEMS.find(x => x.id === trial.moveId);
-  return `Put the ${move.name} ${trial.prep} the ${trial.landmark}.`;
-}
+    // Track active floating item (only one at a time)
+    let activeFloating = null;   // { el, itemId, originTileEl }
+    let pointerId = null;
+    let dragOffset = {x:0,y:0};
 
-/* =========================
-   Render scene
-========================= */
-function clearScene(){
-  sceneEl.innerHTML = "";
-}
-function renderScene(sceneId){
-  clearScene();
-  const scene = SCENES[sceneId];
-  document.getElementById("sceneTitle").textContent = scene.title;
+    // zone cache
+    function getZones(){
+      return [...sceneWrap.querySelectorAll(".zone")].map(z=>{
+        const r = z.getBoundingClientRect();
+        return { name: z.dataset.zone, rect: r };
+      });
+    }
 
-  // Static objects
-  for (const o of scene.objects){
-    const d = document.createElement("div");
-    d.className = "obj";
-    d.style.left = o.x + "%";
-    d.style.top  = o.y + "%";
-    d.innerHTML = `<div class="emoji">${o.emoji}</div><div class="label">${o.label}</div>`;
-    sceneEl.appendChild(d);
-  }
+    function setFeedback(msg, kind="neutral"){
+      feedbackEl.classList.remove("fbGood","fbBad");
+      if(kind==="good") feedbackEl.classList.add("fbGood");
+      if(kind==="bad") feedbackEl.classList.add("fbBad");
+      feedbackEl.textContent = msg;
+    }
 
-  // Drop zones
-  const zones = scene.zones || [];
-  for (const z of zones){
-    const dz = document.createElement("div");
-    dz.className = "zone";
-    dz.dataset.zoneId = z.id;
-    dz.style.left = z.x + "%";
-    dz.style.top  = z.y + "%";
-    dz.style.width  = z.w + "%";
-    dz.style.height = z.h + "%";
-    dz.style.opacity = state.showZones ? "0.75" : "0";
-    dz.innerHTML = `<div class="zoneHint">${z.label}</div>`;
-    sceneEl.appendChild(dz);
-  }
-}
-function getZoneEl(zoneId){
-  return sceneEl.querySelector(`.zone[data-zone-id="${zoneId}"]`) || sceneEl.querySelector(`.zone[data-zoneId="${zoneId}"]`);
-}
-function highlightZone(zoneId, on=true){
-  for (const z of sceneEl.querySelectorAll(".zone")){
-    z.classList.remove("highlight");
-  }
-  const el = sceneEl.querySelector(`.zone[data-zone-id="${zoneId}"]`) || sceneEl.querySelector(`.zone[data-zoneId="${zoneId}"]`);
-  if (el && on) el.classList.add("highlight");
-}
+    function buildSD(trial){
+      const item = ITEMS.find(i=>i.id===trial.item);
+      const targetPhrase = zoneToPhrase(trial.target);
+      // instruction format: "Put the (item) (on) the (target)"
+      return `Put the ${item.label} ${trial.relation} the ${targetPhrase}.`;
+    }
 
-/* =========================
-   Draggable item (pointer drag)
-   - We drag a “ghost” inside the scene for accurate hit testing.
-========================= */
-let ghost = null;
+    function zoneToPhrase(zone){
+      const map = {
+        couch: "couch",
+        table_top: "table",
+        table_under: "table",
+        rug: "rug",
+        tv: "TV",
+        tvstand: "TV stand",
+        lamp: "lamp",
+        window: "window",
+        between_couch_table: "couch and table",
+        next_to_lamp: "lamp",
+        above_tv: "TV",
+        below_window: "window",
+      };
+      return map[zone] || zone;
+    }
 
-function makeGhost(move){
-  if (ghost) ghost.remove();
-  ghost = document.createElement("div");
-  ghost.style.position = "absolute";
-  ghost.style.left = "10%";
-  ghost.style.top  = "20%";
-  ghost.style.transform = "translate(-50%,-50%)";
-  ghost.style.width = "70px";
-  ghost.style.height = "70px";
-  ghost.style.display = "grid";
-  ghost.style.placeItems = "center";
-  ghost.style.fontSize = "54px";
-  ghost.style.userSelect = "none";
-  ghost.style.touchAction = "none";
-  ghost.style.cursor = "grab";
-  ghost.style.filter = "drop-shadow(0 10px 10px rgba(0,0,0,.12))";
-  ghost.textContent = move.emoji;
-  ghost.setAttribute("aria-label", "Drag item in scene");
-  sceneEl.appendChild(ghost);
-}
+    function requiredZIndex(trial){
+      // Visual layering: under = low, everything else = normal/front
+      if(trial.relation === "under") return 1;
+      if(trial.relation === "above") return 12;
+      return 8;
+    }
 
-function resetGhostPosition(){
-  if (!ghost) return;
-  // left corner starter (in %)
-  ghost.style.left = "12%";
-  ghost.style.top  = "20%";
-}
+    function showTrial(){
+      const t = TRIALS[trialIndex];
+      trialNumEl.textContent = String(trialIndex+1);
+      const sd = buildSD(t);
+      sdTextEl.textContent = sd;
+      setFeedback("Drag the correct item into the correct place.", "neutral");
+      nextBtn.disabled = true; // enabled after correct
+      speak(sd);
+    }
 
-function sceneRect(){ return sceneEl.getBoundingClientRect(); }
+    function resetFloating(){
+      if(activeFloating?.el){
+        activeFloating.el.remove();
+      }
+      activeFloating = null;
+      pointerId = null;
+    }
 
-function setGhostByClientXY(clientX, clientY){
-  const r = sceneRect();
-  const x = Math.max(0, Math.min(r.width,  clientX - r.left));
-  const y = Math.max(0, Math.min(r.height, clientY - r.top));
-  ghost.style.left = (x / r.width  * 100) + "%";
-  ghost.style.top  = (y / r.height * 100) + "%";
-}
+    function snapToZoneCenter(zoneName, floatingEl){
+      const zoneEl = sceneWrap.querySelector(`.zone[data-zone="${zoneName}"]`);
+      if(!zoneEl) return;
 
-function pointInZone(clientX, clientY, zoneEl){
-  const zr = zoneEl.getBoundingClientRect();
-  return clientX >= zr.left && clientX <= zr.right && clientY >= zr.top && clientY <= zr.bottom;
-}
+      const wrapRect = sceneWrap.getBoundingClientRect();
+      const zoneRect = zoneEl.getBoundingClientRect();
 
-function handleDrop(clientX, clientY){
-  const correctZoneId = state.current.zoneId;
-  const zoneEl = sceneEl.querySelector(`.zone[data-zone-id="${correctZoneId}"]`) || sceneEl.querySelector(`.zone[data-zoneId="${correctZoneId}"]`);
-  if (!zoneEl){
-    // Shouldn't happen
-    setFB("Oops — missing zone.", "bad");
-    return;
-  }
+      // center point of zone in page coords
+      const cx = zoneRect.left + zoneRect.width/2;
+      const cy = zoneRect.top + zoneRect.height/2;
 
-  // Check if dropped inside the correct zone
-  if (pointInZone(clientX, clientY, zoneEl)){
-    // Snap to zone center
-    const zr = zoneEl.getBoundingClientRect();
-    const cx = (zr.left + zr.right) / 2;
-    const cy = (zr.top + zr.bottom) / 2;
-    setGhostByClientXY(cx, cy);
+      // convert to wrap local px
+      const x = cx - wrapRect.left;
+      const y = cy - wrapRect.top;
 
-    document.getElementById("nextBtn").disabled = false;
-    setFB("Nice job! 🎉", "good");
-    setPrompt("");
-    confettiBurst();
-    highlightZone(correctZoneId, false);
-    state.correct += 1;
-    document.getElementById("kpiCorrect").textContent = String(state.correct);
-    return;
-  }
+      floatingEl.style.left = `${x}px`;
+      floatingEl.style.top = `${y}px`;
+    }
 
-  // Incorrect
-  state.incorrect += 1;
-  document.getElementById("kpiIncorrect").textContent = String(state.incorrect);
-  state.errorsThisTrial += 1;
+    function pointInRect(x,y,rect){
+      return x>=rect.left && x<=rect.right && y>=rect.top && y<=rect.bottom;
+    }
 
-  setFB("Try again.", "bad");
-  setPrompt("Listen again, then try a different place.");
-  resetGhostPosition();
+    function findZoneAtPoint(clientX, clientY){
+      const zones = getZones();
+      for(const z of zones){
+        if(pointInRect(clientX, clientY, z.rect)) return z.name;
+      }
+      return null;
+    }
 
-  // After 1 error: highlight correct zone
-  if (state.errorsThisTrial >= 1){
-    highlightZone(correctZoneId, true);
-  }
+    function onDrop(clientX, clientY){
+      const t = TRIALS[trialIndex];
+      const droppedZone = findZoneAtPoint(clientX, clientY);
 
-  // After 2 errors: optionally auto-place
-  if (state.errorsThisTrial >= 2 && state.autoPlaceAfter2){
-    const zr = zoneEl.getBoundingClientRect();
-    const cx = (zr.left + zr.right) / 2;
-    const cy = (zr.top + zr.bottom) / 2;
-    setTimeout(() => {
-      setGhostByClientXY(cx, cy);
-      document.getElementById("nextBtn").disabled = false;
-      setFB("That’s it. Nice try!", "good");
-      setPrompt("Now press Next.");
-      highlightZone(correctZoneId, false);
-    }, 450);
-  }
-}
+      if(!droppedZone){
+        // outside any zone -> snap back
+        soundIncorrect();
+        incorrect++;
+        kpiIncorrectEl.textContent = String(incorrect);
+        setFeedback("Try again.", "bad");
+        resetFloating();
+        return;
+      }
 
-/* =========================
-   Trial flow
-========================= */
-function buildQueue(){
-  const filtered = TRIALS_ALL.filter(t => {
-    if (state.filter === "all") return true;
-    return prepCategory(t.prep) === state.filter;
-  });
-  return shuffle(filtered);
-}
+      const isCorrectZone = (droppedZone === t.target) || (
+        // Allow a small amount of “still correct” flexibility:
+        // Example: "next to lamp" can also be lamp zone; "next to tvstand" can be tv zone, etc.
+        (t.relation==="next to" && t.target==="next_to_lamp" && droppedZone==="lamp") ||
+        (t.relation==="next to" && t.target==="tvstand" && droppedZone==="tv")
+      );
 
-function startTrial(trial){
-  state.current = trial;
-  state.errorsThisTrial = 0;
+      if(!isCorrectZone){
+        soundIncorrect();
+        incorrect++;
+        kpiIncorrectEl.textContent = String(incorrect);
+        setFeedback("Not quite. Try again.", "bad");
+        resetFloating(); // snap back
+        return;
+      }
 
-  // Render scene
-  renderScene(trial.sceneId);
+      // Correct
+      soundCorrect();
+      correct++;
+      kpiCorrectEl.textContent = String(correct);
+      setFeedback("Nice job!", "good");
 
-  // Setup draggable
-  const move = MOVE_ITEMS.find(x => x.id === trial.moveId) || MOVE_ITEMS[0];
-  document.getElementById("dragEmoji").textContent = move.emoji;
-  document.getElementById("dragName").textContent = move.name;
-  document.getElementById("dragHint").textContent = "Drag me into the scene.";
+      // Snap to the correct zone center
+      snapToZoneCenter(t.target, activeFloating.el);
+      activeFloating.el.style.zIndex = String(requiredZIndex(t));
 
-  makeGhost(move);
-  resetGhostPosition();
+      // lock it in place and remove interactivity
+      activeFloating.el.style.pointerEvents = "none";
+      activeFloating.el.style.cursor = "default";
 
-  // SD
-  const sd = sdTextFor(trial);
-  document.getElementById("sdText").textContent = sd;
-  document.getElementById("sdMeta").textContent = `Scene: ${SCENES[trial.sceneId].title} • Target: ${trial.prep}`;
-  document.getElementById("nextBtn").disabled = true;
+      // allow next
+      nextBtn.disabled = false;
+      speak("Nice job!");
+      activeFloating = null;
+      pointerId = null;
+    }
 
-  setFB("Drag the item where the instruction says.", "neutral");
-  setPrompt("");
-  highlightZone(trial.zoneId, false);
-}
+    // -----------------------------------------
+    // 6) TRAY RENDER
+    // -----------------------------------------
+    function renderTray(){
+      trayEl.innerHTML = "";
+      for(const it of ITEMS){
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.setAttribute("role","button");
+        tile.setAttribute("aria-label", it.label);
 
-function nextTrial(){
-  if (state.queue.length === 0){
-    // done
-    clearScene();
-    document.getElementById("sdText").textContent = "All done! 🌈";
-    document.getElementById("sdMeta").textContent = "";
-    document.getElementById("nextBtn").disabled = true;
-    setFB("Great work finishing!", "good");
-    setPrompt("");
-    return;
-  }
-  state.trialIndex += 1;
-  setTrialCounters();
-  const t = state.queue.shift();
-  startTrial(t);
-}
+        const img = document.createElement("img");
+        img.src = it.src;
+        img.alt = it.label;
 
-function startSession(){
-  window.speechSynthesis?.cancel?.();
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = it.label;
 
-  state.queue = buildQueue();
-  state.totalTrials = state.queue.length;
-  state.trialIndex = 0;
+        tile.appendChild(img);
+        tile.appendChild(label);
 
-  state.correct = 0;
-  state.incorrect = 0;
-  document.getElementById("kpiCorrect").textContent = "0";
-  document.getElementById("kpiIncorrect").textContent = "0";
+        // pointer down starts dragging a floating copy into the scene
+        tile.addEventListener("pointerdown", (e)=>{
+          e.preventDefault();
+          beginDragFromTile(it.id, it.src, tile, e);
+        });
 
-  setTrialCounters();
+        trayEl.appendChild(tile);
+      }
+    }
 
-  // Start first
-  const first = state.queue.shift();
-  startTrial(first);
-}
+    function beginDragFromTile(itemId, src, tileEl, e){
+      // If another floating exists, remove it
+      resetFloating();
 
-function playSD(){
-  const sd = document.getElementById("sdText").textContent;
-  speak(sd);
-}
+      const wrapRect = sceneWrap.getBoundingClientRect();
 
-/* =========================
-   Pointer drag events on the ghost inside the scene
-========================= */
-function bindGhostDragging(){
-  sceneEl.addEventListener("pointerdown", (e) => {
-    // Only if ghost exists and pointer is near it
-    if (!ghost) return;
-    const gr = ghost.getBoundingClientRect();
-    const hit = e.clientX >= gr.left && e.clientX <= gr.right && e.clientY >= gr.top && e.clientY <= gr.bottom;
-    if (!hit) return;
+      // Create floating image
+      const el = document.createElement("img");
+      el.className = "floatingItem";
+      el.src = src;
+      el.alt = itemId;
 
-    state.dragging = true;
-    ghost.setPointerCapture(e.pointerId);
-    state.dragStart = { x: e.clientX, y: e.clientY };
-    setGhostByClientXY(e.clientX, e.clientY);
-  });
+      // Start it where pointer is (scene-local)
+      const x = e.clientX - wrapRect.left;
+      const y = e.clientY - wrapRect.top;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.zIndex = "9";
 
-  sceneEl.addEventListener("pointermove", (e) => {
-    if (!state.dragging || !ghost) return;
-    setGhostByClientXY(e.clientX, e.clientY);
-  });
+      sceneWrap.appendChild(el);
 
-  sceneEl.addEventListener("pointerup", (e) => {
-    if (!state.dragging || !ghost) return;
-    state.dragging = false;
-    try { ghost.releasePointerCapture(e.pointerId); } catch {}
-    // If already correct and next enabled, don’t re-check
-    if (!document.getElementById("nextBtn").disabled) return;
-    handleDrop(e.clientX, e.clientY);
-  });
-}
+      activeFloating = { el, itemId, originTileEl: tileEl };
+      pointerId = e.pointerId;
 
-/* =========================
-   Controls + panel
-========================= */
-document.getElementById("playBtn").addEventListener("click", playSD);
-document.getElementById("nextBtn").addEventListener("click", nextTrial);
-document.getElementById("restartBtn").addEventListener("click", startSession);
+      // Capture pointer so drag continues smoothly
+      el.setPointerCapture(pointerId);
 
-document.getElementById("ttsToggle").addEventListener("change", (e) => {
-  state.ttsEnabled = !!e.target.checked;
-  updateHeader();
-});
-document.getElementById("showZonesToggle").addEventListener("change", (e) => {
-  state.showZones = !!e.target.checked;
-  // re-render current scene so opacity updates
-  if (state.current) startTrial(state.current);
-});
-document.getElementById("autoPlaceToggle").addEventListener("change", (e) => {
-  state.autoPlaceAfter2 = !!e.target.checked;
-});
-document.getElementById("prepFilter").addEventListener("change", (e) => {
-  state.filter = e.target.value;
-  startSession();
-});
+      // offset is irrelevant since we center on pointer, but keep for future
+      dragOffset = { x: 0, y: 0 };
 
-// Keyboard: allow “Play SD” with Enter on draggable tray
-draggableEl.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); playSD(); }
-});
+      el.addEventListener("pointermove", onPointerMove);
+      el.addEventListener("pointerup", onPointerUp);
+      el.addEventListener("pointercancel", onPointerCancel);
+    }
 
-updateHeader();
-bindGhostDragging();
-startSession();
-</script>
+    function onPointerMove(e){
+      if(!activeFloating || e.pointerId !== pointerId) return;
+      const wrapRect = sceneWrap.getBoundingClientRect();
+      const x = e.clientX - wrapRect.left;
+      const y = e.clientY - wrapRect.top;
+      activeFloating.el.style.left = `${x}px`;
+      activeFloating.el.style.top = `${y}px`;
+    }
+    function onPointerUp(e){
+      if(!activeFloating || e.pointerId !== pointerId) return;
+      onDrop(e.clientX, e.clientY);
+    }
+    function onPointerCancel(e){
+      if(!activeFloating || e.pointerId !== pointerId) return;
+      resetFloating();
+    }
+
+    // -----------------------------------------
+    // 7) VALIDATION: must drag the correct item
+    // -----------------------------------------
+    function isCorrectItemDragged(){
+      const t = TRIALS[trialIndex];
+      return activeFloating && activeFloating.itemId === t.item;
+    }
+
+    // override drop: if wrong item, snap back immediately (even if zone correct)
+    const originalOnDrop = onDrop;
+    onDrop = function(clientX, clientY){
+      const t = TRIALS[trialIndex];
+
+      if(!activeFloating){
+        return;
+      }
+
+      if(activeFloating.itemId !== t.item){
+        soundIncorrect();
+        incorrect++;
+        kpiIncorrectEl.textContent = String(incorrect);
+        setFeedback("That’s not the right item. Try again.", "bad");
+        resetFloating();
+        return;
+      }
+
+      originalOnDrop(clientX, clientY);
+    };
+
+    // -----------------------------------------
+    // 8) BUTTONS
+    // -----------------------------------------
+    playBtn.addEventListener("click", ()=>{
+      speak(sdTextEl.textContent);
+    });
+
+    nextBtn.addEventListener("click", ()=>{
+      // clear any floating leftovers
+      resetFloating();
+
+      trialIndex++;
+      if(trialIndex >= TRIALS.length){
+        setFeedback(`Session complete! Correct: ${correct} • Incorrect: ${incorrect}`, "good");
+        sdTextEl.textContent = "All done!";
+        nextBtn.disabled = true;
+        speak("All done!");
+        return;
+      }
+      showTrial();
+    });
+
+    restartBtn.addEventListener("click", ()=>{
+      resetFloating();
+      trialIndex = 0;
+      correct = 0;
+      incorrect = 0;
+      kpiCorrectEl.textContent = "0";
+      kpiIncorrectEl.textContent = "0";
+      showTrial();
+    });
+
+    // -----------------------------------------
+    // 9) INIT
+    // -----------------------------------------
+    renderTray();
+    showTrial();
+
+    // If image missing, show a helpful note
+    document.getElementById("sceneImg").addEventListener("error", ()=>{
+      setFeedback("Scene image not found. Check: assets/scenes/scene-livingroom.png", "bad");
+      sdTextEl.textContent = "Missing scene image.";
+    });
+    // Warn if any item images fail (optional)
+    // (No need to block the game; but it helps debugging.)
+  </script>
 </body>
 </html>
