@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Identical Matching — 10 Items</title>
+  <style>
+    :root{
+      --gap: 14px;
+      --radius: 18px;
+      --border: 1px solid rgba(0,0,0,.12);
+    }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at 20% 10%, #fff7ff 0%, #f7fbff 35%, #f7f7f9 100%);
+      color:#111;
+    }
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 18px; }
+    .card{
+      background: rgba(255,255,255,.9);
+      border: var(--border);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+      backdrop-filter: blur(6px);
+    }
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: var(--gap);
+      flex-wrap: wrap;
+    }
+    h1{ margin:0; font-size:18px; }
+    .sub{ margin-top:4px; font-size:13px; color: rgba(0,0,0,.65); }
+    .kpis{ display:flex; gap:10px; flex-wrap: wrap; }
+    .pill{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius: 999px;
+      border: var(--border);
+      background:#fff;
+      font-weight: 800;
+      box-shadow: 0 2px 10px rgba(0,0,0,.04);
+    }
+
+    .sampleZone{
+      margin-top: 14px;
+      display:grid;
+      gap: 10px;
+      place-items: center;
+      padding: 14px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(255,255,255,.85), rgba(245,250,255,.85));
+      border: var(--border);
+    }
+    .prompt{
+      font-size: clamp(18px, 3vw, 26px);
+      font-weight: 950;
+      text-align:center;
+      margin: 0;
+    }
+    .sampleCard{
+      width: min(340px, 90%);
+      border-radius: 26px;
+      border: 2px solid rgba(0,0,0,.08);
+      background: #fff;
+      box-shadow: 0 12px 28px rgba(0,0,0,.08);
+      display:grid;
+      place-items:center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sampleEmoji{
+      font-size: 90px;
+      line-height: 1;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.08));
+    }
+    .sampleLabel{
+      margin-top: 10px;
+      font-weight: 900;
+      font-size: 16px;
+      color: rgba(0,0,0,.8);
+    }
+    .sparkle{
+      position:absolute;
+      inset:-40px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,211,252,.7), transparent 35%),
+        radial-gradient(circle at 80% 30%, rgba(198,234,255,.7), transparent 40%),
+        radial-gradient(circle at 40% 80%, rgba(255,244,205,.75), transparent 40%);
+      opacity: .7;
+      transform: rotate(8deg);
+      pointer-events:none;
+    }
+
+    .choices{
+      margin-top: 14px;
+      display:grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @media (max-width: 520px){
+      .choices{ grid-template-columns: 1fr; }
+    }
+    .tile{
+      border-radius: 20px;
+      border: var(--border);
+      background: #fff;
+      padding: 14px 10px;
+      min-height: 160px;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition: transform .07s ease, box-shadow .07s ease;
+      box-shadow: 0 8px 18px rgba(0,0,0,.05);
+      user-select:none;
+      position: relative;
+      overflow: hidden;
+    }
+    .tile:hover{ box-shadow: 0 14px 26px rgba(0,0,0,.08); }
+    .tile:active{ transform: scale(.99); }
+    .tile[aria-disabled="true"]{
+      opacity: .35;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+    .tileEmoji{
+      font-size: 70px;
+      line-height: 1;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.08));
+    }
+    .tileLabel{
+      margin-top: 8px;
+      font-weight: 900;
+      font-size: 14px;
+      color: rgba(0,0,0,.78);
+    }
+
+    .feedback{
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      border: var(--border);
+      background: rgba(255,255,255,.95);
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+    .fbText{ font-weight: 900; }
+    .fbNeutral{ color: rgba(0,0,0,.78); }
+    .fbGood{ color: #0a7a1f; }
+    .fbBad{ color: #b00020; }
+
+    .controls{
+      margin-top: 10px;
+      display:grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 520px){ .controls{ grid-template-columns: 1fr; } }
+    .btn{
+      border: var(--border);
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 12px;
+      cursor: pointer;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(0,0,0,.05);
+    }
+    .btn:hover{ box-shadow: 0 14px 26px rgba(0,0,0,.08); }
+    .btn:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
+
+    /* confetti */
+    .confetti{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 9999;
+    }
+    .confetti i{
+      position:absolute;
+      top: -12px;
+      width: 10px;
+      height: 14px;
+      border-radius: 3px;
+      opacity: .9;
+      animation: fall linear forwards;
+    }
+    @keyframes fall{
+      to{
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div>
+          <h1>Identical Matching (10 items)</h1>
+          <div class="sub">Match the same picture. One sample + 3 choices.</div>
+        </div>
+        <div class="kpis">
+          <span class="pill">Trial <span id="trialNum">1</span>/<span id="trialTotal">10</span></span>
+          <span class="pill">Correct <span id="kpiCorrect">0</span></span>
+          <span class="pill">Incorrect <span id="kpiIncorrect">0</span></span>
+        </div>
+      </div>
+
+      <div class="sampleZone">
+        <div class="prompt" id="promptText">Match the same one!</div>
+        <div class="sampleCard" aria-label="Sample">
+          <div class="sparkle"></div>
+          <div class="sampleEmoji" id="sampleEmoji">⭐</div>
+          <div class="sampleLabel" id="sampleLabel">Star</div>
+        </div>
+      </div>
+
+      <div class="choices" id="choices"></div>
+
+      <div class="feedback">
+        <div class="fbText fbNeutral" id="feedbackText">Pick the one that matches.</div>
+        <div class="mini" id="miniText"></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="nextBtn" type="button" disabled>Next</button>
+        <button class="btn" id="restartBtn" type="button">Restart</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+
+<script>
+/**
+ * 10 identical matching targets.
+ * Swap these emojis any time.
+ */
+const TARGETS = [
+  { id:"star",  label:"Star",  emoji:"⭐" },
+  { id:"heart", label:"Heart", emoji:"❤️" },
+  { id:"sun",   label:"Sun",   emoji:"☀️" },
+  { id:"moon",  label:"Moon",  emoji:"🌙" },
+  { id:"car",   label:"Car",   emoji:"🚗" },
+  { id:"dog",   label:"Dog",   emoji:"🐶" },
+  { id:"cat",   label:"Cat",   emoji:"🐱" },
+  { id:"ball",  label:"Ball",  emoji:"⚽" },
+  { id:"apple", label:"Apple", emoji:"🍎" },
+  { id:"gift",  label:"Gift",  emoji:"🎁" },
+];
+
+const CONFIG = { fieldSize: 3 };
+
+let state = {
+  queue: [],
+  current: null,
+  correct: 0,
+  incorrect: 0,
+  disabled: new Set(),
+  locked: false,
+};
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pickRandom(arr, n){ return shuffle(arr).slice(0, n); }
+
+function setFeedback(text, kind="neutral"){
+  const el = document.getElementById("feedbackText");
+  el.textContent = text;
+  el.className = "fbText " + (kind === "good" ? "fbGood" : kind === "bad" ? "fbBad" : "fbNeutral");
+}
+
+function confettiBurst(){
+  const wrap = document.getElementById("confetti");
+  wrap.innerHTML = "";
+  const pieces = 32;
+  for (let i = 0; i < pieces; i++){
+    const p = document.createElement("i");
+    p.style.left = Math.random() * 100 + "vw";
+    p.style.animationDuration = (1.2 + Math.random() * 1.2) + "s";
+    p.style.animationDelay = (Math.random() * 0.12) + "s";
+    p.style.transform = `rotate(${Math.random()*360}deg)`;
+    // no explicit colors requested; use varied gradients via random HSL
+    const hue = Math.floor(Math.random()*360);
+    p.style.background = `hsl(${hue} 90% 60%)`;
+    wrap.appendChild(p);
+  }
+  setTimeout(() => wrap.innerHTML = "", 1800);
+}
+
+function buildQueue(){
+  state.queue = shuffle(TARGETS.map(t => ({...t})));
+}
+
+function updateKPI(){
+  document.getElementById("trialTotal").textContent = String(TARGETS.length);
+  document.getElementById("trialNum").textContent = String(TARGETS.length - state.queue.length);
+  document.getElementById("kpiCorrect").textContent = String(state.correct);
+  document.getElementById("kpiIncorrect").textContent = String(state.incorrect);
+}
+
+function render(){
+  state.disabled = new Set();
+  state.locked = false;
+
+  document.getElementById("sampleEmoji").textContent = state.current.emoji;
+  document.getElementById("sampleLabel").textContent = state.current.label;
+
+  const distractors = pickRandom(TARGETS.filter(x => x.id !== state.current.id), CONFIG.fieldSize - 1);
+  const choices = shuffle([state.current, ...distractors]);
+
+  const holder = document.getElementById("choices");
+  holder.innerHTML = "";
+
+  choices.forEach(item => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.setAttribute("role","button");
+    tile.setAttribute("tabindex","0");
+
+    const disabled = state.disabled.has(item.id) || state.locked;
+    tile.setAttribute("aria-disabled", disabled ? "true" : "false");
+
+    tile.innerHTML = `
+      <div class="tileEmoji">${item.emoji}</div>
+      <div class="tileLabel">${item.label}</div>
+    `;
+
+    const activate = () => {
+      if (tile.getAttribute("aria-disabled") === "true") return;
+      onSelect(item.id);
+    };
+    tile.addEventListener("click", activate);
+    tile.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+    });
+
+    holder.appendChild(tile);
+  });
+
+  document.getElementById("nextBtn").disabled = true;
+  setFeedback("Pick the one that matches.", "neutral");
+  document.getElementById("miniText").textContent = "";
+  updateKPI();
+}
+
+function onSelect(id){
+  if (id === state.current.id){
+    state.correct += 1;
+    state.locked = true;
+    setFeedback("Nice job!! 🎉", "good");
+    confettiBurst();
+    document.getElementById("nextBtn").disabled = false;
+    updateKPI();
+    // re-render to lock tiles
+    renderLocked();
+  } else {
+    state.incorrect += 1;
+    setFeedback("Try again.", "bad");
+    document.getElementById("miniText").textContent = "Look at the sample, then find the same one.";
+    state.disabled.add(id);
+    updateKPI();
+    renderLocked();
+  }
+}
+
+function renderLocked(){
+  // re-render tiles using current disabled/locked state but keep same choices order:
+  // simplest: just re-render fresh (choices are random) would be confusing, so instead:
+  // we store choices on current trial.
+  // For that: build choices once per trial:
+}
+
+function startTrial(){
+  // Build choices once and store
+  const distractors = pickRandom(TARGETS.filter(x => x.id !== state.current.id), CONFIG.fieldSize - 1);
+  state.current.choices = shuffle([state.current, ...distractors]);
+  renderFromStoredChoices();
+}
+
+function renderFromStoredChoices(){
+  document.getElementById("sampleEmoji").textContent = state.current.emoji;
+  document.getElementById("sampleLabel").textContent = state.current.label;
+
+  const holder = document.getElementById("choices");
+  holder.innerHTML = "";
+
+  state.current.choices.forEach(item => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.setAttribute("role","button");
+    tile.setAttribute("tabindex","0");
+
+    const disabled = state.disabled.has(item.id) || state.locked;
+    tile.setAttribute("aria-disabled", disabled ? "true" : "false");
+
+    tile.innerHTML = `
+      <div class="tileEmoji">${item.emoji}</div>
+      <div class="tileLabel">${item.label}</div>
+    `;
+
+    const activate = () => {
+      if (tile.getAttribute("aria-disabled") === "true") return;
+      onSelect(item.id);
+    };
+    tile.addEventListener("click", activate);
+    tile.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+    });
+
+    holder.appendChild(tile);
+  });
+
+  updateKPI();
+}
+
+function next(){
+  if (state.queue.length === 0){
+    document.getElementById("choices").innerHTML = "";
+    document.getElementById("promptText").textContent = "All done! 🌈";
+    setFeedback("Great work finishing!", "good");
+    document.getElementById("nextBtn").disabled = true;
+    return;
+  }
+
+  state.current = state.queue.pop(); // pop for simpler trial number
+  state.disabled = new Set();
+  state.locked = false;
+
+  document.getElementById("promptText").textContent = "Match the same one!";
+  setFeedback("Pick the one that matches.", "neutral");
+  document.getElementById("miniText").textContent = "";
+  document.getElementById("nextBtn").disabled = true;
+
+  startTrial();
+}
+
+function startSession(){
+  state.correct = 0;
+  state.incorrect = 0;
+  buildQueue();
+  next();
+}
+
+document.getElementById("nextBtn").addEventListener("click", next);
+document.getElementById("restartBtn").addEventListener("click", startSession);
+
+startSession();
+</script>
+</body>
+</html>
