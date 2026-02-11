@@ -1,25 +1,593 @@
-function makeTrial() {
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LRFFC Level 1 — Eat vs Drink (Field of 5)</title>
+  <style>
+    :root { --gap: 12px; --radius: 14px; --border: 1px solid rgba(0,0,0,.12); }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f7f7f9; color: #111; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 16px; }
+    .card { background: #fff; border: var(--border); border-radius: var(--radius); padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .row { display: flex; gap: var(--gap); flex-wrap: wrap; align-items: center; }
+    .row > * { flex: 1 1 auto; }
+    h1 { font-size: 18px; margin: 0 0 10px; }
+    .sd { font-size: clamp(18px, 3vw, 26px); font-weight: 800; margin: 10px 0; }
+    .sub { font-size: 13px; color: rgba(0,0,0,.65); }
+    .grid { display: grid; gap: var(--gap); grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 12px; }
+    @media (max-width: 820px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+    .tile{
+      user-select: none;
+      border: var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      min-height: 140px;
+      cursor: pointer;
+      transition: transform .06s ease, box-shadow .06s ease;
+      text-align: center;
+      position: relative;
+    }
+    .tile:active { transform: scale(.99); }
+    .tile:hover { box-shadow: 0 3px 10px rgba(0,0,0,.06); }
+    .tile[aria-disabled="true"] { opacity: .35; cursor: not-allowed; box-shadow: none; }
+    .pic { width: 100%; display: grid; place-items: center; }
+    .pic img { width: 100%; max-width: 120px; height: 120px; object-fit: contain; }
+    .lbl { margin-top: 8px; font-weight: 700; font-size: 14px; }
+
+    .feedback { margin-top: 10px; padding: 10px 12px; border-radius: 12px; border: var(--border); background: #fafafa; }
+    .fb-neutral { color: rgba(0,0,0,.82); }
+    .fb-good { font-weight: 900; }
+    .controls { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 820px) { .controls { grid-template-columns: 1fr; } }
+    .btn{
+      border: var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+    .pill{
+      display:inline-flex; align-items:center; justify-content:center;
+      border: var(--border); border-radius:999px; padding:8px 10px; background:#fff;
+      gap:8px; font-weight:700;
+    }
+    .mini { font-size: 12px; color: rgba(0,0,0,.65); }
+    details { border: var(--border); border-radius: var(--radius); padding: 10px 12px; background: #fff; }
+    summary { cursor: pointer; font-weight: 800; }
+    .kpi { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .kpi .pill { background: #fbfbfd; }
+    .danger { color: #b00020; }
+    .good { color: #0a7a1f; }
+    code { background: #f1f1f4; padding: 2px 6px; border-radius: 8px; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div>
+          <h1>LRFFC Level 1 — Eat vs Drink (Field of 5)</h1>
+          <div class="sub">VB-MAPP aligned SDs + error correction + trial recycling. Uses shared photorealistic image library.</div>
+        </div>
+        <div class="row" style="justify-content:flex-end;">
+          <span class="pill">Mode: <span id="modeLabel">Eat</span></span>
+          <span class="pill">Spoken SD: <span id="ttsLabel">On</span></span>
+        </div>
+      </div>
+
+      <div class="sd" id="sdText">Which do you eat?</div>
+
+      <div class="controls">
+        <button class="btn" id="speakBtn" type="button">🔊 Play SD</button>
+        <button class="btn" id="nextBtn" type="button" disabled>Next Trial</button>
+        <button class="btn" id="restartBtn" type="button">Restart Session</button>
+      </div>
+
+      <div class="kpi">
+        <span class="pill">Trial <span id="trialNum">1</span>/<span id="trialTotal">0</span></span>
+        <span class="pill">Correct <span id="kpiCorrect">0</span></span>
+        <span class="pill">Incorrect <span id="kpiIncorrect">0</span></span>
+        <span class="pill">Recycled <span id="kpiRecycled">0</span></span>
+      </div>
+
+      <div id="grid" class="grid" aria-label="Answer choices"></div>
+
+      <div class="feedback" id="feedbackBox">
+        <div id="feedbackText" class="fb-neutral">Select an answer.</div>
+        <div id="promptText" class="mini" style="margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <div style="height: 12px;"></div>
+
+    <details>
+      <summary>⚙️ Therapist Panel</summary>
+
+      <div class="row" style="margin-top:10px;">
+        <label style="display:flex; align-items:center; gap:10px;">
+          <input id="modeToggle" type="checkbox" />
+          <span><strong>Drink mode</strong> <span class="mini">(unchecked = Eat mode)</span></span>
+        </label>
+
+        <label style="display:flex; align-items:center; gap:10px;">
+          <input id="ttsToggle" type="checkbox" checked />
+          <span><strong>Spoken SD playback</strong> <span class="mini">(uses device text-to-speech)</span></span>
+        </label>
+
+        <label style="display:flex; align-items:center; gap:10px;">
+          <input id="indirectPromptToggle" type="checkbox" checked />
+          <span><strong>Indirect prompt on errors</strong> <span class="mini">(text + optional audio)</span></span>
+        </label>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button class="btn" id="runMissedBtn" type="button">Run Recycled-Only Block</button>
+        <button class="btn" id="resumeMixedBtn" type="button">Resume Mixed Block</button>
+        <button class="btn" id="resetDataBtn" type="button">Reset Data Only</button>
+      </div>
+
+      <div class="mini" style="margin-top:10px;">
+        <strong>Image paths:</strong> This file expects images at <code>../images/food/</code>, <code>../images/drinks/</code>, <code>../images/other/</code>.
+      </div>
+    </details>
+  </div>
+
+<script>
+/**
+ * ==========================================================
+ *  SHARED IMAGE LIBRARY (25 FOOD / 25 DRINK / 25 OTHER)
+ *  Paths are relative to: ProgramLinks/LRFFC-eat-drink/index.html
+ *  Images should be in: ProgramLinks/images/food, drinks, other
+ * ==========================================================
+ */
+const ITEM_BANK = [
+  // FOOD (25)
+  { id:"apple", label:"Apple", img:"../images/food/food_apple.jpg", type:"food" },
+  { id:"banana", label:"Banana", img:"../images/food/food_banana.jpg", type:"food" },
+  { id:"orange", label:"Orange", img:"../images/food/food_orange.jpg", type:"food" },
+  { id:"grapes", label:"Grapes", img:"../images/food/food_grapes.jpg", type:"food" },
+  { id:"strawberries", label:"Strawberries", img:"../images/food/food_strawberries.jpg", type:"food" },
+
+  { id:"bread", label:"Bread", img:"../images/food/food_bread.jpg", type:"food" },
+  { id:"sandwich", label:"Sandwich", img:"../images/food/food_sandwich.jpg", type:"food" },
+  { id:"hamburger", label:"Hamburger", img:"../images/food/food_hamburger.jpg", type:"food" },
+  { id:"pizza_slice", label:"Pizza", img:"../images/food/food_pizza_slice.jpg", type:"food" },
+  { id:"hot_dog", label:"Hot Dog", img:"../images/food/food_hot_dog.jpg", type:"food" },
+
+  { id:"rice_bowl", label:"Rice", img:"../images/food/food_rice_bowl.jpg", type:"food" },
+  { id:"pasta", label:"Pasta", img:"../images/food/food_pasta.jpg", type:"food" },
+  { id:"chicken_nuggets", label:"Nuggets", img:"../images/food/food_chicken_nuggets.jpg", type:"food" },
+  { id:"french_fries", label:"Fries", img:"../images/food/food_french_fries.jpg", type:"food" },
+  { id:"taco", label:"Taco", img:"../images/food/food_taco.jpg", type:"food" },
+
+  { id:"cookie", label:"Cookie", img:"../images/food/food_cookie.jpg", type:"food" },
+  { id:"chocolate_bar", label:"Chocolate", img:"../images/food/food_chocolate_bar.jpg", type:"food" },
+  { id:"cereal_bowl", label:"Cereal", img:"../images/food/food_cereal_bowl.jpg", type:"food" },
+  { id:"pancakes", label:"Pancakes", img:"../images/food/food_pancakes.jpg", type:"food" },
+  { id:"muffin", label:"Muffin", img:"../images/food/food_muffin.jpg", type:"food" },
+
+  { id:"ice_cream_scoop", label:"Ice Cream", img:"../images/food/food_ice_cream_scoop.jpg", type:"food" },
+  { id:"popsicle", label:"Popsicle", img:"../images/food/food_popsicle.jpg", type:"food" },
+  { id:"chips_bag", label:"Chips", img:"../images/food/food_chips_bag.jpg", type:"food" },
+  { id:"salad_bowl", label:"Salad", img:"../images/food/food_salad_bowl.jpg", type:"food" },
+  { id:"cheese_slice", label:"Cheese", img:"../images/food/food_cheese_slice.jpg", type:"food" },
+
+  // DRINKS (25)
+  { id:"water_glass", label:"Water", img:"../images/drinks/drink_water_glass.jpg", type:"drink" },
+  { id:"water_bottle", label:"Water Bottle", img:"../images/drinks/drink_water_bottle.jpg", type:"drink" },
+  { id:"milk_glass", label:"Milk", img:"../images/drinks/drink_milk_glass.jpg", type:"drink" },
+  { id:"juice_orange", label:"Orange Juice", img:"../images/drinks/drink_juice_orange.jpg", type:"drink" },
+  { id:"juice_apple", label:"Apple Juice", img:"../images/drinks/drink_juice_apple.jpg", type:"drink" },
+
+  { id:"soda_can", label:"Soda (Can)", img:"../images/drinks/drink_soda_can.jpg", type:"drink" },
+  { id:"soda_bottle", label:"Soda (Bottle)", img:"../images/drinks/drink_soda_bottle.jpg", type:"drink" },
+  { id:"lemonade", label:"Lemonade", img:"../images/drinks/drink_lemonade.jpg", type:"drink" },
+  { id:"iced_tea", label:"Iced Tea", img:"../images/drinks/drink_iced_tea.jpg", type:"drink" },
+  { id:"hot_tea", label:"Hot Tea", img:"../images/drinks/drink_hot_tea.jpg", type:"drink" },
+
+  { id:"coffee_mug", label:"Coffee", img:"../images/drinks/drink_coffee_mug.jpg", type:"drink" },
+  { id:"hot_chocolate", label:"Hot Chocolate", img:"../images/drinks/drink_hot_chocolate.jpg", type:"drink" },
+  { id:"smoothie", label:"Smoothie", img:"../images/drinks/drink_smoothie.jpg", type:"drink" },
+  { id:"milkshake", label:"Milkshake", img:"../images/drinks/drink_milkshake.jpg", type:"drink" },
+  { id:"sports_drink", label:"Sports Drink", img:"../images/drinks/drink_sports_drink.jpg", type:"drink" },
+
+  { id:"juice_box", label:"Juice Box", img:"../images/drinks/drink_juice_box.jpg", type:"drink" },
+  { id:"capri_sun", label:"Capri Sun", img:"../images/drinks/drink_capri_sun.jpg", type:"drink" },
+  { id:"energy_drink", label:"Energy Drink", img:"../images/drinks/drink_energy_drink.jpg", type:"drink" },
+  { id:"apple_cider", label:"Apple Cider", img:"../images/drinks/drink_apple_cider.jpg", type:"drink" },
+  { id:"fruit_punch", label:"Fruit Punch", img:"../images/drinks/drink_fruit_punch.jpg", type:"drink" },
+
+  { id:"baby_bottle", label:"Baby Bottle", img:"../images/drinks/drink_baby_bottle.jpg", type:"drink" },
+  { id:"straw_cup", label:"Straw Cup", img:"../images/drinks/drink_straw_cup.jpg", type:"drink" },
+  { id:"open_cup", label:"Open Cup", img:"../images/drinks/drink_open_cup.jpg", type:"drink" },
+  { id:"takeout_cup", label:"Takeout Cup", img:"../images/drinks/drink_takeout_cup.jpg", type:"drink" },
+  { id:"water_pitcher", label:"Water Pitcher", img:"../images/drinks/drink_water_pitcher.jpg", type:"drink" },
+
+  // OTHER (25) — NOT edible/drinkable
+  { id:"ball", label:"Ball", img:"../images/other/other_ball.jpg", type:"other" },
+  { id:"toy_car", label:"Toy Car", img:"../images/other/other_toy_car.jpg", type:"other" },
+  { id:"teddy_bear", label:"Teddy Bear", img:"../images/other/other_teddy_bear.jpg", type:"other" },
+  { id:"blocks", label:"Blocks", img:"../images/other/other_blocks.jpg", type:"other" },
+  { id:"doll", label:"Doll", img:"../images/other/other_doll.jpg", type:"other" },
+
+  { id:"book", label:"Book", img:"../images/other/other_book.jpg", type:"other" },
+  { id:"crayons", label:"Crayons", img:"../images/other/other_crayons.jpg", type:"other" },
+  { id:"pencil", label:"Pencil", img:"../images/other/other_pencil.jpg", type:"other" },
+  { id:"notebook", label:"Notebook", img:"../images/other/other_notebook.jpg", type:"other" },
+  { id:"backpack", label:"Backpack", img:"../images/other/other_backpack.jpg", type:"other" },
+
+  { id:"shoe", label:"Shoe", img:"../images/other/other_shoe.jpg", type:"other" },
+  { id:"hat", label:"Hat", img:"../images/other/other_hat.jpg", type:"other" },
+  { id:"shirt", label:"Shirt", img:"../images/other/other_shirt.jpg", type:"other" },
+  { id:"socks", label:"Socks", img:"../images/other/other_socks.jpg", type:"other" },
+  { id:"jacket", label:"Jacket", img:"../images/other/other_jacket.jpg", type:"other" },
+
+  { id:"phone", label:"Phone", img:"../images/other/other_phone.jpg", type:"other" },
+  { id:"keys", label:"Keys", img:"../images/other/other_keys.jpg", type:"other" },
+  { id:"remote", label:"Remote", img:"../images/other/other_remote.jpg", type:"other" },
+  { id:"clock", label:"Clock", img:"../images/other/other_clock.jpg", type:"other" },
+  { id:"wallet", label:"Wallet", img:"../images/other/other_wallet.jpg", type:"other" },
+
+  { id:"chair", label:"Chair", img:"../images/other/other_chair.jpg", type:"other" },
+  { id:"table", label:"Table", img:"../images/other/other_table.jpg", type:"other" },
+  { id:"cup_empty", label:"Cup", img:"../images/other/other_cup_empty.jpg", type:"other" },
+  { id:"toothbrush", label:"Toothbrush", img:"../images/other/other_toothbrush.jpg", type:"other" },
+  { id:"spoon", label:"Spoon", img:"../images/other/other_spoon.jpg", type:"other" },
+];
+
+const CONFIG = {
+  fieldSize: 5,         // VB-MAPP level described
+  trialsPerBlock: 12,   // adjust session length here
+  recycleDelayMin: 2,   // min trials before reinsert
+  recycleDelayMax: 5,   // max trials before reinsert
+};
+
+// ============================
+// State
+// ============================
+let state = {
+  mode: "eat", // "eat" or "drink"
+  ttsEnabled: true,
+  indirectPromptEnabled: true,
+  recycleOnly: false,
+
+  queue: [],
+  recycled: [],
+  current: null,
+
+  trialIndex: 0,
+  correct: 0,
+  incorrect: 0,
+  recycledCount: 0,
+
+  errorStep: 0, // 0 none, 1 indirect prompt shown, 2+ grey-out progression
+  disabledIds: new Set(),
+  locked: false,
+};
+
+// ============================
+// Helpers
+// ============================
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pickRandom(arr, n){ return shuffle(arr).slice(0, n); }
+function byType(type){ return ITEM_BANK.filter(x => x.type === type); }
+
+function speak(text){
+  if (!state.ttsEnabled) return;
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.0; u.pitch = 1.0; u.volume = 1.0;
+  window.speechSynthesis.speak(u);
+}
+
+function setFeedback(text, kind="neutral"){
+  const el = document.getElementById("feedbackText");
+  el.textContent = text;
+  if (kind === "good") el.className = "fb-good good";
+  else if (kind === "bad") el.className = "fb-neutral danger";
+  else el.className = "fb-neutral";
+}
+function setPrompt(text){ document.getElementById("promptText").textContent = text || ""; }
+
+function updateHeader(){
+  document.getElementById("modeLabel").textContent = state.mode === "eat" ? "Eat" : "Drink";
+  document.getElementById("ttsLabel").textContent = state.ttsEnabled ? "On" : "Off";
+  document.getElementById("sdText").textContent = state.mode === "eat" ? "Which do you eat?" : "Which do you drink?";
+}
+function totalTrials(){
+  return Math.max(state.queue.length + (state.current ? 1 : 0) + state.recycled.length, 1);
+}
+function updateKPI(){
+  document.getElementById("trialNum").textContent = String(Math.min(state.trialIndex + 1, totalTrials()));
+  document.getElementById("trialTotal").textContent = String(totalTrials());
+  document.getElementById("kpiCorrect").textContent = String(state.correct);
+  document.getElementById("kpiIncorrect").textContent = String(state.incorrect);
+  document.getElementById("kpiRecycled").textContent = String(state.recycledCount);
+}
+
+// =======================================================
+// IMPORTANT: This function guarantees ONLY ONE correct item
+// =======================================================
+function makeTrial(){
   const targetType = state.mode === "eat" ? "food" : "drink";
-  const nonTargetTypes = state.mode === "eat"
-    ? ["drink", "other"]
-    : ["food", "other"];
+  const nonTargetTypes = state.mode === "eat" ? ["drink", "other"] : ["food", "other"];
 
   // Pick ONE correct target
-  const target = pickRandom(
-    ITEM_BANK.filter(i => i.type === targetType),
-    1
-  )[0];
+  const target = pickRandom(byType(targetType), 1)[0];
 
-  // Pick distractors ONLY from non-target types
-  const distractors = pickRandom(
-    ITEM_BANK.filter(i => nonTargetTypes.includes(i.type)),
-    CONFIG.fieldSize - 1
+  // Pick distractors ONLY from non-target types (prevents multiple correct answers)
+  const distractorPool = ITEM_BANK.filter(x =>
+    x.id !== target.id && nonTargetTypes.includes(x.type)
   );
 
+  const distractors = pickRandom(distractorPool, CONFIG.fieldSize - 1);
+  const choices = shuffle([target, ...distractors]);
+
   return {
-    id: `${state.mode}-${target.id}-${Math.random()}`,
+    id: `${state.mode}-${target.id}-${Math.random().toString(16).slice(2)}`,
+    mode: state.mode,
     targetId: target.id,
-    choices: shuffle([target, ...distractors]),
-    firstAttemptWrong: false
+    choices,
+    firstAttemptWrong: false,
   };
 }
+
+function buildQueue(){
+  const block = [];
+  for (let i = 0; i < CONFIG.trialsPerBlock; i++) block.push(makeTrial());
+  state.queue = block;
+  state.recycled = [];
+  state.recycledCount = 0;
+  state.trialIndex = 0;
+}
+
+function renderChoices(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  state.current.choices.forEach(item => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.setAttribute("role", "button");
+    tile.setAttribute("tabindex", "0");
+
+    const disabled = state.disabledIds.has(item.id) || state.locked;
+    tile.setAttribute("aria-disabled", disabled ? "true" : "false");
+
+    const pic = document.createElement("div");
+    pic.className = "pic";
+
+    const img = document.createElement("img");
+    img.src = item.img;
+    img.alt = item.label;
+    img.loading = "lazy";
+    img.onerror = () => {
+      // Helpful fallback so you can quickly spot filename/path issues
+      img.style.display = "none";
+      const msg = document.createElement("div");
+      msg.className = "mini danger";
+      msg.textContent = "Image not found";
+      pic.appendChild(msg);
+    };
+    pic.appendChild(img);
+
+    const lbl = document.createElement("div");
+    lbl.className = "lbl";
+    lbl.textContent = item.label;
+
+    tile.appendChild(pic);
+    tile.appendChild(lbl);
+
+    const activate = () => {
+      if (tile.getAttribute("aria-disabled") === "true") return;
+      onSelect(item.id);
+    };
+
+    tile.addEventListener("click", activate);
+    tile.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+    });
+
+    grid.appendChild(tile);
+  });
+}
+
+function enableNext(enabled){
+  document.getElementById("nextBtn").disabled = !enabled;
+}
+
+function startTrial(){
+  state.errorStep = 0;
+  state.disabledIds = new Set();
+  state.locked = false;
+  enableNext(false);
+  setFeedback("Select an answer.", "neutral");
+  setPrompt("");
+
+  updateHeader();
+  updateKPI();
+  renderChoices();
+}
+
+function pullNextTrial(){
+  if (state.recycleOnly) {
+    if (state.recycled.length === 0) return null;
+    return state.recycled.shift();
+  }
+  if (state.queue.length === 0) {
+    if (state.recycled.length > 0) return state.recycled.shift();
+    return null;
+  }
+  return state.queue.shift();
+}
+
+function injectRecycledLater(trial){
+  const delay = CONFIG.recycleDelayMin + Math.floor(Math.random() * (CONFIG.recycleDelayMax - CONFIG.recycleDelayMin + 1));
+  const idx = Math.min(delay, state.queue.length);
+  state.queue.splice(idx, 0, trial);
+  state.recycledCount += 1;
+  updateKPI();
+}
+
+function next(){
+  const nxt = pullNextTrial();
+  if (!nxt) {
+    state.current = null;
+    document.getElementById("grid").innerHTML = "";
+    enableNext(false);
+    setFeedback("Block complete.", "good");
+    setPrompt("");
+    return;
+  }
+  state.current = nxt;
+  startTrial();
+}
+
+function indirectPromptText(){
+  return state.mode === "eat"
+    ? "Remember: you eat food. Food goes in your mouth."
+    : "Remember: you drink drinks. Drinks go in a cup and you sip them.";
+}
+
+function onIncorrect(choiceId){
+  state.incorrect += 1;
+  state.current.firstAttemptWrong = true;
+
+  if (state.errorStep === 0) {
+    setFeedback("Try again.", "bad");
+
+    if (state.indirectPromptEnabled) {
+      const p = indirectPromptText();
+      setPrompt(p);
+      // indirect audio prompt (optional)
+      speak(p);
+    } else {
+      setPrompt("");
+    }
+
+    state.errorStep = 1;
+    updateKPI();
+    return;
+  }
+
+  // Grey-out the selected incorrect option (positional/stimulus prompt)
+  state.disabledIds.add(choiceId);
+  setFeedback("Try again.", "bad");
+  renderChoices();
+  state.errorStep += 1;
+  updateKPI();
+}
+
+function onCorrect(){
+  state.correct += 1;
+  state.locked = true;
+  renderChoices();
+
+  setFeedback("Nice job!", "good");
+  setPrompt("");
+
+  enableNext(true);
+  updateKPI();
+
+  // Recycle missed trials later (distributed re-try)
+  if (state.current.firstAttemptWrong && !state.recycleOnly) {
+    const clone = JSON.parse(JSON.stringify(state.current));
+    clone.firstAttemptWrong = false;
+    injectRecycledLater(clone);
+  }
+}
+
+function onSelect(choiceId){
+  if (!state.current) return;
+  if (choiceId === state.current.targetId) onCorrect();
+  else onIncorrect(choiceId);
+}
+
+// ============================
+// UI bindings
+// ============================
+document.getElementById("speakBtn").addEventListener("click", () => {
+  speak(state.mode === "eat" ? "Which do you eat?" : "Which do you drink?");
+});
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+  state.trialIndex += 1;
+  next();
+});
+
+document.getElementById("restartBtn").addEventListener("click", () => {
+  startSession(true);
+});
+
+document.getElementById("modeToggle").addEventListener("change", (e) => {
+  state.mode = e.target.checked ? "drink" : "eat";
+  startSession(true);
+});
+
+document.getElementById("ttsToggle").addEventListener("change", (e) => {
+  state.ttsEnabled = !!e.target.checked;
+  updateHeader();
+});
+
+document.getElementById("indirectPromptToggle").addEventListener("change", (e) => {
+  state.indirectPromptEnabled = !!e.target.checked;
+});
+
+document.getElementById("runMissedBtn").addEventListener("click", () => {
+  state.recycleOnly = true;
+  setFeedback("Recycled-only block started.", "neutral");
+  next();
+});
+
+document.getElementById("resumeMixedBtn").addEventListener("click", () => {
+  state.recycleOnly = false;
+  setFeedback("Mixed block resumed.", "neutral");
+  next();
+});
+
+document.getElementById("resetDataBtn").addEventListener("click", () => {
+  state.correct = 0;
+  state.incorrect = 0;
+  state.recycledCount = 0;
+  updateKPI();
+  setFeedback("Data reset.", "neutral");
+});
+
+function startSession(keepMode = true){
+  window.speechSynthesis?.cancel?.();
+
+  if (!keepMode) state.mode = "eat";
+
+  state.correct = 0;
+  state.incorrect = 0;
+  state.recycledCount = 0;
+  state.trialIndex = 0;
+  state.recycleOnly = false;
+
+  buildQueue();
+  updateHeader();
+  updateKPI();
+  next();
+}
+
+// Start
+startSession(true);
+</script>
+</body>
+</html>
