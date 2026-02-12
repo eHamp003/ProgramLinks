@@ -1,269 +1,841 @@
-import React, { useState, useEffect } from 'react';
-import { Sparkles, Star, Trophy, ArrowRight } from 'lucide-react';
-
-const ABAReinforcement = () => {
-  const [currentTrial, setCurrentTrial] = useState(0);
-  const [score, setScore] = useState(0);
-  const [promptLevel, setPromptLevel] = useState(0);
-  const [showFeedback, setShowFeedback] = useState(null);
-  const [selectedWord, setSelectedWord] = useState(null);
-  const [attempts, setAttempts] = useState(0);
-  const [celebrating, setCelebrating] = useState(false);
-
-  // 30 trials with increasing difficulty
-  const trials = [
-    // Level 1: Simple common objects (1-10)
-    { word: 'hat', image: '🧢', options: ['hat', 'cat', 'bat'] },
-    { word: 'cat', image: '🐱', options: ['cat', 'hat', 'mat'] },
-    { word: 'dog', image: '🐕', options: ['dog', 'log', 'fog'] },
-    { word: 'sun', image: '☀️', options: ['sun', 'fun', 'run'] },
-    { word: 'car', image: '🚗', options: ['car', 'bar', 'far'] },
-    { word: 'ball', image: '⚽', options: ['ball', 'call', 'wall'] },
-    { word: 'cup', image: '🥤', options: ['cup', 'pup', 'up'] },
-    { word: 'bed', image: '🛏️', options: ['bed', 'red', 'fed'] },
-    { word: 'book', image: '📚', options: ['book', 'look', 'cook'] },
-    { word: 'tree', image: '🌳', options: ['tree', 'bee', 'see'] },
-    
-    // Level 2: Common items (11-20)
-    { word: 'apple', image: '🍎', options: ['apple', 'table', 'maple'] },
-    { word: 'fish', image: '🐠', options: ['fish', 'dish', 'wish'] },
-    { word: 'bird', image: '🦜', options: ['bird', 'word', 'herd'] },
-    { word: 'moon', image: '🌙', options: ['moon', 'soon', 'spoon'] },
-    { word: 'star', image: '⭐', options: ['star', 'car', 'far'] },
-    { word: 'house', image: '🏠', options: ['house', 'mouse', 'blouse'] },
-    { word: 'cake', image: '🎂', options: ['cake', 'lake', 'make'] },
-    { word: 'flower', image: '🌸', options: ['flower', 'tower', 'power'] },
-    { word: 'train', image: '🚂', options: ['train', 'rain', 'brain'] },
-    { word: 'plane', image: '✈️', options: ['plane', 'lane', 'cane'] },
-    
-    // Level 3: More complex words (21-30)
-    { word: 'butterfly', image: '🦋', options: ['butterfly', 'dragonfly', 'firefly'] },
-    { word: 'elephant', image: '🐘', options: ['elephant', 'dolphin', 'penguin'] },
-    { word: 'rainbow', image: '🌈', options: ['rainbow', 'window', 'pillow'] },
-    { word: 'pizza', image: '🍕', options: ['pizza', 'pasta', 'taco'] },
-    { word: 'guitar', image: '🎸', options: ['guitar', 'piano', 'drum'] },
-    { word: 'rocket', image: '🚀', options: ['rocket', 'ocket', 'socket'] },
-    { word: 'turtle', image: '🐢', options: ['turtle', 'purple', 'circle'] },
-    { word: 'strawberry', image: '🍓', options: ['strawberry', 'blueberry', 'raspberry'] },
-    { word: 'bicycle', image: '🚲', options: ['bicycle', 'tricycle', 'motorcycle'] },
-    { word: 'dinosaur', image: '🦕', options: ['dinosaur', 'alligator', 'crocodile'] }
-  ];
-
-  const trial = trials[currentTrial];
-
-  const handleWordClick = (word) => {
-    setSelectedWord(word);
-    setAttempts(attempts + 1);
-
-    if (word === trial.word) {
-      // Correct response
-      setShowFeedback('correct');
-      setScore(score + 1);
-      setCelebrating(true);
-      
-      setTimeout(() => {
-        setShowFeedback(null);
-        setSelectedWord(null);
-        setPromptLevel(0);
-        setAttempts(0);
-        setCelebrating(false);
-        
-        if (currentTrial < trials.length - 1) {
-          setCurrentTrial(currentTrial + 1);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prepositions Game - Enhanced</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      }, 2000);
-    } else {
-      // Incorrect - implement least-to-most prompting
-      setShowFeedback('incorrect');
-      
-      setTimeout(() => {
-        setShowFeedback(null);
-        setSelectedWord(null);
-        
-        // Move to next prompt level
-        if (promptLevel < 2) {
-          setPromptLevel(promptLevel + 1);
-        } else {
-          // After full prompting, move to next trial
-          setPromptLevel(0);
-          setAttempts(0);
-          if (currentTrial < trials.length - 1) {
-            setCurrentTrial(currentTrial + 1);
-          }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-      }, 1500);
-    }
-  };
 
-  const getPromptMessage = () => {
-    if (promptLevel === 0) return "Match the word to the picture!";
-    if (promptLevel === 1) return `Find the word that starts with "${trial.word[0]}"`;
-    if (promptLevel === 2) return `The word is "${trial.word}" - tap it!`;
-    return "";
-  };
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-  const shouldHighlight = (word) => {
-    return promptLevel === 2 && word === trial.word;
-  };
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
 
-  if (currentTrial >= trials.length) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-yellow-400 flex items-center justify-center p-8">
-        <div className="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-md transform animate-bounce">
-          <Trophy className="w-24 h-24 mx-auto text-yellow-500 mb-6" />
-          <h1 className="text-4xl font-bold text-purple-600 mb-4">Amazing Work!</h1>
-          <p className="text-2xl text-gray-700 mb-6">You completed all 30 trials!</p>
-          <p className="text-3xl font-bold text-green-600 mb-8">Score: {score}/30</p>
-          <button
-            onClick={() => {
-              setCurrentTrial(0);
-              setScore(0);
-              setPromptLevel(0);
-              setAttempts(0);
-            }}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-110 transform transition"
-          >
-            Play Again!
-          </button>
-        </div>
-      </div>
-    );
-  }
+        .level-indicator {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: bold;
+        }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 p-8">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto mb-8">
-        <div className="bg-white rounded-2xl shadow-lg p-6 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Star className="w-8 h-8 text-yellow-500" />
-            <span className="text-2xl font-bold text-purple-600">Trial {currentTrial + 1}/30</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Trophy className="w-8 h-8 text-green-500" />
-            <span className="text-2xl font-bold text-green-600">Score: {score}</span>
-          </div>
-        </div>
-      </div>
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
 
-      {/* Main Game Area */}
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-6">
-          {/* Prompt Message */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">{getPromptMessage()}</h2>
-            {promptLevel > 0 && (
-              <div className="inline-flex items-center gap-2 bg-yellow-100 px-6 py-3 rounded-full animate-pulse">
-                <Sparkles className="w-5 h-5 text-yellow-600" />
-                <span className="text-lg text-yellow-700 font-semibold">
-                  {promptLevel === 1 ? 'Hint!' : 'Look here!'}
-                </span>
-              </div>
-            )}
-          </div>
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: bold;
+        }
 
-          {/* Picture Display */}
-          <div className="flex justify-center mb-8">
-            <div className={`bg-gradient-to-br from-yellow-200 to-orange-200 rounded-3xl p-12 shadow-lg transform transition-all ${celebrating ? 'scale-110 rotate-6' : 'hover:scale-105'}`}>
-              <div className="text-9xl">{trial.image}</div>
-            </div>
-          </div>
+        .stat.correct { color: #48bb78; }
+        .stat.incorrect { color: #f56565; }
+        .stat.trial { color: #667eea; }
 
-          {/* Word Options */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {trial.options.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => handleWordClick(option)}
-                disabled={showFeedback !== null}
-                className={`
-                  relative overflow-hidden p-8 rounded-2xl text-3xl font-bold transition-all transform
-                  ${shouldHighlight(option) 
-                    ? 'bg-gradient-to-br from-green-300 to-green-400 animate-pulse ring-4 ring-green-500 scale-105' 
-                    : 'bg-gradient-to-br from-purple-300 to-blue-300 hover:scale-105 hover:shadow-xl'
-                  }
-                  ${selectedWord === option && showFeedback === 'correct' 
-                    ? 'bg-gradient-to-br from-green-400 to-green-500 scale-110' 
-                    : ''
-                  }
-                  ${selectedWord === option && showFeedback === 'incorrect' 
-                    ? 'bg-gradient-to-br from-red-400 to-red-500 animate-shake' 
-                    : ''
-                  }
-                  disabled:cursor-not-allowed text-white shadow-lg
-                `}
-              >
-                {option}
-                {selectedWord === option && showFeedback === 'correct' && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-90">
-                    <Star className="w-16 h-16 text-yellow-300 animate-spin" />
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
 
-        {/* Feedback Messages */}
-        {showFeedback === 'correct' && (
-          <div className="bg-green-500 text-white rounded-2xl p-6 text-center animate-bounce">
-            <div className="flex items-center justify-center gap-3 mb-2">
-              <Star className="w-12 h-12" />
-              <h3 className="text-4xl font-bold">Great Job!</h3>
-              <Star className="w-12 h-12" />
-            </div>
-            <p className="text-2xl">You matched it correctly!</p>
-          </div>
-        )}
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-family: inherit;
+        }
 
-        {showFeedback === 'incorrect' && (
-          <div className="bg-orange-400 text-white rounded-2xl p-6 text-center">
-            <h3 className="text-3xl font-bold mb-2">Let's try again!</h3>
-            <p className="text-xl">You can do it!</p>
-          </div>
-        )}
-      </div>
+        .btn:hover {
+            transform: scale(1.05);
+        }
 
-      {/* Confetti effect for celebrations */}
-      {celebrating && (
-        <div className="fixed inset-0 pointer-events-none">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute text-4xl animate-fall"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 0.5}s`,
-                animationDuration: `${1 + Math.random()}s`
-              }}
-            >
-              {['🎉', '⭐', '🌟', '✨'][Math.floor(Math.random() * 4)]}
-            </div>
-          ))}
-        </div>
-      )}
+        .btn:active {
+            transform: scale(0.95);
+        }
 
-      <style jsx>{`
+        .btn.secondary {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+
+        .instruction-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .instruction-text {
+            font-size: 32px;
+            color: #2d3748;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .instruction-highlight {
+            color: #f5576c;
+            font-size: 40px;
+        }
+
+        .play-sound-btn {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s;
+            font-weight: bold;
+            font-family: inherit;
+        }
+
+        .play-sound-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .main-game-area {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .scene-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            min-height: 600px;
+        }
+
+        .scene-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .scene-image {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .drop-zone {
+            position: absolute;
+            border: 3px dashed transparent;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .drop-zone.active {
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.1);
+        }
+
+        .drop-zone.highlight {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.2);
+            animation: pulse-zone 1.5s infinite;
+        }
+
+        @keyframes pulse-zone {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .placed-item {
+            position: absolute;
+            cursor: grab;
+            transition: transform 0.3s;
+        }
+
+        .placed-item:active {
+            cursor: grabbing;
+        }
+
+        .placed-item.correct-placement {
+            animation: success-bounce 0.6s;
+        }
+
+        @keyframes success-bounce {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.2) rotate(-5deg); }
+            75% { transform: scale(1.2) rotate(5deg); }
+        }
+
+        .placed-item.incorrect-placement {
+            animation: shake-item 0.5s;
+        }
+
+        @keyframes shake-item {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .items-tray {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tray-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .draggable-item {
+            background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+            border-radius: 15px;
+            padding: 15px;
+            cursor: grab;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+        }
+
+        .draggable-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+
+        .draggable-item.used {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .draggable-item.used:hover {
+            transform: none;
+        }
+
+        .item-image {
+            max-width: 80px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+
+        .feedback-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            font-size: 36px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: fade-in 0.3s;
+        }
+
+        .feedback-message.correct {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            color: white;
+        }
+
+        .feedback-message.incorrect {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .confetti {
+            position: fixed;
+            font-size: 40px;
+            animation: fall 2s linear forwards;
+            pointer-events: none;
+            z-index: 999;
+        }
+
         @keyframes fall {
-          to {
-            transform: translateY(100vh) rotate(360deg);
-            opacity: 0;
-          }
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
         }
-        .animate-fall {
-          animation: fall linear forwards;
-        }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-10px); }
-          75% { transform: translateX(10px); }
-        }
-        .animate-shake {
-          animation: shake 0.3s;
-        }
-      `}</style>
-    </div>
-  );
-};
 
-export default ABAReinforcement;
+        .level-complete {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .level-complete-card {
+            background: white;
+            border-radius: 30px;
+            padding: 60px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: bounce-in 0.6s;
+        }
+
+        @keyframes bounce-in {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .level-complete-card h2 {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .stars {
+            font-size: 60px;
+            margin: 20px 0;
+        }
+
+        .level-complete-card p {
+            font-size: 24px;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-game-area {
+                grid-template-columns: 1fr;
+            }
+
+            .items-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .items-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .instruction-text {
+                font-size: 24px;
+            }
+
+            .instruction-highlight {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <div class="level-indicator" id="levelIndicator">Level 1: On, In, Under</div>
+            <div class="stats">
+                <div class="stat trial">
+                    <span>📝</span>
+                    <span id="trialCount">Trial 1/10</span>
+                </div>
+                <div class="stat correct">
+                    <span>✓</span>
+                    <span id="correctCount">0</span>
+                </div>
+                <div class="stat incorrect">
+                    <span>✗</span>
+                    <span id="incorrectCount">0</span>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn secondary" id="soundToggle">🔊 Sound ON</button>
+                <button class="btn" id="restartBtn">🔄 Restart</button>
+            </div>
+        </div>
+
+        <div class="instruction-panel">
+            <div class="instruction-text">
+                Put the <span class="instruction-highlight" id="itemName">ball</span> 
+                <span class="instruction-highlight" id="preposition">on</span> 
+                the <span class="instruction-highlight" id="targetName">table</span>
+            </div>
+            <button class="play-sound-btn" id="playSoundBtn">
+                🔊 Play Instruction
+            </button>
+        </div>
+
+        <div class="main-game-area">
+            <div class="scene-container">
+                <div class="scene-wrapper" id="sceneWrapper">
+                    <!-- Scene image will be loaded here -->
+                    <img src="assets/scenes/living-room.png" alt="Living room scene" class="scene-image" id="sceneImage">
+                    <!-- Drop zones will be created dynamically -->
+                </div>
+            </div>
+
+            <div class="items-tray">
+                <div class="tray-title">Drag items here 👇</div>
+                <div class="items-grid" id="itemsGrid">
+                    <!-- Items will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game Configuration
+        var soundEnabled = true;
+        var currentLevel = 1;
+        var currentTrial = 0;
+        var correctCount = 0;
+        var incorrectCount = 0;
+        var promptLevel = 0;
+
+        // Level definitions
+        var levels = {
+            1: {
+                name: "Level 1: On, In, Under",
+                prepositions: ['on', 'in', 'under'],
+                trialsPerPreposition: 3
+            },
+            2: {
+                name: "Level 2: Next to, Between",
+                prepositions: ['next to', 'between'],
+                trialsPerPreposition: 4
+            },
+            3: {
+                name: "Level 3: Inside, Outside",
+                prepositions: ['inside', 'outside'],
+                trialsPerPreposition: 4
+            }
+        };
+
+        // Items library
+        var items = [
+            { id: 'ball', name: 'ball', image: 'assets/items/ball.png' },
+            { id: 'teddy', name: 'teddy bear', image: 'assets/items/teddy-bear.png' },
+            { id: 'book', name: 'book', image: 'assets/items/book.png' },
+            { id: 'cup', name: 'cup', image: 'assets/items/cup.png' },
+            { id: 'car', name: 'car', image: 'assets/items/toy-car.png' },
+            { id: 'apple', name: 'apple', image: 'assets/items/apple.png' },
+            { id: 'pillow', name: 'pillow', image: 'assets/items/pillow.png' },
+            { id: 'block', name: 'block', image: 'assets/items/block.png' }
+        ];
+
+        // Drop zones configuration (positions on the scene)
+        var dropZones = {
+            'on_table': { left: '35%', top: '45%', width: '25%', height: '15%', targets: ['table'], preposition: 'on' },
+            'on_couch': { left: '10%', top: '50%', width: '20%', height: '20%', targets: ['couch'], preposition: 'on' },
+            'on_rug': { left: '35%', top: '65%', width: '25%', height: '15%', targets: ['rug'], preposition: 'on' },
+            'under_table': { left: '35%', top: '62%', width: '25%', height: '10%', targets: ['table'], preposition: 'under' },
+            'in_bookshelf': { left: '70%', top: '40%', width: '20%', height: '30%', targets: ['bookshelf'], preposition: 'in' },
+            'next_to_couch': { left: '32%', top: '55%', width: '15%', height: '20%', targets: ['couch'], preposition: 'next to' },
+            'between_couch_table': { left: '28%', top: '55%', width: '10%', height: '15%', targets: ['couch', 'table'], preposition: 'between' }
+        };
+
+        var trials = [];
+        var currentTrialData = null;
+        var draggedElement = null;
+
+        // Initialize game
+        function initGame() {
+            generateTrials();
+            setupDropZones();
+            loadTrial();
+            setupEventListeners();
+        }
+
+        function generateTrials() {
+            var levelConfig = levels[currentLevel];
+            trials = [];
+            
+            levelConfig.prepositions.forEach(function(prep) {
+                for (var i = 0; i < levelConfig.trialsPerPreposition; i++) {
+                    var item = items[Math.floor(Math.random() * items.length)];
+                    var validZones = Object.keys(dropZones).filter(function(key) {
+                        return dropZones[key].preposition === prep;
+                    });
+                    
+                    if (validZones.length > 0) {
+                        var zoneKey = validZones[Math.floor(Math.random() * validZones.length)];
+                        var zone = dropZones[zoneKey];
+                        
+                        trials.push({
+                            item: item,
+                            preposition: prep,
+                            target: zone.targets[0],
+                            correctZone: zoneKey
+                        });
+                    }
+                }
+            });
+            
+            // Shuffle trials
+            for (var i = trials.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = trials[i];
+                trials[i] = trials[j];
+                trials[j] = temp;
+            }
+        }
+
+        function setupDropZones() {
+            var sceneWrapper = document.getElementById('sceneWrapper');
+            
+            Object.keys(dropZones).forEach(function(zoneKey) {
+                var zone = dropZones[zoneKey];
+                var dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.id = 'zone-' + zoneKey;
+                dropZone.style.left = zone.left;
+                dropZone.style.top = zone.top;
+                dropZone.style.width = zone.width;
+                dropZone.style.height = zone.height;
+                
+                dropZone.addEventListener('dragover', handleDragOver);
+                dropZone.addEventListener('drop', handleDrop);
+                dropZone.addEventListener('dragleave', handleDragLeave);
+                
+                sceneWrapper.appendChild(dropZone);
+            });
+        }
+
+        function loadTrial() {
+            if (currentTrial >= trials.length) {
+                showLevelComplete();
+                return;
+            }
+
+            currentTrialData = trials[currentTrial];
+            promptLevel = 0;
+            
+            // Update UI
+            document.getElementById('trialCount').textContent = 'Trial ' + (currentTrial + 1) + '/' + trials.length;
+            document.getElementById('itemName').textContent = currentTrialData.item.name;
+            document.getElementById('preposition').textContent = currentTrialData.preposition;
+            document.getElementById('targetName').textContent = currentTrialData.target;
+            
+            // Load items tray
+            loadItemsTray();
+            
+            // Clear previous placements
+            var placed = document.querySelectorAll('.placed-item');
+            placed.forEach(function(el) { el.remove(); });
+            
+            // Reset zone highlights
+            var zones = document.querySelectorAll('.drop-zone');
+            zones.forEach(function(zone) {
+                zone.classList.remove('active', 'highlight');
+            });
+        }
+
+        function loadItemsTray() {
+            var grid = document.getElementById('itemsGrid');
+            grid.innerHTML = '';
+            
+            items.forEach(function(item) {
+                var itemDiv = document.createElement('div');
+                itemDiv.className = 'draggable-item';
+                itemDiv.draggable = true;
+                itemDiv.dataset.itemId = item.id;
+                
+                var img = document.createElement('img');
+                img.src = item.image;
+                img.alt = item.name;
+                img.className = 'item-image';
+                img.draggable = false;
+                
+                itemDiv.appendChild(img);
+                itemDiv.addEventListener('dragstart', handleDragStart);
+                itemDiv.addEventListener('dragend', handleDragEnd);
+                
+                grid.appendChild(itemDiv);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.style.opacity = '0.5';
+            
+            // Show all zones as active
+            var zones = document.querySelectorAll('.drop-zone');
+            zones.forEach(function(zone) {
+                zone.classList.add('active');
+            });
+            
+            // Highlight correct zone if prompting
+            if (promptLevel === 2) {
+                var correctZone = document.getElementById('zone-' + currentTrialData.correctZone);
+                if (correctZone) {
+                    correctZone.classList.add('highlight');
+                }
+            }
+        }
+
+        function handleDragEnd(e) {
+            e.target.style.opacity = '1';
+            
+            var zones = document.querySelectorAll('.drop-zone');
+            zones.forEach(function(zone) {
+                zone.classList.remove('active', 'highlight');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragLeave(e) {
+            // Could add visual feedback here
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            
+            if (!draggedElement) return;
+            
+            var zoneId = e.currentTarget.id.replace('zone-', '');
+            var itemId = draggedElement.dataset.itemId;
+            
+            checkAnswer(zoneId, itemId);
+        }
+
+        function checkAnswer(zoneId, itemId) {
+            var isCorrect = zoneId === currentTrialData.correctZone && itemId === currentTrialData.item.id;
+            
+            if (isCorrect) {
+                correctCount++;
+                document.getElementById('correctCount').textContent = correctCount;
+                showFeedback(true);
+                playSound('correct');
+                createConfetti();
+                
+                // Place item on scene
+                placeItemOnScene(zoneId, currentTrialData.item);
+                
+                // Mark item as used
+                draggedElement.classList.add('used');
+                draggedElement.draggable = false;
+                
+                setTimeout(function() {
+                    currentTrial++;
+                    loadTrial();
+                }, 2000);
+            } else {
+                incorrectCount++;
+                document.getElementById('incorrectCount').textContent = incorrectCount;
+                showFeedback(false);
+                playSound('incorrect');
+                
+                // Error correction - increase prompt level
+                promptLevel++;
+                
+                if (promptLevel === 1) {
+                    // Visual prompt: show zone areas
+                    setTimeout(function() {
+                        showInstruction();
+                    }, 1500);
+                } else if (promptLevel === 2) {
+                    // Full prompt: highlight correct zone
+                    setTimeout(function() {
+                        var correctZone = document.getElementById('zone-' + currentTrialData.correctZone);
+                        if (correctZone) {
+                            correctZone.classList.add('highlight');
+                        }
+                        showInstruction();
+                    }, 1500);
+                }
+            }
+            
+            draggedElement = null;
+        }
+
+        function placeItemOnScene(zoneId, item) {
+            var zone = dropZones[zoneId];
+            var sceneWrapper = document.getElementById('sceneWrapper');
+            
+            var placedItem = document.createElement('img');
+            placedItem.src = item.image;
+            placedItem.className = 'placed-item correct-placement';
+            placedItem.style.position = 'absolute';
+            placedItem.style.left = zone.left;
+            placedItem.style.top = zone.top;
+            placedItem.style.width = '80px';
+            placedItem.style.height = 'auto';
+            placedItem.style.zIndex = '100';
+            
+            sceneWrapper.appendChild(placedItem);
+        }
+
+        function showFeedback(isCorrect) {
+            var feedback = document.createElement('div');
+            feedback.className = 'feedback-message ' + (isCorrect ? 'correct' : 'incorrect');
+            feedback.textContent = isCorrect ? '🌟 Great Job! 🌟' : '❌ Try Again!';
+            document.body.appendChild(feedback);
+            
+            setTimeout(function() {
+                feedback.remove();
+            }, 1500);
+        }
+
+        function createConfetti() {
+            var symbols = ['🎉', '⭐', '🌟', '✨', '🎊'];
+            for (var i = 0; i < 20; i++) {
+                var confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(function(el) {
+                    return function() { el.remove(); };
+                }(confetti), 2500);
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            
+            // Using Web Speech API for text-to-speech
+            if ('speechSynthesis' in window) {
+                var utterance = new SpeechSynthesisUtterance();
+                if (type === 'correct') {
+                    utterance.text = 'Great job!';
+                    utterance.pitch = 1.5;
+                } else {
+                    utterance.text = 'Try again';
+                    utterance.pitch = 1;
+                }
+                utterance.rate = 1.2;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function showInstruction() {
+            if (!soundEnabled) return;
+            
+            if ('speechSynthesis' in window) {
+                var text = 'Put the ' + currentTrialData.item.name + ' ' + 
+                          currentTrialData.preposition + ' the ' + currentTrialData.target;
+                var utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function showLevelComplete() {
+            var accuracy = Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+            var stars = accuracy >= 90 ? '⭐⭐⭐' : accuracy >= 75 ? '⭐⭐' : '⭐';
+            
+            var overlay = document.createElement('div');
+            overlay.className = 'level-complete';
+            overlay.innerHTML = '<div class="level-complete-card">' +
+                '<h2>Level Complete!</h2>' +
+                '<div class="stars">' + stars + '</div>' +
+                '<p>Accuracy: ' + accuracy + '%</p>' +
+                '<p>Correct: ' + correctCount + ' | Incorrect: ' + incorrectCount + '</p>' +
+                '<button class="btn" onclick="nextLevel()">Next Level</button> ' +
+                '<button class="btn secondary" onclick="restartLevel()">Replay Level</button>' +
+                '</div>';
+            
+            document.body.appendChild(overlay);
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            if (currentLevel > 3) {
+                alert('Congratulations! You completed all levels!');
+                currentLevel = 1;
+            }
+            restartLevel();
+        }
+
+        function restartLevel() {
+            var overlay = document.querySelector('.level-complete');
+            if (overlay) overlay.remove();
+            
+            currentTrial = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            document.getElementById('correctCount').textContent = '0';
+            document.getElementById('incorrectCount').textContent = '0';
+            document.getElementById('levelIndicator').textContent = levels[currentLevel].name;
+            
+            generateTrials();
+            loadTrial();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('playSoundBtn').addEventListener('click', showInstruction);
+            document.getElementById('restartBtn').addEventListener('click', restartLevel);
+            document.getElementById('soundToggle').addEventListener('click', function() {
+                soundEnabled = !soundEnabled;
+                this.textContent = soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF';
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
