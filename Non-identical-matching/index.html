@@ -1,0 +1,269 @@
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Star, Trophy, ArrowRight } from 'lucide-react';
+
+const ABAReinforcement = () => {
+  const [currentTrial, setCurrentTrial] = useState(0);
+  const [score, setScore] = useState(0);
+  const [promptLevel, setPromptLevel] = useState(0);
+  const [showFeedback, setShowFeedback] = useState(null);
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [attempts, setAttempts] = useState(0);
+  const [celebrating, setCelebrating] = useState(false);
+
+  // 30 trials with increasing difficulty
+  const trials = [
+    // Level 1: Simple common objects (1-10)
+    { word: 'hat', image: '🧢', options: ['hat', 'cat', 'bat'] },
+    { word: 'cat', image: '🐱', options: ['cat', 'hat', 'mat'] },
+    { word: 'dog', image: '🐕', options: ['dog', 'log', 'fog'] },
+    { word: 'sun', image: '☀️', options: ['sun', 'fun', 'run'] },
+    { word: 'car', image: '🚗', options: ['car', 'bar', 'far'] },
+    { word: 'ball', image: '⚽', options: ['ball', 'call', 'wall'] },
+    { word: 'cup', image: '🥤', options: ['cup', 'pup', 'up'] },
+    { word: 'bed', image: '🛏️', options: ['bed', 'red', 'fed'] },
+    { word: 'book', image: '📚', options: ['book', 'look', 'cook'] },
+    { word: 'tree', image: '🌳', options: ['tree', 'bee', 'see'] },
+    
+    // Level 2: Common items (11-20)
+    { word: 'apple', image: '🍎', options: ['apple', 'table', 'maple'] },
+    { word: 'fish', image: '🐠', options: ['fish', 'dish', 'wish'] },
+    { word: 'bird', image: '🦜', options: ['bird', 'word', 'herd'] },
+    { word: 'moon', image: '🌙', options: ['moon', 'soon', 'spoon'] },
+    { word: 'star', image: '⭐', options: ['star', 'car', 'far'] },
+    { word: 'house', image: '🏠', options: ['house', 'mouse', 'blouse'] },
+    { word: 'cake', image: '🎂', options: ['cake', 'lake', 'make'] },
+    { word: 'flower', image: '🌸', options: ['flower', 'tower', 'power'] },
+    { word: 'train', image: '🚂', options: ['train', 'rain', 'brain'] },
+    { word: 'plane', image: '✈️', options: ['plane', 'lane', 'cane'] },
+    
+    // Level 3: More complex words (21-30)
+    { word: 'butterfly', image: '🦋', options: ['butterfly', 'dragonfly', 'firefly'] },
+    { word: 'elephant', image: '🐘', options: ['elephant', 'dolphin', 'penguin'] },
+    { word: 'rainbow', image: '🌈', options: ['rainbow', 'window', 'pillow'] },
+    { word: 'pizza', image: '🍕', options: ['pizza', 'pasta', 'taco'] },
+    { word: 'guitar', image: '🎸', options: ['guitar', 'piano', 'drum'] },
+    { word: 'rocket', image: '🚀', options: ['rocket', 'ocket', 'socket'] },
+    { word: 'turtle', image: '🐢', options: ['turtle', 'purple', 'circle'] },
+    { word: 'strawberry', image: '🍓', options: ['strawberry', 'blueberry', 'raspberry'] },
+    { word: 'bicycle', image: '🚲', options: ['bicycle', 'tricycle', 'motorcycle'] },
+    { word: 'dinosaur', image: '🦕', options: ['dinosaur', 'alligator', 'crocodile'] }
+  ];
+
+  const trial = trials[currentTrial];
+
+  const handleWordClick = (word) => {
+    setSelectedWord(word);
+    setAttempts(attempts + 1);
+
+    if (word === trial.word) {
+      // Correct response
+      setShowFeedback('correct');
+      setScore(score + 1);
+      setCelebrating(true);
+      
+      setTimeout(() => {
+        setShowFeedback(null);
+        setSelectedWord(null);
+        setPromptLevel(0);
+        setAttempts(0);
+        setCelebrating(false);
+        
+        if (currentTrial < trials.length - 1) {
+          setCurrentTrial(currentTrial + 1);
+        }
+      }, 2000);
+    } else {
+      // Incorrect - implement least-to-most prompting
+      setShowFeedback('incorrect');
+      
+      setTimeout(() => {
+        setShowFeedback(null);
+        setSelectedWord(null);
+        
+        // Move to next prompt level
+        if (promptLevel < 2) {
+          setPromptLevel(promptLevel + 1);
+        } else {
+          // After full prompting, move to next trial
+          setPromptLevel(0);
+          setAttempts(0);
+          if (currentTrial < trials.length - 1) {
+            setCurrentTrial(currentTrial + 1);
+          }
+        }
+      }, 1500);
+    }
+  };
+
+  const getPromptMessage = () => {
+    if (promptLevel === 0) return "Match the word to the picture!";
+    if (promptLevel === 1) return `Find the word that starts with "${trial.word[0]}"`;
+    if (promptLevel === 2) return `The word is "${trial.word}" - tap it!`;
+    return "";
+  };
+
+  const shouldHighlight = (word) => {
+    return promptLevel === 2 && word === trial.word;
+  };
+
+  if (currentTrial >= trials.length) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-yellow-400 flex items-center justify-center p-8">
+        <div className="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-md transform animate-bounce">
+          <Trophy className="w-24 h-24 mx-auto text-yellow-500 mb-6" />
+          <h1 className="text-4xl font-bold text-purple-600 mb-4">Amazing Work!</h1>
+          <p className="text-2xl text-gray-700 mb-6">You completed all 30 trials!</p>
+          <p className="text-3xl font-bold text-green-600 mb-8">Score: {score}/30</p>
+          <button
+            onClick={() => {
+              setCurrentTrial(0);
+              setScore(0);
+              setPromptLevel(0);
+              setAttempts(0);
+            }}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-110 transform transition"
+          >
+            Play Again!
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 p-8">
+      {/* Header */}
+      <div className="max-w-4xl mx-auto mb-8">
+        <div className="bg-white rounded-2xl shadow-lg p-6 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Star className="w-8 h-8 text-yellow-500" />
+            <span className="text-2xl font-bold text-purple-600">Trial {currentTrial + 1}/30</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Trophy className="w-8 h-8 text-green-500" />
+            <span className="text-2xl font-bold text-green-600">Score: {score}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Game Area */}
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-6">
+          {/* Prompt Message */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">{getPromptMessage()}</h2>
+            {promptLevel > 0 && (
+              <div className="inline-flex items-center gap-2 bg-yellow-100 px-6 py-3 rounded-full animate-pulse">
+                <Sparkles className="w-5 h-5 text-yellow-600" />
+                <span className="text-lg text-yellow-700 font-semibold">
+                  {promptLevel === 1 ? 'Hint!' : 'Look here!'}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Picture Display */}
+          <div className="flex justify-center mb-8">
+            <div className={`bg-gradient-to-br from-yellow-200 to-orange-200 rounded-3xl p-12 shadow-lg transform transition-all ${celebrating ? 'scale-110 rotate-6' : 'hover:scale-105'}`}>
+              <div className="text-9xl">{trial.image}</div>
+            </div>
+          </div>
+
+          {/* Word Options */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {trial.options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleWordClick(option)}
+                disabled={showFeedback !== null}
+                className={`
+                  relative overflow-hidden p-8 rounded-2xl text-3xl font-bold transition-all transform
+                  ${shouldHighlight(option) 
+                    ? 'bg-gradient-to-br from-green-300 to-green-400 animate-pulse ring-4 ring-green-500 scale-105' 
+                    : 'bg-gradient-to-br from-purple-300 to-blue-300 hover:scale-105 hover:shadow-xl'
+                  }
+                  ${selectedWord === option && showFeedback === 'correct' 
+                    ? 'bg-gradient-to-br from-green-400 to-green-500 scale-110' 
+                    : ''
+                  }
+                  ${selectedWord === option && showFeedback === 'incorrect' 
+                    ? 'bg-gradient-to-br from-red-400 to-red-500 animate-shake' 
+                    : ''
+                  }
+                  disabled:cursor-not-allowed text-white shadow-lg
+                `}
+              >
+                {option}
+                {selectedWord === option && showFeedback === 'correct' && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-90">
+                    <Star className="w-16 h-16 text-yellow-300 animate-spin" />
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Feedback Messages */}
+        {showFeedback === 'correct' && (
+          <div className="bg-green-500 text-white rounded-2xl p-6 text-center animate-bounce">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <Star className="w-12 h-12" />
+              <h3 className="text-4xl font-bold">Great Job!</h3>
+              <Star className="w-12 h-12" />
+            </div>
+            <p className="text-2xl">You matched it correctly!</p>
+          </div>
+        )}
+
+        {showFeedback === 'incorrect' && (
+          <div className="bg-orange-400 text-white rounded-2xl p-6 text-center">
+            <h3 className="text-3xl font-bold mb-2">Let's try again!</h3>
+            <p className="text-xl">You can do it!</p>
+          </div>
+        )}
+      </div>
+
+      {/* Confetti effect for celebrations */}
+      {celebrating && (
+        <div className="fixed inset-0 pointer-events-none">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute text-4xl animate-fall"
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 0.5}s`,
+                animationDuration: `${1 + Math.random()}s`
+              }}
+            >
+              {['🎉', '⭐', '🌟', '✨'][Math.floor(Math.random() * 4)]}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes fall {
+          to {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+          }
+        }
+        .animate-fall {
+          animation: fall linear forwards;
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-10px); }
+          75% { transform: translateX(10px); }
+        }
+        .animate-shake {
+          animation: shake 0.3s;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default ABAReinforcement;
