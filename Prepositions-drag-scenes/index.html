@@ -1,741 +1,269 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Living Room — Receptive Prepositions (Drag & Drop)</title>
-  <style>
-    :root{
-      --bg:#f6f7fb;
-      --card:#ffffff;
-      --ink:#111;
-      --muted:rgba(0,0,0,.6);
-      --border:1px solid rgba(0,0,0,.12);
-      --radius:16px;
-      --gap:12px;
-      --good:#0a7a1f;
-      --bad:#b00020;
-      --shadow:0 8px 20px rgba(0,0,0,.07);
-    }
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:var(--bg);
-      color:var(--ink);
-    }
-    .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:16px;
-      display:grid;
-      gap:var(--gap);
-    }
-    .card{
-      background:var(--card);
-      border:var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:14px;
-    }
-    .top{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-    }
-    h1{
-      font-size:18px;
-      margin:0;
-    }
-    .sub{
-      font-size:13px;
-      color:var(--muted);
-      margin-top:2px;
-    }
-    .controls{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:flex-end;
-    }
-    .btn{
-      border:var(--border);
-      background:#fff;
-      border-radius:12px;
-      padding:10px 12px;
-      cursor:pointer;
-      font-weight:650;
-    }
-    .btn:disabled{
-      opacity:.5;
-      cursor:not-allowed;
-    }
-    .toggle{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      border:var(--border);
-      border-radius:999px;
-      padding:8px 10px;
-      background:#fff;
-      font-weight:650;
-    }
-    .mini{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:600;
-    }
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Star, Trophy, ArrowRight } from 'lucide-react';
 
-    .kpis{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-    }
-    .pill{
-      border:var(--border);
-      background:#fff;
-      border-radius:999px;
-      padding:8px 10px;
-      display:flex;
-      gap:8px;
-      align-items:center;
-      font-weight:700;
-    }
+const ABAReinforcement = () => {
+  const [currentTrial, setCurrentTrial] = useState(0);
+  const [score, setScore] = useState(0);
+  const [promptLevel, setPromptLevel] = useState(0);
+  const [showFeedback, setShowFeedback] = useState(null);
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [attempts, setAttempts] = useState(0);
+  const [celebrating, setCelebrating] = useState(false);
 
-    .layout{
-      display:grid;
-      gap:var(--gap);
-      grid-template-columns: 1.3fr .7fr;
-      align-items:start;
-    }
-    @media (max-width: 980px){
-      .layout{ grid-template-columns: 1fr; }
-    }
+  // 30 trials with increasing difficulty
+  const trials = [
+    // Level 1: Simple common objects (1-10)
+    { word: 'hat', image: '🧢', options: ['hat', 'cat', 'bat'] },
+    { word: 'cat', image: '🐱', options: ['cat', 'hat', 'mat'] },
+    { word: 'dog', image: '🐕', options: ['dog', 'log', 'fog'] },
+    { word: 'sun', image: '☀️', options: ['sun', 'fun', 'run'] },
+    { word: 'car', image: '🚗', options: ['car', 'bar', 'far'] },
+    { word: 'ball', image: '⚽', options: ['ball', 'call', 'wall'] },
+    { word: 'cup', image: '🥤', options: ['cup', 'pup', 'up'] },
+    { word: 'bed', image: '🛏️', options: ['bed', 'red', 'fed'] },
+    { word: 'book', image: '📚', options: ['book', 'look', 'cook'] },
+    { word: 'tree', image: '🌳', options: ['tree', 'bee', 'see'] },
+    
+    // Level 2: Common items (11-20)
+    { word: 'apple', image: '🍎', options: ['apple', 'table', 'maple'] },
+    { word: 'fish', image: '🐠', options: ['fish', 'dish', 'wish'] },
+    { word: 'bird', image: '🦜', options: ['bird', 'word', 'herd'] },
+    { word: 'moon', image: '🌙', options: ['moon', 'soon', 'spoon'] },
+    { word: 'star', image: '⭐', options: ['star', 'car', 'far'] },
+    { word: 'house', image: '🏠', options: ['house', 'mouse', 'blouse'] },
+    { word: 'cake', image: '🎂', options: ['cake', 'lake', 'make'] },
+    { word: 'flower', image: '🌸', options: ['flower', 'tower', 'power'] },
+    { word: 'train', image: '🚂', options: ['train', 'rain', 'brain'] },
+    { word: 'plane', image: '✈️', options: ['plane', 'lane', 'cane'] },
+    
+    // Level 3: More complex words (21-30)
+    { word: 'butterfly', image: '🦋', options: ['butterfly', 'dragonfly', 'firefly'] },
+    { word: 'elephant', image: '🐘', options: ['elephant', 'dolphin', 'penguin'] },
+    { word: 'rainbow', image: '🌈', options: ['rainbow', 'window', 'pillow'] },
+    { word: 'pizza', image: '🍕', options: ['pizza', 'pasta', 'taco'] },
+    { word: 'guitar', image: '🎸', options: ['guitar', 'piano', 'drum'] },
+    { word: 'rocket', image: '🚀', options: ['rocket', 'ocket', 'socket'] },
+    { word: 'turtle', image: '🐢', options: ['turtle', 'purple', 'circle'] },
+    { word: 'strawberry', image: '🍓', options: ['strawberry', 'blueberry', 'raspberry'] },
+    { word: 'bicycle', image: '🚲', options: ['bicycle', 'tricycle', 'motorcycle'] },
+    { word: 'dinosaur', image: '🦕', options: ['dinosaur', 'alligator', 'crocodile'] }
+  ];
 
-    /* Scene */
-    .sceneWrap{
-      position:relative;
-      border:var(--border);
-      border-radius:var(--radius);
-      overflow:hidden;
-      background:#e9ecf6;
-      user-select:none;
-      touch-action:none; /* important for drag on mobile */
-    }
-    .sceneImg{
-      width:100%;
-      height:auto;
-      display:block;
-    }
+  const trial = trials[currentTrial];
 
-    /* Zones are invisible but can be debugged */
-    .zone{
-      position:absolute;
-      border-radius:10px;
-      /* outline: 2px dashed rgba(0,0,0,.25);  Uncomment to debug zones */
-    }
+  const handleWordClick = (word) => {
+    setSelectedWord(word);
+    setAttempts(attempts + 1);
 
-    /* Item tray */
-    .tray{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap:10px;
+    if (word === trial.word) {
+      // Correct response
+      setShowFeedback('correct');
+      setScore(score + 1);
+      setCelebrating(true);
+      
+      setTimeout(() => {
+        setShowFeedback(null);
+        setSelectedWord(null);
+        setPromptLevel(0);
+        setAttempts(0);
+        setCelebrating(false);
+        
+        if (currentTrial < trials.length - 1) {
+          setCurrentTrial(currentTrial + 1);
+        }
+      }, 2000);
+    } else {
+      // Incorrect - implement least-to-most prompting
+      setShowFeedback('incorrect');
+      
+      setTimeout(() => {
+        setShowFeedback(null);
+        setSelectedWord(null);
+        
+        // Move to next prompt level
+        if (promptLevel < 2) {
+          setPromptLevel(promptLevel + 1);
+        } else {
+          // After full prompting, move to next trial
+          setPromptLevel(0);
+          setAttempts(0);
+          if (currentTrial < trials.length - 1) {
+            setCurrentTrial(currentTrial + 1);
+          }
+        }
+      }, 1500);
     }
-    @media (max-width: 520px){
-      .tray{ grid-template-columns: repeat(3, minmax(0,1fr)); }
-    }
+  };
 
-    .tile{
-      border:var(--border);
-      border-radius:14px;
-      background:#fff;
-      padding:10px;
-      display:grid;
-      place-items:center;
-      min-height:92px;
-      cursor:grab;
-      user-select:none;
-      position:relative;
-    }
-    .tile:active{ cursor:grabbing; }
-    .tile img{
-      max-width:100%;
-      max-height:70px;
-      height:auto;
-      width:auto;
-      display:block;
-    }
-    .tile .label{
-      margin-top:6px;
-      font-size:12px;
-      font-weight:700;
-      color:var(--muted);
-      text-align:center;
-    }
+  const getPromptMessage = () => {
+    if (promptLevel === 0) return "Match the word to the picture!";
+    if (promptLevel === 1) return `Find the word that starts with "${trial.word[0]}"`;
+    if (promptLevel === 2) return `The word is "${trial.word}" - tap it!`;
+    return "";
+  };
 
-    /* Draggable on scene */
-    .floatingItem{
-      position:absolute;
-      left:0; top:0;
-      width: clamp(52px, 9vw, 110px);
-      height:auto;
-      cursor:grab;
-      user-select:none;
-      touch-action:none;
-      transform: translate(-50%, -50%);
-      filter: drop-shadow(0 8px 10px rgba(0,0,0,.18));
-    }
-    .floatingItem:active{ cursor:grabbing; }
+  const shouldHighlight = (word) => {
+    return promptLevel === 2 && word === trial.word;
+  };
 
-    .feedback{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:var(--border);
-      background:#fafafa;
-      font-weight:750;
-    }
-    .fbGood{ color:var(--good); }
-    .fbBad{ color:var(--bad); }
-    .prompt{
-      font-size: clamp(18px, 3vw, 28px);
-      font-weight:900;
-      margin-top:8px;
-      line-height:1.15;
-    }
-
-    .helper{
-      margin-top:8px;
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.3;
-    }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="card">
-      <div class="top">
-        <div>
-          <h1>Living Room — Receptive Prepositions</h1>
-          <div class="sub">Drag the item into the scene where the instruction says. (Snaps to zones • Approx OK • Wrong = snap back)</div>
+  if (currentTrial >= trials.length) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-yellow-400 flex items-center justify-center p-8">
+        <div className="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-md transform animate-bounce">
+          <Trophy className="w-24 h-24 mx-auto text-yellow-500 mb-6" />
+          <h1 className="text-4xl font-bold text-purple-600 mb-4">Amazing Work!</h1>
+          <p className="text-2xl text-gray-700 mb-6">You completed all 30 trials!</p>
+          <p className="text-3xl font-bold text-green-600 mb-8">Score: {score}/30</p>
+          <button
+            onClick={() => {
+              setCurrentTrial(0);
+              setScore(0);
+              setPromptLevel(0);
+              setAttempts(0);
+            }}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-110 transform transition"
+          >
+            Play Again!
+          </button>
         </div>
-        <div class="controls">
-          <label class="toggle">
-            <input id="ttsToggle" type="checkbox" checked />
-            Spoken SD
-          </label>
-          <button class="btn" id="playBtn" type="button">▶ Play SD</button>
-          <button class="btn" id="nextBtn" type="button">Next</button>
-          <button class="btn" id="restartBtn" type="button">Restart</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 p-8">
+      {/* Header */}
+      <div className="max-w-4xl mx-auto mb-8">
+        <div className="bg-white rounded-2xl shadow-lg p-6 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Star className="w-8 h-8 text-yellow-500" />
+            <span className="text-2xl font-bold text-purple-600">Trial {currentTrial + 1}/30</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Trophy className="w-8 h-8 text-green-500" />
+            <span className="text-2xl font-bold text-green-600">Score: {score}</span>
+          </div>
         </div>
       </div>
 
-      <div class="kpis">
-        <div class="pill">Trial <span id="trialNum">1</span>/<span id="trialTotal">25</span></div>
-        <div class="pill">Correct <span id="kpiCorrect">0</span></div>
-        <div class="pill">Incorrect <span id="kpiIncorrect">0</span></div>
+      {/* Main Game Area */}
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-6">
+          {/* Prompt Message */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">{getPromptMessage()}</h2>
+            {promptLevel > 0 && (
+              <div className="inline-flex items-center gap-2 bg-yellow-100 px-6 py-3 rounded-full animate-pulse">
+                <Sparkles className="w-5 h-5 text-yellow-600" />
+                <span className="text-lg text-yellow-700 font-semibold">
+                  {promptLevel === 1 ? 'Hint!' : 'Look here!'}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Picture Display */}
+          <div className="flex justify-center mb-8">
+            <div className={`bg-gradient-to-br from-yellow-200 to-orange-200 rounded-3xl p-12 shadow-lg transform transition-all ${celebrating ? 'scale-110 rotate-6' : 'hover:scale-105'}`}>
+              <div className="text-9xl">{trial.image}</div>
+            </div>
+          </div>
+
+          {/* Word Options */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {trial.options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleWordClick(option)}
+                disabled={showFeedback !== null}
+                className={`
+                  relative overflow-hidden p-8 rounded-2xl text-3xl font-bold transition-all transform
+                  ${shouldHighlight(option) 
+                    ? 'bg-gradient-to-br from-green-300 to-green-400 animate-pulse ring-4 ring-green-500 scale-105' 
+                    : 'bg-gradient-to-br from-purple-300 to-blue-300 hover:scale-105 hover:shadow-xl'
+                  }
+                  ${selectedWord === option && showFeedback === 'correct' 
+                    ? 'bg-gradient-to-br from-green-400 to-green-500 scale-110' 
+                    : ''
+                  }
+                  ${selectedWord === option && showFeedback === 'incorrect' 
+                    ? 'bg-gradient-to-br from-red-400 to-red-500 animate-shake' 
+                    : ''
+                  }
+                  disabled:cursor-not-allowed text-white shadow-lg
+                `}
+              >
+                {option}
+                {selectedWord === option && showFeedback === 'correct' && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-90">
+                    <Star className="w-16 h-16 text-yellow-300 animate-spin" />
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Feedback Messages */}
+        {showFeedback === 'correct' && (
+          <div className="bg-green-500 text-white rounded-2xl p-6 text-center animate-bounce">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <Star className="w-12 h-12" />
+              <h3 className="text-4xl font-bold">Great Job!</h3>
+              <Star className="w-12 h-12" />
+            </div>
+            <p className="text-2xl">You matched it correctly!</p>
+          </div>
+        )}
+
+        {showFeedback === 'incorrect' && (
+          <div className="bg-orange-400 text-white rounded-2xl p-6 text-center">
+            <h3 className="text-3xl font-bold mb-2">Let's try again!</h3>
+            <p className="text-xl">You can do it!</p>
+          </div>
+        )}
       </div>
 
-      <div class="prompt" id="sdText">Loading…</div>
-      <div class="feedback" id="feedback">Drag an item into the living room scene.</div>
-      <div class="helper">
-        Tip: If “under” doesn’t look right, it will still grade correctly by zone — but we’re also using z-index to make it look under when possible.
-      </div>
+      {/* Confetti effect for celebrations */}
+      {celebrating && (
+        <div className="fixed inset-0 pointer-events-none">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute text-4xl animate-fall"
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 0.5}s`,
+                animationDuration: `${1 + Math.random()}s`
+              }}
+            >
+              {['🎉', '⭐', '🌟', '✨'][Math.floor(Math.random() * 4)]}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes fall {
+          to {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+          }
+        }
+        .animate-fall {
+          animation: fall linear forwards;
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-10px); }
+          75% { transform: translateX(10px); }
+        }
+        .animate-shake {
+          animation: shake 0.3s;
+        }
+      `}</style>
     </div>
+  );
+};
 
-    <div class="layout">
-      <!-- SCENE -->
-      <div class="card">
-        <div class="sceneWrap" id="sceneWrap" aria-label="Living room scene">
-          <img class="sceneImg" id="sceneImg" src="assets/scenes/scene-livingroom.png" alt="Living room scene" />
-
-          <!-- DROP ZONES (percent-based, forgiving rectangles)
-               NOTE: These are tuned for your provided living-room image.
-               If you swap to a different crop, you may adjust these numbers. -->
-          <!-- Couch area -->
-          <div class="zone" data-zone="couch" style="left:6%; top:53%; width:38%; height:34%;"></div>
-
-          <!-- Coffee table top area -->
-          <div class="zone" data-zone="table_top" style="left:34%; top:62%; width:26%; height:12%;"></div>
-
-          <!-- Under the coffee table -->
-          <div class="zone" data-zone="table_under" style="left:34%; top:74%; width:26%; height:10%;"></div>
-
-          <!-- Rug center area -->
-          <div class="zone" data-zone="rug" style="left:22%; top:70%; width:52%; height:22%;"></div>
-
-          <!-- TV screen area (for above/below targets too) -->
-          <div class="zone" data-zone="tv" style="left:80%; top:43%; width:16%; height:22%;"></div>
-
-          <!-- TV stand / console area -->
-          <div class="zone" data-zone="tvstand" style="left:70%; top:63%; width:28%; height:20%;"></div>
-
-          <!-- Lamp area (left side) -->
-          <div class="zone" data-zone="lamp" style="left:10%; top:40%; width:16%; height:34%;"></div>
-
-          <!-- Window area (center) -->
-          <div class="zone" data-zone="window" style="left:40%; top:18%; width:22%; height:26%;"></div>
-
-          <!-- Between couch and table (a forgiving rectangle in the gap) -->
-          <div class="zone" data-zone="between_couch_table" style="left:28%; top:60%; width:18%; height:12%;"></div>
-
-          <!-- Next to lamp (right of lamp, empty-ish area) -->
-          <div class="zone" data-zone="next_to_lamp" style="left:20%; top:58%; width:12%; height:16%;"></div>
-
-          <!-- Above TV (wall area just above screen) -->
-          <div class="zone" data-zone="above_tv" style="left:78%; top:30%; width:18%; height:12%;"></div>
-
-          <!-- Below window (area under window frame) -->
-          <div class="zone" data-zone="below_window" style="left:40%; top:44%; width:22%; height:10%;"></div>
-
-        </div>
-      </div>
-
-      <!-- ITEM TRAY -->
-      <div class="card">
-        <div class="sub" style="margin-bottom:10px;">Drag an item from the tray into the scene.</div>
-        <div class="tray" id="tray"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // -----------------------------
-    // 1) IMAGE LIBRARY (your PNGs)
-    // -----------------------------
-    const ITEMS = [
-      { id:"chips",   label:"Chips",   src:"assets/items/item-chips.png" },
-      { id:"phone",   label:"Phone",   src:"assets/items/item-phone.png" },
-      { id:"mug",     label:"Mug",     src:"assets/items/item-mug.png" },
-      { id:"teddy",   label:"Teddy",   src:"assets/items/item-teddy.png" },
-      { id:"car",     label:"Toy Car", src:"assets/items/item-car.png" },
-      { id:"book",    label:"Book",    src:"assets/items/item-book.png" },
-      { id:"remote",  label:"Remote",  src:"assets/items/item-remote.png" },
-      { id:"blanket", label:"Blanket", src:"assets/items/item-blanket.png" },
-      { id:"pillow",  label:"Pillow",  src:"assets/items/item-pillow.png" },
-      { id:"ball",    label:"Ball",    src:"assets/items/item-ball.png" },
-    ];
-
-    // -----------------------------------------
-    // 2) TRIAL BANK (25 trials, living-room)
-    // relation -> correct zone mapping
-    // -----------------------------------------
-    const TRIALS = [
-      // ON
-      { item:"remote",  relation:"on",       target:"table_top" },
-      { item:"book",    relation:"on",       target:"table_top" },
-      { item:"mug",     relation:"on",       target:"table_top" },
-      { item:"chips",   relation:"on",       target:"couch" }, // "on the couch" is OK (big forgiving zone)
-      { item:"pillow",  relation:"on",       target:"couch" },
-
-      // UNDER
-      { item:"ball",    relation:"under",    target:"table_under" },
-      { item:"car",     relation:"under",    target:"table_under" },
-      { item:"teddy",   relation:"under",    target:"table_under" },
-
-      // NEXT TO
-      { item:"phone",   relation:"next to",  target:"next_to_lamp" },
-      { item:"book",    relation:"next to",  target:"next_to_lamp" },
-      { item:"mug",     relation:"next to",  target:"tvstand" }, // next to TV stand (we allow tvstand as "next to" target too)
-
-      // BETWEEN
-      { item:"ball",    relation:"between",  target:"between_couch_table" },
-      { item:"car",     relation:"between",  target:"between_couch_table" },
-      { item:"teddy",   relation:"between",  target:"between_couch_table" },
-
-      // ABOVE
-      { item:"pillow",  relation:"above",    target:"above_tv" },
-      { item:"ball",    relation:"above",    target:"above_tv" },
-
-      // BELOW
-      { item:"book",    relation:"below",    target:"below_window" },
-      { item:"remote",  relation:"below",    target:"below_window" },
-
-      // MIX / REVIEW
-      { item:"chips",   relation:"on",       target:"table_top" },
-      { item:"phone",   relation:"on",       target:"couch" },
-      { item:"blanket", relation:"on",       target:"couch" },
-      { item:"blanket", relation:"under",    target:"table_under" },
-      { item:"mug",     relation:"below",    target:"below_window" },
-      { item:"remote",  relation:"next to",  target:"tvstand" },
-    ];
-
-    // -----------------------------------------
-    // 3) SIMPLE FEEDBACK SOUNDS (no files needed)
-    // -----------------------------------------
-    function beep(freq=440, dur=0.09, type="sine", vol=0.06){
-      try{
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = type;
-        o.frequency.value = freq;
-        g.gain.value = vol;
-        o.connect(g); g.connect(ctx.destination);
-        o.start();
-        o.stop(ctx.currentTime + dur);
-        o.onended = ()=> ctx.close();
-      }catch(e){}
-    }
-    function soundCorrect(){
-      beep(660,0.08,"triangle",0.06);
-      setTimeout(()=>beep(880,0.10,"triangle",0.06), 90);
-    }
-    function soundIncorrect(){
-      beep(220,0.11,"sine",0.05);
-    }
-
-    // -----------------------------------------
-    // 4) TTS (spoken SD)
-    // -----------------------------------------
-    function speak(text){
-      const ttsOn = document.getElementById("ttsToggle").checked;
-      if(!ttsOn) return;
-      if(!("speechSynthesis" in window)) return;
-
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = 0.95;
-      u.pitch = 1.05;
-      window.speechSynthesis.speak(u);
-    }
-
-    // -----------------------------------------
-    // 5) GAME STATE
-    // -----------------------------------------
-    const trayEl = document.getElementById("tray");
-    const sceneWrap = document.getElementById("sceneWrap");
-    const sdTextEl = document.getElementById("sdText");
-    const feedbackEl = document.getElementById("feedback");
-    const trialNumEl = document.getElementById("trialNum");
-    const trialTotalEl = document.getElementById("trialTotal");
-    const kpiCorrectEl = document.getElementById("kpiCorrect");
-    const kpiIncorrectEl = document.getElementById("kpiIncorrect");
-
-    const playBtn = document.getElementById("playBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const restartBtn = document.getElementById("restartBtn");
-
-    trialTotalEl.textContent = TRIALS.length;
-
-    let trialIndex = 0;
-    let correct = 0;
-    let incorrect = 0;
-
-    // Track active floating item (only one at a time)
-    let activeFloating = null;   // { el, itemId, originTileEl }
-    let pointerId = null;
-    let dragOffset = {x:0,y:0};
-
-    // zone cache
-    function getZones(){
-      return [...sceneWrap.querySelectorAll(".zone")].map(z=>{
-        const r = z.getBoundingClientRect();
-        return { name: z.dataset.zone, rect: r };
-      });
-    }
-
-    function setFeedback(msg, kind="neutral"){
-      feedbackEl.classList.remove("fbGood","fbBad");
-      if(kind==="good") feedbackEl.classList.add("fbGood");
-      if(kind==="bad") feedbackEl.classList.add("fbBad");
-      feedbackEl.textContent = msg;
-    }
-
-    function buildSD(trial){
-      const item = ITEMS.find(i=>i.id===trial.item);
-      const targetPhrase = zoneToPhrase(trial.target);
-      // instruction format: "Put the (item) (on) the (target)"
-      return `Put the ${item.label} ${trial.relation} the ${targetPhrase}.`;
-    }
-
-    function zoneToPhrase(zone){
-      const map = {
-        couch: "couch",
-        table_top: "table",
-        table_under: "table",
-        rug: "rug",
-        tv: "TV",
-        tvstand: "TV stand",
-        lamp: "lamp",
-        window: "window",
-        between_couch_table: "couch and table",
-        next_to_lamp: "lamp",
-        above_tv: "TV",
-        below_window: "window",
-      };
-      return map[zone] || zone;
-    }
-
-    function requiredZIndex(trial){
-      // Visual layering: under = low, everything else = normal/front
-      if(trial.relation === "under") return 1;
-      if(trial.relation === "above") return 12;
-      return 8;
-    }
-
-    function showTrial(){
-      const t = TRIALS[trialIndex];
-      trialNumEl.textContent = String(trialIndex+1);
-      const sd = buildSD(t);
-      sdTextEl.textContent = sd;
-      setFeedback("Drag the correct item into the correct place.", "neutral");
-      nextBtn.disabled = true; // enabled after correct
-      speak(sd);
-    }
-
-    function resetFloating(){
-      if(activeFloating?.el){
-        activeFloating.el.remove();
-      }
-      activeFloating = null;
-      pointerId = null;
-    }
-
-    function snapToZoneCenter(zoneName, floatingEl){
-      const zoneEl = sceneWrap.querySelector(`.zone[data-zone="${zoneName}"]`);
-      if(!zoneEl) return;
-
-      const wrapRect = sceneWrap.getBoundingClientRect();
-      const zoneRect = zoneEl.getBoundingClientRect();
-
-      // center point of zone in page coords
-      const cx = zoneRect.left + zoneRect.width/2;
-      const cy = zoneRect.top + zoneRect.height/2;
-
-      // convert to wrap local px
-      const x = cx - wrapRect.left;
-      const y = cy - wrapRect.top;
-
-      floatingEl.style.left = `${x}px`;
-      floatingEl.style.top = `${y}px`;
-    }
-
-    function pointInRect(x,y,rect){
-      return x>=rect.left && x<=rect.right && y>=rect.top && y<=rect.bottom;
-    }
-
-    function findZoneAtPoint(clientX, clientY){
-      const zones = getZones();
-      for(const z of zones){
-        if(pointInRect(clientX, clientY, z.rect)) return z.name;
-      }
-      return null;
-    }
-
-    function onDrop(clientX, clientY){
-      const t = TRIALS[trialIndex];
-      const droppedZone = findZoneAtPoint(clientX, clientY);
-
-      if(!droppedZone){
-        // outside any zone -> snap back
-        soundIncorrect();
-        incorrect++;
-        kpiIncorrectEl.textContent = String(incorrect);
-        setFeedback("Try again.", "bad");
-        resetFloating();
-        return;
-      }
-
-      const isCorrectZone = (droppedZone === t.target) || (
-        // Allow a small amount of “still correct” flexibility:
-        // Example: "next to lamp" can also be lamp zone; "next to tvstand" can be tv zone, etc.
-        (t.relation==="next to" && t.target==="next_to_lamp" && droppedZone==="lamp") ||
-        (t.relation==="next to" && t.target==="tvstand" && droppedZone==="tv")
-      );
-
-      if(!isCorrectZone){
-        soundIncorrect();
-        incorrect++;
-        kpiIncorrectEl.textContent = String(incorrect);
-        setFeedback("Not quite. Try again.", "bad");
-        resetFloating(); // snap back
-        return;
-      }
-
-      // Correct
-      soundCorrect();
-      correct++;
-      kpiCorrectEl.textContent = String(correct);
-      setFeedback("Nice job!", "good");
-
-      // Snap to the correct zone center
-      snapToZoneCenter(t.target, activeFloating.el);
-      activeFloating.el.style.zIndex = String(requiredZIndex(t));
-
-      // lock it in place and remove interactivity
-      activeFloating.el.style.pointerEvents = "none";
-      activeFloating.el.style.cursor = "default";
-
-      // allow next
-      nextBtn.disabled = false;
-      speak("Nice job!");
-      activeFloating = null;
-      pointerId = null;
-    }
-
-    // -----------------------------------------
-    // 6) TRAY RENDER
-    // -----------------------------------------
-    function renderTray(){
-      trayEl.innerHTML = "";
-      for(const it of ITEMS){
-        const tile = document.createElement("div");
-        tile.className = "tile";
-        tile.setAttribute("role","button");
-        tile.setAttribute("aria-label", it.label);
-
-        const img = document.createElement("img");
-        img.src = it.src;
-        img.alt = it.label;
-
-        const label = document.createElement("div");
-        label.className = "label";
-        label.textContent = it.label;
-
-        tile.appendChild(img);
-        tile.appendChild(label);
-
-        // pointer down starts dragging a floating copy into the scene
-        tile.addEventListener("pointerdown", (e)=>{
-          e.preventDefault();
-          beginDragFromTile(it.id, it.src, tile, e);
-        });
-
-        trayEl.appendChild(tile);
-      }
-    }
-
-    function beginDragFromTile(itemId, src, tileEl, e){
-      // If another floating exists, remove it
-      resetFloating();
-
-      const wrapRect = sceneWrap.getBoundingClientRect();
-
-      // Create floating image
-      const el = document.createElement("img");
-      el.className = "floatingItem";
-      el.src = src;
-      el.alt = itemId;
-
-      // Start it where pointer is (scene-local)
-      const x = e.clientX - wrapRect.left;
-      const y = e.clientY - wrapRect.top;
-      el.style.left = `${x}px`;
-      el.style.top = `${y}px`;
-      el.style.zIndex = "9";
-
-      sceneWrap.appendChild(el);
-
-      activeFloating = { el, itemId, originTileEl: tileEl };
-      pointerId = e.pointerId;
-
-      // Capture pointer so drag continues smoothly
-      el.setPointerCapture(pointerId);
-
-      // offset is irrelevant since we center on pointer, but keep for future
-      dragOffset = { x: 0, y: 0 };
-
-      el.addEventListener("pointermove", onPointerMove);
-      el.addEventListener("pointerup", onPointerUp);
-      el.addEventListener("pointercancel", onPointerCancel);
-    }
-
-    function onPointerMove(e){
-      if(!activeFloating || e.pointerId !== pointerId) return;
-      const wrapRect = sceneWrap.getBoundingClientRect();
-      const x = e.clientX - wrapRect.left;
-      const y = e.clientY - wrapRect.top;
-      activeFloating.el.style.left = `${x}px`;
-      activeFloating.el.style.top = `${y}px`;
-    }
-    function onPointerUp(e){
-      if(!activeFloating || e.pointerId !== pointerId) return;
-      onDrop(e.clientX, e.clientY);
-    }
-    function onPointerCancel(e){
-      if(!activeFloating || e.pointerId !== pointerId) return;
-      resetFloating();
-    }
-
-    // -----------------------------------------
-    // 7) VALIDATION: must drag the correct item
-    // -----------------------------------------
-    function isCorrectItemDragged(){
-      const t = TRIALS[trialIndex];
-      return activeFloating && activeFloating.itemId === t.item;
-    }
-
-    // override drop: if wrong item, snap back immediately (even if zone correct)
-    const originalOnDrop = onDrop;
-    onDrop = function(clientX, clientY){
-      const t = TRIALS[trialIndex];
-
-      if(!activeFloating){
-        return;
-      }
-
-      if(activeFloating.itemId !== t.item){
-        soundIncorrect();
-        incorrect++;
-        kpiIncorrectEl.textContent = String(incorrect);
-        setFeedback("That’s not the right item. Try again.", "bad");
-        resetFloating();
-        return;
-      }
-
-      originalOnDrop(clientX, clientY);
-    };
-
-    // -----------------------------------------
-    // 8) BUTTONS
-    // -----------------------------------------
-    playBtn.addEventListener("click", ()=>{
-      speak(sdTextEl.textContent);
-    });
-
-    nextBtn.addEventListener("click", ()=>{
-      // clear any floating leftovers
-      resetFloating();
-
-      trialIndex++;
-      if(trialIndex >= TRIALS.length){
-        setFeedback(`Session complete! Correct: ${correct} • Incorrect: ${incorrect}`, "good");
-        sdTextEl.textContent = "All done!";
-        nextBtn.disabled = true;
-        speak("All done!");
-        return;
-      }
-      showTrial();
-    });
-
-    restartBtn.addEventListener("click", ()=>{
-      resetFloating();
-      trialIndex = 0;
-      correct = 0;
-      incorrect = 0;
-      kpiCorrectEl.textContent = "0";
-      kpiIncorrectEl.textContent = "0";
-      showTrial();
-    });
-
-    // -----------------------------------------
-    // 9) INIT
-    // -----------------------------------------
-    renderTray();
-    showTrial();
-
-    // If image missing, show a helpful note
-    document.getElementById("sceneImg").addEventListener("error", ()=>{
-      setFeedback("Scene image not found. Check: assets/scenes/scene-livingroom.png", "bad");
-      sdTextEl.textContent = "Missing scene image.";
-    });
-    // Warn if any item images fail (optional)
-    // (No need to block the game; but it helps debugging.)
-  </script>
-</body>
-</html>
+export default ABAReinforcement;
