@@ -414,6 +414,17 @@
             render();
         }
 
+        function shuffleArray(array) {
+            var shuffled = array.slice();
+            for (var i = shuffled.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = shuffled[i];
+                shuffled[i] = shuffled[j];
+                shuffled[j] = temp;
+            }
+            return shuffled;
+        }
+
         function render() {
             var app = document.getElementById('app');
 
@@ -425,8 +436,11 @@
             var trial = trials[currentTrial];
             var promptMessage = getPromptMessage();
 
+            // Shuffle the options so they're in random order each time
+            var shuffledOptions = shuffleArray(trial.options);
+
             var optionsHTML = '';
-            trial.options.forEach(function(option) {
+            shuffledOptions.forEach(function(option) {
                 var highlightClass = (promptLevel === 2 && option === trial.word) ? 'highlight' : '';
                 optionsHTML += '<button class="option-button ' + highlightClass + '" onclick="handleWordClick(\'' + option + '\')">' + option + '</button>';
             });
