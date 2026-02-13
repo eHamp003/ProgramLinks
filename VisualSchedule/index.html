@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Schedule Builder - ABA Session Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        /* Activity Library Sidebar */
+        .activity-library {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .library-section {
+            margin-bottom: 25px;
+        }
+
+        .library-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .activity-item {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .activity-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .activity-item:active {
+            cursor: grabbing;
+        }
+
+        .activity-icon {
+            font-size: 24px;
+        }
+
+        .custom-activity-form {
+            background: #fef3c7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .custom-activity-form input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .emoji-suggestions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .emoji-btn {
+            font-size: 24px;
+            padding: 5px 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .emoji-btn:hover {
+            transform: scale(1.1);
+            border-color: #fbbf24;
+        }
+
+        .emoji-btn.selected {
+            border-color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        /* Schedule Area */
+        .schedule-area {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: calc(100vh - 200px);
+        }
+
+        .schedule-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .completion-mode {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .completion-mode label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .completion-mode select {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .schedule-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-height: 200px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 15px;
+            border: 3px dashed #d1d5db;
+        }
+
+        .schedule-timeline.drag-over {
+            background: #e0f2fe;
+            border-color: #0ea5e9;
+        }
+
+        .schedule-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: grab;
+            position: relative;
+            width: 100%;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .schedule-card:active {
+            cursor: grabbing;
+        }
+
+        .schedule-card.completed-check {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .schedule-card.completed-moved {
+            opacity: 0.3;
+        }
+
+        .schedule-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .schedule-card-icon {
+            font-size: 36px;
+        }
+
+        .schedule-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .schedule-card-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .card-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .card-btn.done {
+            background: #10b981;
+            color: white;
+        }
+
+        .card-btn.timer {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .card-btn.remove {
+            background: #ef4444;
+            color: white;
+        }
+
+        .card-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .timer-display {
+            background: #dbeafe;
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .timer-running {
+            background: #fef3c7;
+            color: #92400e;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .completed-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0fdf4;
+            border-radius: 15px;
+            border: 2px solid #10b981;
+        }
+
+        .completed-section h3 {
+            color: #059669;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .completed-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .completed-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Choice Board */
+        .choice-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .choice-overlay.active {
+            display: flex;
+        }
+
+        .choice-container {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+
+        .choice-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .choice-header h2 {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .choice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .choice-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 4px solid transparent;
+        }
+
+        .choice-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .choice-card.selected {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .choice-card-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        .choice-card-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .choice-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Timer Modal */
+        .timer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .timer-modal.active {
+            display: flex;
+        }
+
+        .timer-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .timer-modal h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .timer-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .timer-setting {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .timer-setting label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .timer-setting input,
+        .timer-setting select {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .timer-preview {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* Celebration */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .celebration.active {
+            display: flex;
+        }
+
+        .celebration-content {
+            background: white;
+            border-radius: 40px;
+            padding: 60px;
+            text-align: center;
+            animation: celebration-bounce 0.6s;
+        }
+
+        @keyframes celebration-bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .celebration-content h1 {
+            font-size: 64px;
+            color: #f59e0b;
+            margin-bottom: 20px;
+        }
+
+        .celebration-icon {
+            font-size: 120px;
+            margin: 20px 0;
+        }
+
+        .confetti {
+            position: fixed;
+            font-size: 40px;
+            animation: confetti-fall 3s linear forwards;
+            pointer-events: none;
+            z-index: 2999;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-library {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📅 Visual Schedule Builder</h1>
+            <div class="header-controls">
+                <button class="btn secondary" onclick="saveSchedule()">💾 Save Schedule</button>
+                <button class="btn secondary" onclick="loadSchedule()">📂 Load Schedule</button>
+                <button class="btn" onclick="showChoiceBoard()">🎯 Present Choices</button>
+                <button class="btn danger" onclick="clearSchedule()">🗑️ Clear All</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Activity Library -->
+            <div class="activity-library">
+                <h2 style="margin-bottom: 20px; color: #667eea;">Activity Library</h2>
+
+                <!-- Work Activities -->
+                <div class="library-section">
+                    <h3>📚 Work Activities</h3>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"📝","name":"Table Time"}'>
+                        <span class="activity-icon">📝</span>
+                        <span>Table Time</span>
+                    </div>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"💬","name":"Talking"}'>
+                        <span class="activity-icon">💬</span>
+                        <span>Talking</span>
+                    </div>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"📋","name":"Notes"}'>
+                        <span class="activity-icon">📋</span>
+                        <span>Notes</span>
+                    </div>
+                </div>
+
+                <!-- Break Activities -->
+                <div class="library-section">
+                    <h3>🎮 Break Activities</h3>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"☕","name":"Break"}'>
+                        <span class="activity-icon">☕</span>
+                        <span>Break</span>
+                    </div>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"🎮","name":"Play a Game"}'>
+                        <span class="activity-icon">🎮</span>
+                        <span>Play a Game</span>
+                    </div>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"📱","name":"Tablet Time"}'>
+                        <span class="activity-icon">📱</span>
+                        <span>Tablet Time</span>
+                    </div>
+                </div>
+
+                <!-- Basic Needs -->
+                <div class="library-section">
+                    <h3>🏥 Basic Needs</h3>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"🍎","name":"Eat"}'>
+                        <span class="activity-icon">🍎</span>
+                        <span>Eat</span>
+                    </div>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"🚻","name":"Bathroom"}'>
+                        <span class="activity-icon">🚻</span>
+                        <span>Bathroom</span>
+                    </div>
+                </div>
+
+                <!-- Other -->
+                <div class="library-section">
+                    <h3>🌟 Other</h3>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"🌳","name":"Outside"}'>
+                        <span class="activity-icon">🌳</span>
+                        <span>Outside</span>
+                    </div>
+                    <div class="activity-item" draggable="true" data-activity='{"icon":"✅","name":"All Done"}'>
+                        <span class="activity-icon">✅</span>
+                        <span>All Done</span>
+                    </div>
+                </div>
+
+                <!-- Custom Activity -->
+                <div class="library-section">
+                    <h3>➕ Add Custom Activity</h3>
+                    <div class="custom-activity-form">
+                        <input type="text" id="customActivityName" placeholder="Activity name (e.g., tying shoes)">
+                        <div class="emoji-suggestions" id="emojiSuggestions"></div>
+                        <button class="btn" style="width: 100%; font-size: 14px;" onclick="addCustomActivity()">Add to Library</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Area -->
+            <div class="schedule-area">
+                <div class="schedule-controls">
+                    <h2 style="color: #667eea;">Session Schedule</h2>
+                    <div class="completion-mode">
+                        <label>Mark as Done:</label>
+                        <select id="completionMode">
+                            <option value="checkmark">✓ Checkmark</option>
+                            <option value="disappear">👻 Disappear</option>
+                            <option value="move">➡️ Move to Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="schedule-timeline" id="scheduleTimeline">
+                    <div style="color: #9ca3af; text-align: center; width: 100%; padding: 40px;">
+                        Drag activities here to build the schedule
+                    </div>
+                </div>
+
+                <div class="completed-section" id="completedSection" style="display: none;">
+                    <h3>✅ Completed Activities</h3>
+                    <div class="completed-items" id="completedItems"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Choice Board Overlay -->
+    <div class="choice-overlay" id="choiceOverlay">
+        <div class="choice-container">
+            <div class="choice-header">
+                <h2>Choose an Activity!</h2>
+                <div class="view-toggle">
+                    <button class="toggle-btn active" onclick="setChoiceView('focused')">Focused View</button>
+                    <button class="toggle-btn" onclick="setChoiceView('split')">Split View</button>
+                </div>
+            </div>
+            <div class="choice-grid" id="choiceGrid"></div>
+            <div class="choice-actions">
+                <button class="btn secondary" onclick="addChoiceToSchedule()">Add to Schedule</button>
+                <button class="btn danger" onclick="closeChoiceBoard()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timer Modal -->
+    <div class="timer-modal" id="timerModal">
+        <div class="timer-modal-content">
+            <h3>⏰ Set Timer</h3>
+            <div class="timer-settings">
+                <div class="timer-setting">
+                    <label>Duration (minutes):</label>
+                    <input type="number" id="timerMinutes" min="1" max="60" value="5">
+                </div>
+                <div class="timer-setting">
+                    <label>Visual Style:</label>
+                    <select id="timerStyle">
+                        <option value="countdown">⏱️ Countdown Numbers</option>
+                        <option value="progress">📊 Progress Bar</option>
+                        <option value="pie">🥧 Pie Chart</option>
+                    </select>
+                </div>
+                <div class="timer-setting">
+                    <label>Sound Alert:</label>
+                    <select id="timerSound">
+                        <option value="none">🔇 No Sound</option>
+                        <option value="bell">🔔 Bell</option>
+                        <option value="chime">🎵 Chime</option>
+                    </select>
+                </div>
+            </div>
+            <div class="timer-preview" id="timerPreview">
+                Preview: 5:00
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn secondary" style="flex: 1;" onclick="startTimer()">Start Timer</button>
+                <button class="btn danger" onclick="closeTimerModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Celebration -->
+    <div class="celebration" id="celebration">
+        <div class="celebration-content">
+            <h1>🎉 ALL DONE! 🎉</h1>
+            <div class="celebration-icon">🏆</div>
+            <p style="font-size: 28px; color: #4b5563; margin-bottom: 30px;">Amazing work today!</p>
+            <button class="btn" onclick="closeCelebration()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        var scheduleActivities = [];
+        var completedActivities = [];
+        var currentTimerCard = null;
+        var selectedChoice = null;
+        var customActivities = [];
+
+        // Emoji suggestions for custom activities
+        var emojiMap = {
+            'shoe': '👟', 'shoes': '👟', 'tie': '👟', 'tying': '👟',
+            'tv': '📺', 'television': '📺', 'watch': '📺',
+            'trampoline': '🤸', 'jump': '🤸', 'jumping': '🤸',
+            'snack': '🍪', 'cookie': '🍪', 'cookies': '🍪',
+            'water': '💧', 'drink': '🥤',
+            'book': '📖', 'read': '📖', 'reading': '📖',
+            'music': '🎵', 'song': '🎵', 'sing': '🎵',
+            'draw': '🎨', 'art': '🎨', 'paint': '🎨',
+            'bike': '🚲', 'bicycle': '🚲',
+            'walk': '🚶', 'walking': '🚶',
+            'run': '🏃', 'running': '🏃',
+            'swing': '🎪', 'swings': '🎪',
+            'slide': '🛝', 'slides': '🛝',
+            'ball': '⚽', 'soccer': '⚽',
+            'puzzle': '🧩', 'puzzles': '🧩'
+        };
+
+        // Drag and drop setup
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragDrop();
+            setupCustomActivityInput();
+        });
+
+        function setupDragDrop() {
+            var timeline = document.getElementById('scheduleTimeline');
+            
+            timeline.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            timeline.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over');
+            });
+
+            timeline.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                var activityData = e.dataTransfer.getData('activity');
+                if (activityData) {
+                    var activity = JSON.parse(activityData);
+                    addActivityToSchedule(activity);
+                }
+            });
+
+            // Setup library items
+            var items = document.querySelectorAll('.activity-item');
+            items.forEach(function(item) {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('activity', item.getAttribute('data-activity'));
+                });
+            });
+        }
+
+        function setupCustomActivityInput() {
+            var input = document.getElementById('customActivityName');
+            input.addEventListener('input', function() {
+                var text = this.value.toLowerCase();
+                var suggestions = document.getElementById('emojiSuggestions');
+                suggestions.innerHTML = '';
+
+                // Auto-suggest emojis
+                var matchedEmojis = new Set();
+                Object.keys(emojiMap).forEach(function(key) {
+                    if (text.includes(key)) {
+                        matchedEmojis.add(emojiMap[key]);
+                    }
+                });
+
+                // Default suggestions if no match
+                if (matchedEmojis.size === 0 && text.length > 0) {
+                    matchedEmojis = new Set(['⭐', '🎯', '✨', '🎪', '🎨', '🎭']);
+                }
+
+                matchedEmojis.forEach(function(emoji) {
+                    var btn = document.createElement('button');
+                    btn.className = 'emoji-btn';
+                    btn.textContent = emoji;
+                    btn.onclick = function() {
+                        document.querySelectorAll('.emoji-btn').forEach(function(b) {
+                            b.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                    };
+                    suggestions.appendChild(btn);
+                });
+            });
+        }
+
+        function addCustomActivity() {
+            var name = document.getElementById('customActivityName').value;
+            var selectedEmoji = document.querySelector('.emoji-btn.selected');
+            
+            if (!name) {
+                alert('Please enter an activity name');
+                return;
+            }
+
+            var icon = selectedEmoji ? selectedEmoji.textContent : '⭐';
+            var activity = {icon: icon, name: name};
+            
+            // Add to custom activities
+            customActivities.push(activity);
+            
+            // Add to schedule
+            addActivityToSchedule(activity);
+            
+            // Clear form
+            document.getElementById('customActivityName').value = '';
+            document.getElementById('emojiSuggestions').innerHTML = '';
+        }
+
+        function addActivityToSchedule(activity) {
+            var id = 'activity-' + Date.now();
+            scheduleActivities.push({id: id, ...activity, completed: false});
+            renderSchedule();
+        }
+
+        function renderSchedule() {
+            var timeline = document.getElementById('scheduleTimeline');
+            timeline.innerHTML = '';
+
+            if (scheduleActivities.length === 0) {
+                timeline.innerHTML = '<div style="color: #9ca3af; text-align: center; width: 100%; padding: 40px;">Drag activities here to build the schedule</div>';
+                return;
+            }
+
+            scheduleActivities.forEach(function(activity) {
+                var card = createScheduleCard(activity);
+                timeline.appendChild(card);
+            });
+
+            checkIfComplete();
+        }
+
+        function createScheduleCard(activity) {
+            var card = document.createElement('div');
+            card.className = 'schedule-card';
+            card.id = activity.id;
+            card.draggable = true;
+            
+            var mode = document.getElementById('completionMode').value;
+            if (activity.completed && mode === 'checkmark') {
+                card.classList.add('completed-check');
+            } else if (activity.completed && mode === 'move') {
+                card.classList.add('completed-moved');
+            }
+
+            card.innerHTML = `
+                <div class="schedule-card-header">
+                    <div class="schedule-card-icon">${activity.icon}</div>
+                    <div class="schedule-card-title">${activity.name}</div>
+                </div>
+                ${activity.timer ? '<div class="timer-display ' + (activity.timerRunning ? 'timer-running' : '') + '" id="timer-' + activity.id + '">' + formatTime(activity.timer.remaining || activity.timer.duration) + '</div>' : ''}
+                <div class="schedule-card-controls">
+                    <button class="card-btn done" onclick="markComplete('${activity.id}')">
+                        ${activity.completed ? '✓ Done' : 'Mark Done'}
+                    </button>
+                    <button class="card-btn timer" onclick="openTimerModal('${activity.id}')">
+                        ⏰ Timer
+                    </button>
+                    <button class="card-btn remove" onclick="removeActivity('${activity.id}')">
+                        ✕
+                    </button>
+                </div>
+            `;
+
+            // Drag events for reordering
+            card.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('activityId', activity.id);
+            });
+
+            card.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+
+            card.addEventListener('drop', function(e) {
+                e.preventDefault();
+                var draggedId = e.dataTransfer.getData('activityId');
+                if (draggedId && draggedId !== activity.id) {
+                    reorderActivities(draggedId, activity.id);
+                }
+            });
+
+            return card;
+        }
+
+        function reorderActivities(draggedId, targetId) {
+            var draggedIndex = scheduleActivities.findIndex(function(a) { return a.id === draggedId; });
+            var targetIndex = scheduleActivities.findIndex(function(a) { return a.id === targetId; });
+            
+            var draggedItem = scheduleActivities.splice(draggedIndex, 1)[0];
+            scheduleActivities.splice(targetIndex, 0, draggedItem);
+            
+            renderSchedule();
+        }
+
+        function markComplete(id) {
+            var activity = scheduleActivities.find(function(a) { return a.id === id; });
+            if (!activity) return;
+
+            activity.completed = !activity.completed;
+            var mode = document.getElementById('completionMode').value;
+
+            if (activity.completed) {
+                if (mode === 'disappear') {
+                    scheduleActivities = scheduleActivities.filter(function(a) { return a.id !== id; });
+                } else if (mode === 'move') {
+                    completedActivities.push(activity);
+                    renderCompletedSection();
+                }
+            } else {
+                if (mode === 'move') {
+                    completedActivities = completedActivities.filter(function(a) { return a.id !== id; });
+                    renderCompletedSection();
+                }
+            }
+
+            renderSchedule();
+        }
+
+        function renderCompletedSection() {
+            var section = document.getElementById('completedSection');
+            var items = document.getElementById('completedItems');
+            
+            if (completedActivities.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            items.innerHTML = '';
+
+            completedActivities.forEach(function(activity) {
+                var item = document.createElement('div');
+                item.className = 'completed-item';
+                item.innerHTML = '<span style="font-size: 24px;">' + activity.icon + '</span><span>' + activity.name + '</span>';
+                items.appendChild(item);
+            });
+        }
+
+        function removeActivity(id) {
+            scheduleActivities = scheduleActivities.filter(function(a) { return a.id !== id; });
+            renderSchedule();
+        }
+
+        function clearSchedule() {
+            if (confirm('Clear the entire schedule?')) {
+                scheduleActivities = [];
+                completedActivities = [];
+                renderSchedule();
+                renderCompletedSection();
+            }
+        }
+
+        // Timer functions
+        function openTimerModal(id) {
+            currentTimerCard = id;
+            document.getElementById('timerModal').classList.add('active');
+            updateTimerPreview();
+        }
+
+        function closeTimerModal() {
+            document.getElementById('timerModal').classList.remove('active');
+            currentTimerCard = null;
+        }
+
+        function updateTimerPreview() {
+            var minutes = document.getElementById('timerMinutes').value;
+            document.getElementById('timerPreview').textContent = 'Preview: ' + minutes + ':00';
+        }
+
+        document.getElementById('timerMinutes').addEventListener('input', updateTimerPreview);
+
+        function startTimer() {
+            var minutes = parseInt(document.getElementById('timerMinutes').value);
+            var style = document.getElementById('timerStyle').value;
+            var sound = document.getElementById('timerSound').value;
+
+            var activity = scheduleActivities.find(function(a) { return a.id === currentTimerCard; });
+            if (activity) {
+                activity.timer = {
+                    duration: minutes * 60,
+                    remaining: minutes * 60,
+                    style: style,
+                    sound: sound
+                };
+                activity.timerRunning = true;
+                runTimer(activity);
+            }
+
+            closeTimerModal();
+            renderSchedule();
+        }
+
+        function runTimer(activity) {
+            if (!activity.timerRunning) return;
+
+            var interval = setInterval(function() {
+                if (!activity.timer || !activity.timerRunning) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                activity.timer.remaining--;
+
+                var display = document.getElementById('timer-' + activity.id);
+                if (display) {
+                    display.textContent = formatTime(activity.timer.remaining);
+                }
+
+                if (activity.timer.remaining <= 0) {
+                    clearInterval(interval);
+                    activity.timerRunning = false;
+                    if (activity.timer.sound !== 'none') {
+                        playTimerSound(activity.timer.sound);
+                    }
+                    alert(activity.name + ' timer complete!');
+                    renderSchedule();
+                }
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            var mins = Math.floor(seconds / 60);
+            var secs = seconds % 60;
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        function playTimerSound(type) {
+            var context = new (window.AudioContext || window.webkitAudioContext)();
+            var oscillator = context.createOscillator();
+            var gainNode = context.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(context.destination);
+
+            if (type === 'bell') {
+                oscillator.frequency.value = 800;
+            } else {
+                oscillator.frequency.value = 1000;
+            }
+
+            gainNode.gain.setValueAtTime(0.3, context.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+
+            oscillator.start(context.currentTime);
+            oscillator.stop(context.currentTime + 0.5);
+        }
+
+        // Choice Board
+        function showChoiceBoard() {
+            var grid = document.getElementById('choiceGrid');
+            grid.innerHTML = '';
+
+            // Get all activities from library
+            var allActivities = [];
+            document.querySelectorAll('.activity-item').forEach(function(item) {
+                var data = JSON.parse(item.getAttribute('data-activity'));
+                allActivities.push(data);
+            });
+
+            // Add custom activities
+            customActivities.forEach(function(activity) {
+                allActivities.push(activity);
+            });
+
+            // Randomly select 2-5 options (you can make this configurable)
+            var numChoices = Math.floor(Math.random() * 4) + 2; // 2-5
+            var choices = [];
+            var indices = new Set();
+            while (indices.size < Math.min(numChoices, allActivities.length)) {
+                indices.add(Math.floor(Math.random() * allActivities.length));
+            }
+            indices.forEach(function(i) {
+                choices.push(allActivities[i]);
+            });
+
+            choices.forEach(function(choice) {
+                var card = document.createElement('div');
+                card.className = 'choice-card';
+                card.innerHTML = `
+                    <div class="choice-card-icon">${choice.icon}</div>
+                    <div class="choice-card-title">${choice.name}</div>
+                `;
+                card.onclick = function() {
+                    document.querySelectorAll('.choice-card').forEach(function(c) {
+                        c.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    selectedChoice = choice;
+                };
+                grid.appendChild(card);
+            });
+
+            document.getElementById('choiceOverlay').classList.add('active');
+        }
+
+        function setChoiceView(view) {
+            document.querySelectorAll('.view-toggle .toggle-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            var overlay = document.getElementById('choiceOverlay');
+            if (view === 'focused') {
+                overlay.style.background = 'rgba(0,0,0,0.8)';
+            } else {
+                overlay.style.background = 'rgba(0,0,0,0.5)';
+            }
+        }
+
+        function addChoiceToSchedule() {
+            if (selectedChoice) {
+                addActivityToSchedule(selectedChoice);
+                closeChoiceBoard();
+            } else {
+                alert('Please select an activity first!');
+            }
+        }
+
+        function closeChoiceBoard() {
+            document.getElementById('choiceOverlay').classList.remove('active');
+            selectedChoice = null;
+        }
+
+        // Save/Load
+        function saveSchedule() {
+            var name = prompt('Enter a name for this schedule:');
+            if (name) {
+                var data = {
+                    name: name,
+                    activities: scheduleActivities,
+                    customActivities: customActivities
+                };
+                localStorage.setItem('schedule-' + name, JSON.stringify(data));
+                alert('Schedule saved!');
+            }
+        }
+
+        function loadSchedule() {
+            var savedSchedules = [];
+            for (var i = 0; i < localStorage.length; i++) {
+                var key = localStorage.key(i);
+                if (key.startsWith('schedule-')) {
+                    savedSchedules.push(key.replace('schedule-', ''));
+                }
+            }
+
+            if (savedSchedules.length === 0) {
+                alert('No saved schedules found.');
+                return;
+            }
+
+            var name = prompt('Enter schedule name to load:\n\nAvailable schedules:\n' + savedSchedules.join('\n'));
+            if (name) {
+                var data = localStorage.getItem('schedule-' + name);
+                if (data) {
+                    var parsed = JSON.parse(data);
+                    scheduleActivities = parsed.activities;
+                    customActivities = parsed.customActivities || [];
+                    renderSchedule();
+                    alert('Schedule loaded!');
+                } else {
+                    alert('Schedule not found.');
+                }
+            }
+        }
+
+        // Celebration
+        function checkIfComplete() {
+            var allCompleted = scheduleActivities.length > 0 && 
+                               scheduleActivities.every(function(a) { return a.completed; });
+            
+            if (allCompleted) {
+                showCelebration();
+            }
+        }
+
+        function showCelebration() {
+            document.getElementById('celebration').classList.add('active');
+            createConfetti();
+        }
+
+        function closeCelebration() {
+            document.getElementById('celebration').classList.remove('active');
+        }
+
+        function createConfetti() {
+            var symbols = ['🎉', '🎊', '⭐', '🌟', '✨', '💫'];
+            for (var i = 0; i < 50; i++) {
+                var confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-50px';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                document.body.appendChild(confetti);
+
+                setTimeout(function(el) {
+                    return function() { el.remove(); };
+                }(confetti), 3500);
+            }
+        }
+    </script>
+</body>
+</html>
