@@ -1,0 +1,152 @@
+{
+  "level": 2,
+  "title": "Level 2: Poop Practice",
+  "steps": [
+    {
+      "id": "body_signal",
+      "prompt": "Oh no… my tummy feels REALLY full. What should I do?",
+      "expression": "urgent",
+      "correct": "go_bathroom",
+      "choices": ["go_bathroom", "do_cartwheel", "ask_for_icecream"],
+      "choiceText": {
+        "go_bathroom": "Go to the bathroom",
+        "do_cartwheel": "Do a cartwheel",
+        "ask_for_icecream": "Ask for ice cream"
+      }
+    },
+    {
+      "id": "close_door",
+      "prompt": "I’m in the bathroom. What’s next?",
+      "expression": "focused",
+      "correct": "close_door",
+      "choices": ["close_door", "open_door_wide", "call_everyone"],
+      "choiceText": {
+        "close_door": "Close the door (privacy)",
+        "open_door_wide": "Open the door wide",
+        "call_everyone": "Call everyone over"
+      }
+    },
+    {
+      "id": "pants_down",
+      "prompt": "Next step?",
+      "expression": "focused",
+      "correct": "pants_down",
+      "choices": ["pants_down", "dance_party", "run_outside"],
+      "choiceText": {
+        "pants_down": "Pull pants down",
+        "dance_party": "Start a dance party",
+        "run_outside": "Run outside"
+      },
+      "triggers": ["privacy_rule"]
+    },
+    {
+      "id": "privacy_rule_check",
+      "prompt": "Pants are down. What do I do now?",
+      "expression": "focused",
+      "correct": "stay_in_bathroom",
+      "choices": ["stay_in_bathroom", "leave_bathroom", "show_everyone"],
+      "choiceText": {
+        "stay_in_bathroom": "Stay in the bathroom",
+        "leave_bathroom": "Walk out of the bathroom",
+        "show_everyone": "Show everyone (no!)"
+      }
+    },
+    {
+      "id": "seat_down",
+      "prompt": "Toilet seat?",
+      "expression": "focused",
+      "correct": "seat_down",
+      "choices": ["seat_down", "seat_up", "sit_on_lid"],
+      "choiceText": {
+        "seat_down": "Put the seat down",
+        "seat_up": "Put the seat up",
+        "sit_on_lid": "Sit on the lid"
+      }
+    },
+    {
+      "id": "sit_down",
+      "prompt": "Next step?",
+      "expression": "focused",
+      "correct": "sit_down",
+      "choices": ["sit_down", "stand_on_toilet", "sit_on_sink"],
+      "choiceText": {
+        "sit_down": "Sit on the toilet",
+        "stand_on_toilet": "Stand on the toilet",
+        "sit_on_sink": "Sit on the sink"
+      }
+    },
+    {
+      "id": "go_potty_poop",
+      "prompt": "Time to poop. What do I do?",
+      "expression": "urgent",
+      "correct": "go_potty_poop",
+      "choices": ["go_potty_poop", "tell_joke", "take_nap"],
+      "choiceText": {
+        "go_potty_poop": "Go poop",
+        "tell_joke": "Tell a joke",
+        "take_nap": "Take a nap"
+      }
+    },
+    {
+      "id": "wipe",
+      "prompt": "All done. What now?",
+      "expression": "focused",
+      "correct": "wipe_front_to_back",
+      "altCorrect": "ask_for_help",
+      "choices": ["wipe_front_to_back", "ask_for_help", "wipe_ceiling"],
+      "choiceText": {
+        "wipe_front_to_back": "Wipe front-to-back",
+        "ask_for_help": "Ask for help",
+        "wipe_ceiling": "Wipe the ceiling"
+      }
+    },
+    {
+      "id": "flush",
+      "prompt": "Next step?",
+      "expression": "neutral",
+      "correct": "flush",
+      "choices": ["flush", "wave_goodbye", "hide_toilet_paper"],
+      "choiceText": {
+        "flush": "Flush the toilet",
+        "wave_goodbye": "Wave goodbye to the toilet",
+        "hide_toilet_paper": "Hide the toilet paper"
+      }
+    },
+    {
+      "id": "wash_hands",
+      "prompt": "Clean hands time!",
+      "expression": "focused",
+      "correct": "wash_hands",
+      "choices": ["wash_hands", "high_five_soap", "throw_water"],
+      "choiceText": {
+        "wash_hands": "Wash hands with soap",
+        "high_five_soap": "High-five the soap",
+        "throw_water": "Throw water everywhere"
+      }
+    },
+    {
+      "id": "pants_up",
+      "prompt": "Before I leave…",
+      "expression": "focused",
+      "correct": "pants_up",
+      "choices": ["pants_up", "open_door", "crawl_out"],
+      "choiceText": {
+        "pants_up": "Pull pants up",
+        "open_door": "Open the door first",
+        "crawl_out": "Crawl out"
+      }
+    },
+    {
+      "id": "open_door",
+      "prompt": "All finished!",
+      "expression": "proud",
+      "correct": "open_door",
+      "choices": ["open_door", "yell_tada", "spin_out"],
+      "choiceText": {
+        "open_door": "Open the door",
+        "yell_tada": "Yell “TA-DA!”",
+        "spin_out": "Spin out the door"
+      }
+    }
+  ]
+}
