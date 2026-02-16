@@ -1,0 +1,13 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0b1020;
+  height: 100%;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+#game {
+  width: 100%;
+  height: 100%;
+}
