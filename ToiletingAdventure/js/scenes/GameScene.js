@@ -42,18 +42,15 @@ class GameScene extends Phaser.Scene {
     this.sink = this.add.rectangle(width - 240, 140, 220, 130, 0xf8fafc).setStrokeStyle(6, 0x111827);
     this.add.text(width - 240, 140, "SINK", { fontSize: "18px", color: "#111827" }).setOrigin(0.5);
 
-    // Avatar placeholder sprite (circle + label)
-    this.avatarBody = this.add.circle(520, 420, 55, 0xfbbf24);
-    this.avatarFace = this.add.text(520, 395, "🙂", { fontSize: "46px" }).setOrigin(0.5);
-    this.avatarLabel = this.add.text(520, 470, `${this.avatar.animal} (${this.avatar.sex})`, { fontSize: "18px", color: "#ffffff" }).setOrigin(0.5);
+    // Confetti texture + particles
+    if (!this.textures.exists("__WHITE__")) {
+      const g = this.make.graphics({ x: 0, y: 0, add: false });
+      g.fillStyle(0xffffff, 1);
+      g.fillRect(0, 0, 2, 2);
+      g.generateTexture("__WHITE__", 2, 2);
+      g.destroy();
+    }
 
-    // Thought bubble container
-    this.bubble = this.add.container(520, 270);
-    const bubbleBg = this.add.rectangle(0, 0, 420, 140, 0xf8fafc).setStrokeStyle(5, 0x111827).setOrigin(0.5);
-    this.bubbleText = this.add.text(0, 0, "", { fontSize: "24px", color: "#111827", wordWrap: { width: 380 } }).setOrigin(0.5);
-    this.bubble.add([bubbleBg, this.bubbleText]);
-
-    // Confetti particle system (simple)
     this.confetti = this.add.particles(0, 0, "__WHITE__", {
       speed: { min: 120, max: 420 },
       angle: { min: 220, max: 320 },
@@ -65,13 +62,24 @@ class GameScene extends Phaser.Scene {
     });
     this.confetti.stop();
 
-    // A 1x1 white texture used for confetti (generated)
-    if (!this.textures.exists("__WHITE__")) {
-      const g = this.make.graphics({ x: 0, y: 0, add: false });
-      g.fillStyle(0xffffff, 1);
-      g.fillRect(0, 0, 2, 2);
-      g.generateTexture("__WHITE__", 2, 2);
-      g.destroy();
+    // Thought bubble container
+    this.bubble = this.add.container(520, 270);
+    const bubbleBg = this.add.rectangle(0, 0, 520, 150, 0xf8fafc).setStrokeStyle(5, 0x111827).setOrigin(0.5);
+    this.bubbleText = this.add.text(0, 0, "", { fontSize: "24px", color: "#111827", wordWrap: { width: 480 } }).setOrigin(0.5);
+    this.bubble.add([bubbleBg, this.bubbleText]);
+
+    // NEW: Layered AvatarSprite (replaces emoji/circle placeholder)
+    // NOTE: This assumes you placed AvatarSprite.js in js/objects/ and loaded it in index.html
+    if (typeof AvatarSprite !== "undefined") {
+      this.avatarSprite = new AvatarSprite(this, 520, 440, this.avatar, { scale: 0.85 });
+      this.avatarSprite.build();
+      this.avatarSprite.playIdle();
+    } else {
+      // Fallback if you haven't added AvatarSprite yet
+      this.avatarFallback = this.add.text(520, 420, `${this.avatar.animal} (${this.avatar.sex}) 🙂`, {
+        fontSize: "28px",
+        color: "#ffffff"
+      }).setOrigin(0.5);
     }
 
     // Listen for UI selections
@@ -93,7 +101,7 @@ class GameScene extends Phaser.Scene {
     // Update bubble prompt
     this.bubbleText.setText(step.prompt);
 
-    // Avatar face expression
+    // Avatar expression
     this.setExpression(step.expression || "neutral");
 
     // Speak prompt
@@ -123,20 +131,18 @@ class GameScene extends Phaser.Scene {
     const isCorrect = choiceId === correct;
     const isAltCorrect = altCorrect && choiceId === altCorrect;
 
-    // Handle privacy “pants down” rule if they choose leaving options
-    if (step.id === "privacy_rule_check" && choiceId === "leave_bathroom") {
+    // Special handling: privacy rule check step
+    if (step.id === "privacy_rule_check" && (choiceId === "leave_bathroom" || choiceId === "run_hallway" || choiceId === "show_everyone")) {
       this.playSillyPrivacyBounce();
       return this.handleIncorrect(step);
     }
 
     if (isCorrect || isAltCorrect) {
-      // Treat altCorrect as success (help request)
       if (isAltCorrect) {
         this.runHelpAnimation(step);
       } else {
-        this.runActionAnimation(choiceId);
+        this.runActionAnimation(choiceId, false);
       }
-
       this.reinforceCorrect(step, isAltCorrect);
     } else {
       this.handleIncorrect(step);
@@ -225,22 +231,29 @@ class GameScene extends Phaser.Scene {
   }
 
   setExpression(mode) {
-    const map = {
-      neutral: "🙂",
-      urgent: "😣",
-      focused: "🧐",
-      relieved: "😌",
-      proud: "😎"
-    };
-    this.avatarFace.setText(map[mode] || "🙂");
+    if (this.avatarSprite) {
+      this.avatarSprite.setExpression(mode);
+      return;
+    }
+
+    // fallback
+    if (this.avatarFallback) {
+      const map = {
+        neutral: "🙂",
+        urgent: "😣",
+        focused: "🧐",
+        relieved: "😌",
+        proud: "😎"
+      };
+      this.avatarFallback.setText(`${this.avatar.animal} (${this.avatar.sex}) ${map[mode] || "🙂"}`);
+    }
   }
 
   runActionAnimation(choiceId, isModel = false) {
-    // Placeholder “animations” using tweens + expression changes
     const fast = isModel ? 350 : 650;
 
-    const doBop = () => this.tweens.add({
-      targets: [this.avatarBody, this.avatarFace, this.avatarLabel],
+    const bop = () => this.tweens.add({
+      targets: this.avatarSprite || this.avatarFallback,
       y: "-=18",
       yoyo: true,
       duration: fast,
@@ -250,76 +263,100 @@ class GameScene extends Phaser.Scene {
     switch (choiceId) {
       case "go_bathroom":
         this.setExpression("focused");
-        doBop();
+        bop();
         break;
+
       case "close_door":
         this.setExpression("focused");
         this.tweens.add({ targets: this.door, angle: 2, yoyo: true, duration: fast });
+        bop();
         break;
+
       case "pants_down":
         this.setExpression("urgent");
-        doBop();
+        if (this.avatarSprite) this.avatarSprite.setPantsDown(true);
+        bop();
         break;
+
       case "stay_in_bathroom":
         this.setExpression("focused");
-        doBop();
+        bop();
         break;
+
       case "seat_down":
         this.setExpression("focused");
         this.tweens.add({ targets: this.seat, y: "+=10", yoyo: true, duration: fast });
+        bop();
         break;
+
       case "sit_down":
         this.setExpression("focused");
-        this.tweens.add({ targets: [this.avatarBody, this.avatarFace, this.avatarLabel], scale: 0.92, yoyo: true, duration: fast });
+        if (this.avatarSprite) {
+          this.tweens.add({ targets: this.avatarSprite, scale: 0.82, yoyo: true, duration: fast });
+        }
+        bop();
         break;
+
       case "go_potty_pee":
       case "go_potty_poop":
         this.setExpression("relieved");
-        doBop();
+        bop();
         break;
+
       case "wipe_front_to_back":
         this.setExpression("focused");
-        doBop();
+        bop();
         break;
+
       case "flush":
         this.setExpression("neutral");
         this.tweens.add({ targets: this.toilet, x: "+=6", yoyo: true, duration: fast, repeat: 2 });
+        bop();
         break;
+
       case "wash_hands":
         this.setExpression("focused");
+        if (this.avatarSprite) {
+          this.avatarSprite.setArmsUp(true);
+          this.time.delayedCall(900, () => this.avatarSprite.setArmsUp(false));
+        }
         this.tweens.add({ targets: this.sink, scale: 1.02, yoyo: true, duration: fast });
+        bop();
         break;
+
       case "pants_up":
         this.setExpression("proud");
-        doBop();
+        if (this.avatarSprite) this.avatarSprite.setPantsDown(false);
+        bop();
         break;
+
       case "open_door":
         this.setExpression("proud");
         this.tweens.add({ targets: this.door, angle: -2, yoyo: true, duration: fast });
+        bop();
         break;
+
       default:
-        doBop();
+        bop();
     }
   }
 
   runHelpAnimation(step) {
-    // “Ask for help” is treated as successful when allowed
     const msg = "Can you help me, please?";
     this.bubbleText.setText(msg);
     if (this.settings.tts) window.TTS.speak(msg);
 
     // Quick model of correct step afterward
     this.time.delayedCall(600, () => {
-      if (step.correct) this.runActionAnimation(step.correct);
+      if (step.correct) this.runActionAnimation(step.correct, false);
     });
   }
 
   runPrivacyRuleOverlay() {
-    // Quick overlay reminder: pants down -> stay in bathroom
     const { width } = this.scale;
 
     const overlay = this.add.container(width/2, 560);
-    const bg = this.add.rectangle(0, 0, 720, 90, 0xfef08a).setStrokeStyle(4, 0x111827);
+    const bg = this.add.rectangle(0, 0, 820, 90, 0xfef08a).setStrokeStyle(4, 0x111827);
     const txt = this.add.text(0, 0, "Rule: If pants are down, stay INSIDE the bathroom!", {
       fontSize: "24px",
       color: "#111827",
@@ -336,8 +373,11 @@ class GameScene extends Phaser.Scene {
   playSillyPrivacyBounce() {
     // Silly “boing” bounce back (non-shaming)
     this.setExpression("urgent");
+
+    const target = this.avatarSprite || this.avatarFallback;
+
     this.tweens.add({
-      targets: [this.avatarBody, this.avatarFace, this.avatarLabel],
+      targets: target,
       x: "-=30",
       yoyo: true,
       duration: 220,
