@@ -31,11 +31,7 @@ class AvatarSprite extends Phaser.GameObjects.Container {
       "shirt.png",
       "pants_up.png",
       "pants_down.png",
-      "arm_left_down.png",
-      "arm_left_up.png",
-      "arm_right_down.png",
-      "arm_right_up.png",
-      "shoes.png"
+  
     ];
   }
 
