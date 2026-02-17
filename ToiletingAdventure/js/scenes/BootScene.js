@@ -5,8 +5,8 @@ class BootScene extends Phaser.Scene {
 
   preload() {
     // Data-driven steps (Level 1 + Level 2)
-    this.load.json("level1", "data/toileting_level1.json");
-    this.load.json("level2", "data/toileting_level2.json");
+    this.load.json("level1", "js/data/toileting_level1.json");
+this.load.json("level2", "js/data/toileting_level2.json");
 
     // Later: load real assets here (avatars, bathrooms, UI, sounds, etc.)
   }
