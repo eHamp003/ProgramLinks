@@ -1,11 +1,4 @@
 class AvatarSprite extends Phaser.GameObjects.Container {
-  /**
-   * @param {Phaser.Scene} scene
-   * @param {number} x
-   * @param {number} y
-   * @param {{animal:string, sex:"M"|"F"}} avatar
-   * @param {{basePath?:string, scale?:number}} opts
-   */
   constructor(scene, x, y, avatar, opts = {}) {
     super(scene, x, y);
     scene.add.existing(this);
@@ -16,20 +9,19 @@ class AvatarSprite extends Phaser.GameObjects.Container {
     this.setScale(opts.scale ?? 1);
 
     this.state = {
-      pants: "up", // "up" | "down"
-      eyes: "open", // "open" | "closed"
-      mouth: "neutral", // neutral | smile | urgent | proud
-      arms: "down" // down | up
+      pants: "up",
+      eyes: "open",
+      mouth: "neutral",
+      arms: "down"
     };
 
-    /** @type {Record<string, Phaser.GameObjects.Image>} */
     this.layers = {};
   }
 
   static requiredFiles() {
     return [
       "body.png",
-      "head.png",               // optional if you combine head+body, but keep for consistency
+      "head.png",
       "eyes_open.png",
       "eyes_closed.png",
       "mouth_neutral.png",
@@ -43,16 +35,11 @@ class AvatarSprite extends Phaser.GameObjects.Container {
       "arm_left_up.png",
       "arm_right_down.png",
       "arm_right_up.png",
-      "shoes.png"               // optional
+      "shoes.png"
     ];
   }
 
-  /**
-   * Call after assets are loaded.
-   * Builds image layers and adds them to the container.
-   */
   build() {
-    // Helper to safely create a layer if texture exists
     const addLayer = (key, depth) => {
       if (!this.scene.textures.exists(key)) return null;
       const img = this.scene.add.image(0, 0, key).setOrigin(0.5);
@@ -61,7 +48,6 @@ class AvatarSprite extends Phaser.GameObjects.Container {
       return img;
     };
 
-    // Base (depth order)
     this.layers.body = addLayer(this.tex("body.png"), 10);
     this.layers.shoes = addLayer(this.tex("shoes.png"), 15);
 
@@ -86,42 +72,28 @@ class AvatarSprite extends Phaser.GameObjects.Container {
     this.layers.mouth_urgent = addLayer(this.tex("mouth_urgent.png"), 70);
     this.layers.mouth_proud = addLayer(this.tex("mouth_proud.png"), 70);
 
-    // Apply initial visibility
     this.applyState();
     this.startBlinkLoop();
   }
 
-  /** Convert a file path into a Phaser texture key */
   tex(filename) {
-    // e.g. "assets/avatars/dog_m/body.png" becomes key "avatar:assets/avatars/dog_m/body.png"
     return `avatar:${this.basePath}${filename}`;
   }
 
-  /** Apply current state to layer visibility */
   applyState() {
-    const showOnly = (groupKeys, activeKey) => {
-      groupKeys.forEach(k => { if (this.layers[k]) this.layers[k].setVisible(k === activeKey); });
+    const showOnly = (keys, active) => {
+      keys.forEach(k => { if (this.layers[k]) this.layers[k].setVisible(k === active); });
     };
 
-    // Pants
     showOnly(["pants_up", "pants_down"], this.state.pants === "down" ? "pants_down" : "pants_up");
-
-    // Eyes
     showOnly(["eyes_open", "eyes_closed"], this.state.eyes === "closed" ? "eyes_closed" : "eyes_open");
+    showOnly(["mouth_neutral", "mouth_smile", "mouth_urgent", "mouth_proud"], `mouth_${this.state.mouth}`);
 
-    // Mouth
-    showOnly(
-      ["mouth_neutral", "mouth_smile", "mouth_urgent", "mouth_proud"],
-      `mouth_${this.state.mouth}`
-    );
-
-    // Arms
     showOnly(["arm_left_down", "arm_left_up"], this.state.arms === "up" ? "arm_left_up" : "arm_left_down");
     showOnly(["arm_right_down", "arm_right_up"], this.state.arms === "up" ? "arm_right_up" : "arm_right_down");
   }
 
   setExpression(mode) {
-    // mode: neutral | urgent | focused | relieved | proud
     if (mode === "neutral") this.state.mouth = "neutral";
     if (mode === "urgent") this.state.mouth = "urgent";
     if (mode === "focused") this.state.mouth = "neutral";
@@ -141,7 +113,6 @@ class AvatarSprite extends Phaser.GameObjects.Container {
   }
 
   startBlinkLoop() {
-    // Random blink every 3–6 seconds
     this._blinkTimer?.remove(false);
 
     this._blinkTimer = this.scene.time.addEvent({
@@ -158,7 +129,6 @@ class AvatarSprite extends Phaser.GameObjects.Container {
     });
   }
 
-  // Simple “alive” idle bob
   playIdle() {
     this.scene.tweens.add({
       targets: this,
