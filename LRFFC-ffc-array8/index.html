@@ -147,53 +147,37 @@
   </div>
 
 <script>
-/**
- * ======================================
- * Shared image library (subset of 75)
- * Uses the same naming as your Level 1.
- * ======================================
- */
 const ITEM_BANK = [
-  // FOOD
   { id:"apple", label:"Apple", img:"../images/food/food_apple.jpg", type:"food" },
   { id:"banana", label:"Banana", img:"../images/food/food_banana.jpg", type:"food" },
   { id:"pizza_slice", label:"Pizza", img:"../images/food/food_pizza_slice.jpg", type:"food" },
   { id:"sandwich", label:"Sandwich", img:"../images/food/food_sandwich.jpg", type:"food" },
   { id:"cookie", label:"Cookie", img:"../images/food/food_cookie.jpg", type:"food" },
-
-  // DRINKS
   { id:"water_bottle", label:"Water Bottle", img:"../images/drinks/drink_water_bottle.jpg", type:"drink" },
   { id:"milk_glass", label:"Milk", img:"../images/drinks/drink_milk_glass.jpg", type:"drink" },
   { id:"juice_box", label:"Juice Box", img:"../images/drinks/drink_juice_box.jpg", type:"drink" },
   { id:"soda_can", label:"Soda (Can)", img:"../images/drinks/drink_soda_can.jpg", type:"drink" },
   { id:"coffee_mug", label:"Coffee", img:"../images/drinks/drink_coffee_mug.jpg", type:"drink" },
-
-  // OTHER
   { id:"toothbrush", label:"Toothbrush", img:"../images/other/other_toothbrush.jpg", type:"other" },
   { id:"spoon", label:"Spoon", img:"../images/other/other_spoon.jpg", type:"other" },
   { id:"cup_empty", label:"Cup", img:"../images/other/other_cup_empty.jpg", type:"other" },
-
   { id:"book", label:"Book", img:"../images/other/other_book.jpg", type:"other" },
   { id:"pencil", label:"Pencil", img:"../images/other/other_pencil.jpg", type:"other" },
   { id:"crayons", label:"Crayons", img:"../images/other/other_crayons.jpg", type:"other" },
   { id:"notebook", label:"Notebook", img:"../images/other/other_notebook.jpg", type:"other" },
   { id:"backpack", label:"Backpack", img:"../images/other/other_backpack.jpg", type:"other" },
-
   { id:"shoe", label:"Shoe", img:"../images/other/other_shoe.jpg", type:"other" },
   { id:"hat", label:"Hat", img:"../images/other/other_hat.jpg", type:"other" },
   { id:"jacket", label:"Jacket", img:"../images/other/other_jacket.jpg", type:"other" },
   { id:"shirt", label:"Shirt", img:"../images/other/other_shirt.jpg", type:"other" },
   { id:"socks", label:"Socks", img:"../images/other/other_socks.jpg", type:"other" },
-
   { id:"phone", label:"Phone", img:"../images/other/other_phone.jpg", type:"other" },
   { id:"keys", label:"Keys", img:"../images/other/other_keys.jpg", type:"other" },
   { id:"remote", label:"Remote", img:"../images/other/other_remote.jpg", type:"other" },
   { id:"clock", label:"Clock", img:"../images/other/other_clock.jpg", type:"other" },
   { id:"wallet", label:"Wallet", img:"../images/other/other_wallet.jpg", type:"other" },
-
   { id:"chair", label:"Chair", img:"../images/other/other_chair.jpg", type:"other" },
   { id:"table", label:"Table", img:"../images/other/other_table.jpg", type:"other" },
-
   { id:"ball", label:"Ball", img:"../images/other/other_ball.jpg", type:"other" },
   { id:"toy_car", label:"Toy Car", img:"../images/other/other_toy_car.jpg", type:"other" },
   { id:"teddy_bear", label:"Teddy Bear", img:"../images/other/other_teddy_bear.jpg", type:"other" },
@@ -203,15 +187,7 @@ const ITEM_BANK = [
 
 const ITEM_MAP = Object.fromEntries(ITEM_BANK.map(i => [i.id, i]));
 
-/**
- * ======================================
- * 25 Trials (each: target + 2 clues)
- * We use controlled choice sets of 8
- * so distractors don’t accidentally match.
- * ======================================
- */
 const TRIALS_MASTER = [
-  // targetId, clue1, clue2, choices[8]
   { targetId:"toothbrush", clues:[
       { text:"You use it to brush your teeth.", tag:"Function" },
       { text:"It has bristles and you keep it in the bathroom.", tag:"Feature/Class" },
@@ -220,7 +196,7 @@ const TRIALS_MASTER = [
   },
   { targetId:"spoon", clues:[
       { text:"You use it to eat soup or cereal.", tag:"Function" },
-      { text:"It’s a kitchen utensil made of metal or plastic.", tag:"Class/Feature" },
+      { text:"It's a kitchen utensil made of metal or plastic.", tag:"Class/Feature" },
     ],
     choices:["spoon","toothbrush","pencil","crayons","shoe","cup_empty","keys","book"]
   },
@@ -267,7 +243,7 @@ const TRIALS_MASTER = [
     choices:["hat","shoe","jacket","shirt","socks","backpack","ball","keys"]
   },
   { targetId:"jacket", clues:[
-      { text:"You wear it when it’s cold.", tag:"Function" },
+      { text:"You wear it when it's cold.", tag:"Function" },
       { text:"It goes on top of your clothes.", tag:"Class" },
     ],
     choices:["jacket","shirt","socks","hat","shoe","backpack","wallet","toy_car"]
@@ -339,13 +315,11 @@ const TRIALS_MASTER = [
     choices:["blocks","ball","toy_car","doll","teddy_bear","book","shoe","backpack"]
   },
   { targetId:"doll", clues:[
-      { text:"You pretend it’s a person and play with it.", tag:"Function" },
+      { text:"You pretend it's a person and play with it.", tag:"Function" },
       { text:"It looks like a person.", tag:"Feature/Class" },
     ],
     choices:["doll","teddy_bear","toy_car","blocks","ball","shirt","hat","book"]
   },
-
-  // A few food/drink targets (still clear FFC)
   { targetId:"apple", clues:[
       { text:"You eat it.", tag:"Function" },
       { text:"It is a fruit.", tag:"Class" },
@@ -366,16 +340,12 @@ const TRIALS_MASTER = [
   },
 ];
 
-// CONFIG
 const CONFIG = {
   fieldSize: 8,
   recycleDelayMin: 2,
   recycleDelayMax: 6,
 };
 
-// ============================
-// State
-// ============================
 let state = {
   ttsEnabled: true,
   indirectPromptEnabled: true,
@@ -392,15 +362,15 @@ let state = {
   incorrect: 0,
   recycledCount: 0,
 
-  clueIndex: 0,        // 0 = clue1, 1 = clue2
+  clueIndex: 0,
   disabledIds: new Set(),
   locked: false,
   firstAttemptWrong: false,
+
+  // Shuffled choice order for the current trial (re-rolled each trial)
+  shuffledChoices: [],
 };
 
-// ============================
-// Helpers
-// ============================
 function shuffle(arr){
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -440,7 +410,6 @@ function updateSD(){
   const clueTotal = state.current.clues.length;
   document.getElementById("clueNum").textContent = String(state.clueIndex + 1);
   document.getElementById("clueTotal").textContent = String(clueTotal);
-
   const clue = state.current.clues[state.clueIndex];
   document.getElementById("sdText").textContent = clue.text;
   document.getElementById("sdMeta").textContent = `Clue type: ${clue.tag}`;
@@ -450,7 +419,9 @@ function renderChoices(){
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
 
-  const choices = state.current.choices.map(id => ITEM_MAP[id]).filter(Boolean);
+  // Use the pre-shuffled order for this trial (stable across re-renders within a trial)
+  const choices = state.shuffledChoices.map(id => ITEM_MAP[id]).filter(Boolean);
+
   choices.forEach(item => {
     const tile = document.createElement("div");
     tile.className = "tile";
@@ -501,7 +472,6 @@ function enableNext(enabled){
 }
 
 function indirectPromptText(){
-  // gentle, non-pointing, supports broad discrimination
   return "Try listening again. Think about what the clue is describing.";
 }
 
@@ -530,6 +500,10 @@ function startTrial(){
   state.disabledIds = new Set();
   state.locked = false;
   state.firstAttemptWrong = false;
+
+  // ✅ THE FIX: shuffle the choices array fresh each trial so the
+  // correct answer appears in a random position every time.
+  state.shuffledChoices = shuffle(state.current.choices);
 
   enableNext(false);
   setFeedback("Select an answer.", "neutral");
@@ -560,10 +534,8 @@ function onIncorrect(choiceId){
   state.incorrect += 1;
   state.firstAttemptWrong = true;
 
-  // First error: neutral + indirect prompt + (optional) advance to clue 2
   if (state.clueIndex === 0) {
     setFeedback("Try again.", "bad");
-
     if (state.indirectPromptEnabled) {
       const p = indirectPromptText();
       setPrompt(p);
@@ -571,7 +543,6 @@ function onIncorrect(choiceId){
     } else {
       setPrompt("");
     }
-
     if (state.autoAdvanceClue && state.current.clues.length > 1) {
       state.clueIndex = 1;
       updateSD();
@@ -580,7 +551,6 @@ function onIncorrect(choiceId){
     return;
   }
 
-  // If already on last clue, start greying out wrong choices
   setFeedback("Try again.", "bad");
   state.disabledIds.add(choiceId);
   renderChoices();
@@ -591,13 +561,10 @@ function onCorrect(){
   state.correct += 1;
   state.locked = true;
   renderChoices();
-
   setFeedback("Nice job!", "good");
   setPrompt("");
   enableNext(true);
   updateKPI();
-
-  // recycle if any error occurred this trial
   if (state.firstAttemptWrong && !state.recycleOnly) {
     state.recycled.push(JSON.parse(JSON.stringify(state.current)));
   }
@@ -609,22 +576,16 @@ function onSelect(choiceId){
   else onIncorrect(choiceId);
 }
 
-// ============================
-// UI bindings
-// ============================
 document.getElementById("speakBtn").addEventListener("click", () => {
   const clue = state.current?.clues?.[state.clueIndex]?.text;
   if (clue) speak(clue);
 });
 document.getElementById("nextBtn").addEventListener("click", () => {
   state.trialIndex += 1;
-
-  // If we have recycled trials queued up, inject them later (distributed)
   if (!state.recycleOnly && state.recycled.length > 0) {
     const t = state.recycled.shift();
     injectRecycledLater(t);
   }
-
   next();
 });
 document.getElementById("restartBtn").addEventListener("click", () => startSession());
@@ -659,23 +620,17 @@ document.getElementById("resetDataBtn").addEventListener("click", () => {
   setFeedback("Data reset.", "neutral");
 });
 
-// ============================
-// Session start
-// ============================
 function startSession(){
   window.speechSynthesis?.cancel?.();
-
   state.correct = 0;
   state.incorrect = 0;
   state.recycledCount = 0;
   state.trialIndex = 0;
   state.recycleOnly = false;
   state.recycled = [];
-
-  // Randomize trial order each session
+  state.shuffledChoices = [];
   state.trials = TRIALS_MASTER.map(t => JSON.parse(JSON.stringify(t)));
   state.queue = shuffle(state.trials);
-
   updateHeader();
   updateKPI();
   next();
