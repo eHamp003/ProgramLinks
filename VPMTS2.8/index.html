@@ -1,0 +1,1189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VB-MAPP Matching — Messy Array of 8</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background: #f6f7fb; color: #111; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; background: #fff; border-bottom: 1px solid #e8e8ef;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .title { font-size: 16px; font-weight: 700; }
+    .sub { font-size: 12px; opacity: 0.7; }
+    .row { display: flex; gap: 12px; padding: 12px 14px; flex-wrap: wrap; }
+    .card {
+      background: #fff; border: 1px solid #e8e8ef; border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+    }
+
+    /* Sample area */
+    #sampleWrap { flex: 1 1 320px; min-width: 300px; padding: 12px; }
+    .sampleBox {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; border-radius: 12px; border: 2px solid #dfe3ff;
+      background: #f3f5ff;
+    }
+    .sampleSvg { width: 92px; height: 92px; flex: 0 0 auto; }
+    .sampleText { display:flex; flex-direction: column; gap: 4px; }
+    .sampleLabel { font-weight: 800; font-size: 16px; }
+    .sampleHint { font-size: 13px; opacity: 0.75; }
+
+    /* Playground */
+    #playWrap { flex: 2 1 520px; min-width: 320px; padding: 12px; }
+    #playArea {
+      position: relative;
+      height: min(62vh, 520px);
+      min-height: 380px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+      border: 1px solid #e8e8ef;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+    .choice {
+      position: absolute;
+      width: 132px; height: 132px;
+      border-radius: 16px;
+      border: 2px solid #eef0ff;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transform: translateZ(0);
+    }
+    .choice:active { transform: scale(0.98); }
+    .choiceSvg { width: 92px; height: 92px; }
+
+    /* Feedback */
+    #feedback {
+      padding: 0 14px 14px;
+      font-size: 14px;
+      min-height: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      border: 1px solid #e8e8ef; background: #fff;
+    }
+    .ok { border-color:#d7f2d7; background:#f1fff1; }
+    .no { border-color:#ffe0e0; background:#fff3f3; }
+
+    /* Prompt highlighting */
+    .pulse {
+      animation: pulse 700ms ease-in-out 2;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(90,110,255,0.35); }
+      100% { box-shadow: 0 0 0 14px rgba(90,110,255,0); }
+    }
+    .glow {
+      outline: 6px solid rgba(90,110,255,0.45);
+      outline-offset: 0px;
+      animation: glow 1s ease-in-out 1;
+    }
+    @keyframes glow {
+      0% { outline-color: rgba(90,110,255,0.0); }
+      40% { outline-color: rgba(90,110,255,0.55); }
+      100% { outline-color: rgba(90,110,255,0.0); }
+    }
+    .shake {
+      animation: shake 250ms linear 1;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    /* Confetti */
+    .confetti {
+      position:absolute; left:0; top:0; right:0; bottom:0; pointer-events:none;
+    }
+    .dot {
+      position:absolute; width:10px; height:10px; border-radius:50%;
+      opacity:0.9;
+      animation: fall 650ms ease-out forwards;
+    }
+    @keyframes fall {
+      from { transform: translateY(-10px) scale(1); opacity: 1; }
+      to   { transform: translateY(120px) scale(0.7); opacity: 0; }
+    }
+
+    /* Supervisor hot corner */
+    #hotCorner {
+      position: fixed; left: 0; top: 0;
+      width: 44px; height: 44px;
+      z-index: 1000;
+      opacity: 0.0001; /* invisible but tappable */
+    }
+
+    /* Modal */
+    dialog {
+      border: none; border-radius: 16px; padding: 0;
+      width: min(760px, 94vw);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.22);
+    }
+    .modalHead {
+      padding: 12px 14px; background:#fff; border-bottom:1px solid #e8e8ef;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .modalBody { padding: 12px 14px; background:#fbfbff; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid label { display:flex; align-items:center; gap: 8px; font-size: 14px; }
+    .controls { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    button {
+      border: 1px solid #e8e8ef; background:#fff; border-radius: 12px;
+      padding: 10px 12px; font-weight: 700; cursor: pointer;
+    }
+    button.primary { background:#5a6eff; border-color:#5a6eff; color:#fff; }
+    select, input[type="number"] {
+      padding: 8px 10px; border-radius: 10px; border:1px solid #e0e0ef; background:#fff;
+      font-weight: 600;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; background:#fff; border-radius:12px; overflow:hidden; }
+    th, td { border-bottom: 1px solid #eef0ff; padding: 8px; text-align: left; }
+    th { background: #f3f5ff; font-weight: 800; }
+  </style>
+</head>
+
+<body>
+  <div id="hotCorner" title="Supervisor"></div>
+
+  <header>
+    <div>
+      <div class="title">VB-MAPP Matching</div>
+      <div class="sub">Match identical picture in a messy array of 8 (50 targets)</div>
+    </div>
+    <div class="pill" id="statusPill">Trial <span id="trialNum">1</span>/<span id="trialTotal">10</span></div>
+  </header>
+
+  <div class="row">
+    <div class="card" id="sampleWrap">
+      <div class="sampleBox" id="sampleBox">
+        <div class="sampleSvg" id="sampleSvg"></div>
+        <div class="sampleText">
+          <div class="sampleLabel" id="sampleLabel">Match this</div>
+          <div class="sampleHint" id="sampleHint">Tap the one that is exactly the same.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="playWrap">
+      <div id="playArea"></div>
+    </div>
+  </div>
+
+  <div id="feedback"></div>
+
+  <dialog id="supervisorDialog">
+    <div class="modalHead">
+      <div style="font-weight:900;">Supervisor Mode</div>
+      <button id="closeSup">Close</button>
+    </div>
+    <div class="modalBody">
+      <div class="grid">
+        <label><input type="checkbox" id="optSpeech" checked> Speech (“Match this.”)</label>
+        <label><input type="checkbox" id="optSounds" checked> Sounds</label>
+        <label><input type="checkbox" id="optAnim" checked> Animations</label>
+        <label><input type="checkbox" id="optPrompts" checked> Prompt hierarchy</label>
+
+        <label>Session length
+          <select id="optSession">
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="50">50</option>
+          </select>
+        </label>
+
+        <label>Reinforce every N correct
+          <select id="optReinf">
+            <option value="1">1 (continuous)</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="controls">
+        <button class="primary" id="btnRestart">Restart Session</button>
+        <button id="btnExport">Export CSV</button>
+        <button id="btnClearData">Clear Data</button>
+      </div>
+
+      <div style="margin-top:12px; font-weight:900;">Data (Supervisor only)</div>
+      <div style="max-height: 260px; overflow:auto; border-radius:12px; margin-top:8px;">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>Time</th><th>Item</th><th>Resp</th><th>Correct</th><th>Prompt</th><th>Latency(ms)</th><th>Errors</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </dialog>
+
+<script>
+/* =========================================================
+   1) 50 TARGETS (no images). Each item renders as SVG.
+   Similar distractors are generated as variant specs.
+   ========================================================= */
+
+const ITEMS = [
+  // FOOD (1–15)
+  { id:"red_apple", kind:"apple", variant:"red" },
+  { id:"banana_yellow", kind:"banana", variant:"yellow" },
+  { id:"orange_whole", kind:"orange", variant:"whole" },
+  { id:"red_strawberry", kind:"strawberry", variant:"red" },
+  { id:"carrot_orange", kind:"carrot", variant:"orange" },
+  { id:"broccoli", kind:"broccoli", variant:"green" },
+  { id:"pizza_slice", kind:"pizza", variant:"slice" },
+  { id:"hamburger", kind:"burger", variant:"plain" },
+  { id:"cookie_chocchip", kind:"cookie", variant:"chocchip" },
+  { id:"cupcake_pink", kind:"cupcake", variant:"pink" },
+  { id:"icecream_cone", kind:"icecream", variant:"cone" },
+  { id:"milk_carton", kind:"carton", variant:"milk" },
+  { id:"juice_box", kind:"boxdrink", variant:"juice" },
+  { id:"water_bottle", kind:"bottle", variant:"water" },
+  { id:"red_lollipop", kind:"lollipop", variant:"red" },
+
+  // TOYS (16–25)
+  { id:"teddy_bear_brown", kind:"teddy", variant:"brown" },
+  { id:"toy_car_red", kind:"car", variant:"red" },
+  { id:"soccer_ball", kind:"ball", variant:"soccer" },
+  { id:"toy_block_A", kind:"block", variant:"A" },
+  { id:"baby_doll", kind:"doll", variant:"baby" },
+  { id:"toy_train_engine", kind:"train", variant:"engine" },
+  { id:"dinosaur_green", kind:"dino", variant:"green" },
+  { id:"rubber_duck_yellow", kind:"duck", variant:"yellow" },
+  { id:"toy_robot", kind:"robot", variant:"blue" },
+  { id:"kite_diamond", kind:"kite", variant:"diamond" },
+
+  // HOUSEHOLD (26–35)
+  { id:"spoon_silver", kind:"spoon", variant:"silver" },
+  { id:"fork", kind:"fork", variant:"silver" },
+  { id:"plate_white", kind:"plate", variant:"white" },
+  { id:"cup_blue", kind:"cup", variant:"blue" },
+  { id:"toothbrush", kind:"toothbrush", variant:"blue" },
+  { id:"soap_bar", kind:"soap", variant:"white" },
+  { id:"towel_blue", kind:"towel", variant:"blue" },
+  { id:"pillow", kind:"pillow", variant:"white" },
+  { id:"chair", kind:"chair", variant:"wood" },
+  { id:"bed", kind:"bed", variant:"blue" },
+
+  // CLOTHING (36–42)
+  { id:"shirt_red", kind:"shirt", variant:"red" },
+  { id:"pants_blue", kind:"pants", variant:"blue" },
+  { id:"shoe_sneaker", kind:"shoe", variant:"sneaker" },
+  { id:"sock", kind:"sock", variant:"white" },
+  { id:"hat_baseball", kind:"hat", variant:"baseball" },
+  { id:"backpack", kind:"backpack", variant:"purple" },
+  { id:"coat", kind:"coat", variant:"green" },
+
+  // SCHOOL (43–50)
+  { id:"pencil_yellow", kind:"pencil", variant:"yellow" },
+  { id:"crayon_red", kind:"crayon", variant:"red" },
+  { id:"book_closed", kind:"book", variant:"blue" },
+  { id:"scissors", kind:"scissors", variant:"gray" },
+  { id:"glue_bottle", kind:"glue", variant:"white" },
+  { id:"backpack_school", kind:"backpack", variant:"blue" },
+  { id:"clock_round", kind:"clock", variant:"round" },
+  { id:"computer_laptop", kind:"laptop", variant:"gray" },
+];
+
+/* Similar distractors: 3 per target.
+   We generate “close confusions” as variant changes or near-category neighbors.
+*/
+function similarFor(item) {
+  const k = item.kind, v = item.variant;
+  const s = [];
+  const push = (kind, variant) => s.push({ id:`sim_${kind}_${variant}`, kind, variant, isSimilar:true });
+
+  switch (k) {
+    case "apple":
+      push("apple","green"); push("apple","slice"); push("tomato","red"); break;
+    case "banana":
+      push("banana","green"); push("banana","slice"); push("corn","yellow"); break;
+    case "orange":
+      push("orange","slice"); push("peach","pink"); push("tangerine","orange"); break;
+    case "strawberry":
+      push("strawberry","slice"); push("raspberry","red"); push("candy","heart_red"); break;
+    case "carrot":
+      push("carrot","baby"); push("marker","orange"); push("sweetpotato","orange"); break;
+    case "broccoli":
+      push("lettuce","green"); push("tree","green"); push("cauliflower","white"); break;
+    case "pizza":
+      push("pizza","whole"); push("sandwich","triangle"); push("nachos","yellow"); break;
+    case "burger":
+      push("burger","cheese"); push("sandwich","rect"); push("cookie","round"); break;
+    case "cookie":
+      push("cookie","plain"); push("pancake","round"); push("button","brown"); break;
+    case "cupcake":
+      push("cupcake","blue"); push("muffin","brown"); push("icecream","cone"); break;
+    case "icecream":
+      push("icecream","bowl"); push("cupcake","pink"); push("cone","traffic"); break;
+    case "carton":
+      push("boxdrink","juice"); push("box","white"); push("cereal","box"); break;
+    case "boxdrink":
+      push("carton","milk"); push("box","small"); push("can","soda"); break;
+    case "bottle":
+      push("bottle","baby"); push("bottle","spray"); push("thermos","blue"); break;
+    case "lollipop":
+      push("lollipop","green"); push("balloon","red"); push("shape","circle_red"); break;
+
+    case "teddy":
+      push("teddy","white"); push("plush","monkey"); push("dog","brown"); break;
+    case "car":
+      push("car","blue"); push("truck","fire"); push("bus","yellow"); break;
+    case "ball":
+      push("ball","basket"); push("ball","volley"); push("ball","beach"); break;
+    case "block":
+      push("block","B"); push("cube","box"); push("dice","white"); break;
+    case "doll":
+      push("doll","fashion"); push("figure","action"); push("cat","stuffed"); break;
+    case "train":
+      push("train","car"); push("bus","yellow"); push("subway","gray"); break;
+    case "dino":
+      push("dino","blue"); push("dragon","red"); push("lizard","green"); break;
+    case "duck":
+      push("duck","real"); push("chick","yellow"); push("boat","yellow"); break;
+    case "robot":
+      push("robot","silver"); push("astronaut","white"); push("toy","square"); break;
+    case "kite":
+      push("shape","diamond"); push("parachute","red"); push("flag","square"); break;
+
+    case "spoon":
+      push("fork","silver"); push("ladle","silver"); push("toothbrush","blue"); break;
+    case "fork":
+      push("spoon","silver"); push("pitchfork","brown"); push("rake","green"); break;
+    case "plate":
+      push("bowl","white"); push("frisbee","white"); push("shape","circle_white"); break;
+    case "cup":
+      push("mug","blue"); push("bucket","blue"); push("bowl","blue"); break;
+    case "toothbrush":
+      push("brush","hair"); push("brush","paint"); push("comb","black"); break;
+    case "soap":
+      push("sponge","yellow"); push("eraser","pink"); push("block","white"); break;
+    case "towel":
+      push("blanket","blue"); push("shirt","blue"); push("napkin","white"); break;
+    case "pillow":
+      push("cushion","white"); push("cloud","white"); push("mattress","white"); break;
+    case "chair":
+      push("stool","wood"); push("bench","wood"); push("couch","blue"); break;
+    case "bed":
+      push("couch","blue"); push("crib","wood"); push("mattress","white"); break;
+
+    case "shirt":
+      push("shirt","blue"); push("jacket","gray"); push("towel","blue"); break;
+    case "pants":
+      push("shorts","blue"); push("jeans","dark"); push("leggings","black"); break;
+    case "shoe":
+      push("boot","brown"); push("sandal","tan"); push("slipper","pink"); break;
+    case "sock":
+      push("mitten","red"); push("glove","blue"); push("stocking","red"); break;
+    case "hat":
+      push("beanie","gray"); push("sunhat","tan"); push("helmet","gray"); break;
+    case "backpack":
+      push("purse","pink"); push("lunchbox","red"); push("suitcase","gray"); break;
+    case "coat":
+      push("jacket","gray"); push("hoodie","blue"); push("sweater","red"); break;
+
+    case "pencil":
+      push("crayon","yellow"); push("marker","yellow"); push("brush","paint"); break;
+    case "crayon":
+      push("crayon","blue"); push("marker","red"); push("pencil","red"); break;
+    case "book":
+      push("notebook","white"); push("tablet","gray"); push("binder","blue"); break;
+    case "scissors":
+      push("pliers","gray"); push("tongs","gray"); push("clip","pink"); break;
+    case "glue":
+      push("bottle","lotion"); push("bottle","shampoo"); push("bottle","white"); break;
+    case "clock":
+      push("timer","gray"); push("compass","round"); push("plate","white"); break;
+    case "laptop":
+      push("tablet","gray"); push("screen","tv"); push("book","blue"); break;
+  }
+  return s.slice(0,3);
+}
+
+/* =========================================================
+   2) Game State & Settings
+   ========================================================= */
+const state = {
+  settings: {
+    speech: true,
+    sounds: true,
+    anim: true,
+    prompts: true,
+    sessionLen: 10,
+    reinfN: 1,
+  },
+  trialIndex: 0,
+  order: [],
+  current: null,
+  choices: [],
+  correctChoiceId: "",
+  promptStep: 0, // 0=independent, 1=try again, 2=indirect, 3=positional, 4=model
+  errors: 0,
+  startMs: 0,
+  correctStreak: 0,
+  data: [],
+};
+
+const el = {
+  playArea: document.getElementById("playArea"),
+  sampleSvg: document.getElementById("sampleSvg"),
+  sampleLabel: document.getElementById("sampleLabel"),
+  sampleHint: document.getElementById("sampleHint"),
+  trialNum: document.getElementById("trialNum"),
+  trialTotal: document.getElementById("trialTotal"),
+  feedback: document.getElementById("feedback"),
+  sampleBox: document.getElementById("sampleBox"),
+  dialog: document.getElementById("supervisorDialog"),
+  dataBody: document.querySelector("#dataTable tbody"),
+};
+
+/* =========================================================
+   3) SVG RENDERING (simple icons, no files)
+   ========================================================= */
+function svgWrap(inner) {
+  return `
+  <svg viewBox="0 0 100 100" width="92" height="92" aria-hidden="true">
+    <rect x="0" y="0" width="100" height="100" rx="18" fill="none"></rect>
+    ${inner}
+  </svg>`;
+}
+
+function color(name) {
+  const map = {
+    red:"#ff4b4b", green:"#2ecc71", blue:"#3b82f6", yellow:"#fbbf24",
+    orange:"#fb923c", pink:"#fb7185", purple:"#a855f7", gray:"#94a3b8",
+    brown:"#a16207", white:"#e5e7eb", black:"#111827", tan:"#f1c27d",
+    dark:"#334155",
+  };
+  return map[name] || "#64748b";
+}
+
+function renderIcon(spec) {
+  const k = spec.kind, v = spec.variant;
+
+  // Helper shapes
+  const circle = (cx,cy,r,fill) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" />`;
+  const rect = (x,y,w,h,rx,fill) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" />`;
+  const poly = (pts,fill) => `<polygon points="${pts}" fill="${fill}" />`;
+  const path = (d,fill,stroke="none",sw="0") => `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" />`;
+
+  // Icons (intentionally simple + discriminable)
+  switch (k) {
+    case "apple": {
+      const base = v === "green" ? color("green") : color("red");
+      const slice = v === "slice";
+      return svgWrap(`
+        ${path("M55 25 C65 12, 82 18, 72 33 C63 27, 57 30, 55 25 Z", color("green"))}
+        ${rect(46,22,8,12,3,color("brown"))}
+        ${slice
+          ? path("M30 55 C30 35, 70 35, 70 55 C70 75, 30 75, 30 55 Z", base)
+          : path("M28 55 C28 30, 72 30, 72 55 C72 78, 55 84, 50 84 C45 84, 28 78, 28 55 Z", base)
+        }
+        ${slice ? circle(50,58,4,color("white")) : ""}
+      `);
+    }
+    case "tomato": return svgWrap(`${circle(50,56,28,color("red"))}${path("M50 28 L58 40 L42 40 Z", color("green"))}`);
+    case "banana": {
+      const c = v==="green" ? color("green") : color("yellow");
+      const slice = v==="slice";
+      return svgWrap(`
+        ${path("M25 60 C35 78, 70 78, 80 55 C64 70, 40 70, 25 60 Z", c)}
+        ${slice ? circle(70,54,8,color("white")) : ""}
+      `);
+    }
+    case "corn": return svgWrap(`${rect(36,28,28,52,12,color("yellow"))}${path("M36 30 C25 45, 25 65, 36 80 Z", color("green"))}${path("M64 30 C75 45, 75 65, 64 80 Z", color("green"))}`);
+    case "orange":
+    case "tangerine":
+    case "peach": {
+      const c = k==="peach" ? color("pink") : color("orange");
+      const slice = v==="slice";
+      return svgWrap(`
+        ${slice
+          ? path("M25 70 A28 28 0 0 1 75 70 L50 40 Z", c)
+          : circle(50,55,28,c)
+        }
+        ${path("M52 25 C62 16, 75 22, 68 33 C60 29, 55 30, 52 25 Z", color("green"))}
+      `);
+    }
+    case "strawberry":
+    case "raspberry":
+    case "candy": {
+      const c = k==="candy" ? color("red") : color("red");
+      const slice = v==="slice";
+      return svgWrap(`
+        ${path("M50 30 C70 30, 78 45, 74 62 C70 80, 58 86, 50 86 C42 86, 30 80, 26 62 C22 45, 30 30, 50 30 Z", c)}
+        ${path("M34 30 L50 18 L66 30 Z", color("green"))}
+        ${slice ? rect(40,55,20,10,6,color("white")) : ""}
+      `);
+    }
+    case "carrot":
+    case "sweetpotato": {
+      const c = (k==="sweetpotato") ? color("orange") : color("orange");
+      const baby = v==="baby";
+      return svgWrap(`
+        ${path("M50 25 C55 35, 70 50, 62 80 C58 90, 42 90, 38 80 C30 50, 45 35, 50 25 Z", c)}
+        ${path("M40 25 L50 10 L60 25 Z", color("green"))}
+        ${baby ? circle(50,70,10,color("tan")) : ""}
+      `);
+    }
+    case "broccoli":
+    case "lettuce":
+    case "cauliflower": {
+      const c = (k==="cauliflower") ? color("white") : color("green");
+      return svgWrap(`
+        ${circle(38,48,16,c)}${circle(62,48,16,c)}${circle(50,38,16,c)}
+        ${rect(44,56,12,26,6,color("green"))}
+      `);
+    }
+    case "tree": return svgWrap(`${circle(50,40,22,color("green"))}${rect(44,55,12,28,4,color("brown"))}`);
+    case "pizza":
+    case "nachos": {
+      const slice = v==="slice" || k==="nachos";
+      return svgWrap(`
+        ${slice ? poly("20,75 80,75 50,25", color("yellow")) : circle(50,55,28,color("yellow"))}
+        ${circle(45,55,5,color("red"))}${circle(58,62,5,color("red"))}${circle(55,48,5,color("red"))}
+      `);
+    }
+    case "sandwich": {
+      const tri = v==="triangle";
+      return svgWrap(`${tri ? poly("22,72 78,72 50,28", color("tan")) : rect(24,34,52,40,12,color("tan"))}${rect(28,50,44,10,5,color("green"))}`);
+    }
+    case "burger": return svgWrap(`${rect(22,32,56,16,10,color("tan"))}${rect(22,52,56,14,8,color("brown"))}${rect(22,70,56,14,10,color("tan"))}${(v==="cheese")?rect(28,50,44,6,2,color("yellow")):""}`);
+    case "cookie":
+    case "pancake":
+    case "button": {
+      const c = k==="pancake" ? color("tan") : (k==="button" ? color("brown") : color("tan"));
+      return svgWrap(`
+        ${circle(50,55,28,c)}
+        ${v==="chocchip" ? `${circle(40,55,4,color("brown"))}${circle(58,62,4,color("brown"))}${circle(55,48,4,color("brown"))}` : ""}
+        ${v==="plain" ? circle(50,55,0,"") : ""}
+      `);
+    }
+    case "cupcake":
+    case "muffin": {
+      const top = (k==="muffin") ? color("brown") : (v==="blue" ? color("blue") : color("pink"));
+      return svgWrap(`${path("M30 45 C35 25, 65 25, 70 45 C75 60, 25 60, 30 45 Z", top)}${rect(32,60,36,22,8,color("yellow"))}`);
+    }
+    case "icecream":
+      return svgWrap(`${(v==="bowl")?rect(30,64,40,16,8,color("blue")):poly("40,80 60,80 55,55 45,55", (v==="cone" ? color("tan") : color("orange")))}${circle(50,46,18,color("pink"))}`);
+    case "cone":
+      return svgWrap(`${poly("40,80 60,80 55,55 45,55", color("orange"))}${rect(38,25,24,18,6,color("white"))}`);
+    case "carton":
+      return svgWrap(`${rect(30,26,40,60,8,color("white"))}${rect(30,26,40,16,8,color("blue"))}${rect(44,18,12,12,3,color("gray"))}`);
+    case "boxdrink":
+    case "box":
+    case "cereal":
+      return svgWrap(`${rect(30,26,40,60,10,(k==="cereal")?color("yellow"):(v==="white"?color("white"):color("orange")))}${rect(38,36,24,16,6,color("white"))}`);
+    case "can":
+      return svgWrap(`${rect(38,24,24,64,10,color("gray"))}${rect(38,30,24,10,6,color("red"))}`);
+    case "bottle":
+    case "thermos":
+      return svgWrap(`${rect(40,20,20,10,4,color("gray"))}${rect(34,30,32,56,14,(v==="water")?color("blue"):color("white"))}${(v==="spray")?rect(48,18,26,10,4,color("gray")):""}`);
+    case "lollipop":
+    case "balloon":
+    case "shape":
+      if (v==="circle_red" || v==="circle_white") return svgWrap(`${circle(50,55,26,(v==="circle_white")?color("white"):color("red"))}`);
+      return svgWrap(`${circle(50,45,20,(v==="green")?color("green"):color("red"))}${rect(48,62,4,26,2,color("gray"))}`);
+
+    // TOYS
+    case "teddy":
+    case "plush":
+    case "dog":
+    case "cat":
+      return svgWrap(`${circle(40,40,10,(k==="teddy")?color(v):color("brown"))}${circle(60,40,10,(k==="teddy")?color(v):color("brown"))}${circle(50,55,24,(k==="teddy")?color(v):color("brown"))}${circle(42,55,4,color("black"))}${circle(58,55,4,color("black"))}${circle(50,62,5,color("black"))}`);
+    case "car":
+    case "truck":
+    case "bus":
+      return svgWrap(`${rect(22,52,56,20,8,(k==="bus")?color("yellow"):(v==="blue"?color("blue"):color("red")))}${rect(30,42,30,12,6,color("gray"))}${circle(34,74,6,color("black"))}${circle(66,74,6,color("black"))}`);
+    case "ball":
+      return svgWrap(`${circle(50,55,28,(v==="basket")?color("orange"):(v==="beach")?color("pink"):color("white"))}${path("M22 55 H78", "none", color("black"), "2")}${(v==="soccer")?path("M50 27 L58 40 L50 53 L42 40 Z","none",color("black"),"2"):""}`);
+    case "block":
+    case "cube":
+    case "dice":
+      return svgWrap(`${rect(26,30,48,48,8,color("yellow"))}${rect(30,34,40,40,6,color("white"))}${path("M42 62 Q50 54 58 62", "none", color("black"), "3")}${(v==="A"||v==="B")?`<text x="50" y="58" text-anchor="middle" font-size="22" font-weight="900" fill="#111">${v}</text>`:""}${(k==="dice")?`${circle(42,50,4,color("black"))}${circle(58,62,4,color("black"))}`:""}`);
+    case "doll":
+    case "figure":
+      return svgWrap(`${circle(50,32,12,color("tan"))}${rect(42,44,16,30,8,(k==="figure")?color("blue"):color("pink"))}${rect(34,48,8,22,4,color("tan"))}${rect(58,48,8,22,4,color("tan"))}`);
+    case "train":
+    case "subway":
+      return svgWrap(`${rect(26,44,48,34,10,(k==="subway")?color("gray"):color("red"))}${rect(36,34,28,14,6,color("gray"))}${circle(38,80,6,color("black"))}${circle(62,80,6,color("black"))}`);
+    case "dino":
+    case "dragon":
+    case "lizard":
+      return svgWrap(`${path("M25 70 C35 50, 50 45, 65 50 C78 56, 74 74, 60 78 C45 82, 35 82, 25 70 Z", (k==="dragon")?color("red"):color(v))}${circle(60,58,3,color("black"))}`);
+    case "duck":
+    case "chick":
+      return svgWrap(`${circle(46,58,20,color("yellow"))}${circle(58,48,12,color("yellow"))}${poly("64,50 78,56 64,62", color("orange"))}${circle(62,46,2,color("black"))}`);
+    case "robot":
+    case "astronaut":
+      return svgWrap(`${rect(32,34,36,42,10,(v==="silver")?color("gray"):color("blue"))}${rect(40,24,20,14,6,color("gray"))}${circle(44,52,4,color("white"))}${circle(56,52,4,color("white"))}${rect(42,62,16,8,4,color("white"))}`);
+    case "kite":
+    case "flag":
+      return svgWrap(`${poly("50,18 78,50 50,82 22,50", color("purple"))}${path("M22 50 C18 60, 18 70, 22 80", "none", color("gray"), "3")}`);
+
+    // HOUSEHOLD
+    case "spoon":
+      return svgWrap(`${rect(46,24,8,52,4,color("gray"))}${circle(50,20,10,color("gray"))}`);
+    case "fork":
+    case "pitchfork":
+    case "rake":
+      return svgWrap(`${rect(48,26,4,58,2,color("gray"))}${rect(40,22,20,6,2,color("gray"))}${rect(40,18,4,10,2,color("gray"))}${rect(48,18,4,10,2,color("gray"))}${rect(56,18,4,10,2,color("gray"))}`);
+    case "ladle":
+      return svgWrap(`${rect(48,26,4,50,2,color("gray"))}${circle(50,78,12,color("gray"))}`);
+    case "plate":
+    case "bowl":
+    case "frisbee":
+      return svgWrap(`${circle(50,55,28,(k==="bowl")?color("white"):color("white"))}${circle(50,55,18,color("gray"))}`);
+    case "cup":
+    case "mug":
+    case "bucket":
+      return svgWrap(`${rect(32,38,36,40,10,color(v==="blue"?"blue":"gray"))}${path("M68 48 C78 48, 78 68, 68 68", "none", color("gray"), "6")}`);
+    case "toothbrush":
+    case "brush":
+      return svgWrap(`${rect(30,70,40,10,6,color("blue"))}${rect(60,62,10,10,4,color("white"))}${rect(60,58,10,6,2,color("gray"))}`);
+    case "comb":
+      return svgWrap(`${rect(28,56,44,14,8,color("black"))}${rect(32,70,4,14,2,color("black"))}${rect(40,70,4,14,2,color("black"))}${rect(48,70,4,14,2,color("black"))}${rect(56,70,4,14,2,color("black"))}`);
+    case "soap":
+    case "sponge":
+    case "eraser":
+      return svgWrap(`${rect(26,48,48,28,14,(k==="sponge")?color("yellow"):(k==="eraser")?color("pink"):color("white"))}`);
+    case "towel":
+    case "blanket":
+    case "napkin":
+      return svgWrap(`${rect(26,34,48,52,12,(k==="napkin")?color("white"):color(v))}${path("M30 40 H70", "none", color("gray"), "2")}`);
+    case "pillow":
+    case "cushion":
+    case "mattress":
+    case "cloud":
+      return svgWrap(`${rect(22,44,56,36,18,color("white"))}${circle(32,56,10,color("white"))}${circle(68,56,10,color("white"))}`);
+    case "chair":
+    case "stool":
+    case "bench":
+    case "couch":
+      return svgWrap(`${rect(28,44,44,20,8,color("tan"))}${rect(30,62,6,20,3,color("brown"))}${rect(64,62,6,20,3,color("brown"))}${(k==="couch")?rect(24,38,52,10,6,color("blue")):""}`);
+    case "bed":
+    case "crib":
+      return svgWrap(`${rect(20,56,60,18,8,color("blue"))}${rect(20,46,16,12,6,color("gray"))}${rect(36,46,24,12,6,color("white"))}`);
+
+    // CLOTHING
+    case "shirt":
+      return svgWrap(`${path("M25 40 L40 30 L60 30 L75 40 L68 52 L62 44 L62 80 L38 80 L38 44 L32 52 Z", color(v))}`);
+    case "pants":
+    case "shorts":
+    case "jeans":
+    case "leggings":
+      return svgWrap(`${rect(34,30,32,50,10,color(v==="blue"?"blue":(v==="dark"?"dark":"black")))}${rect(34,80,12,12,4,color("gray"))}${rect(54,80,12,12,4,color("gray"))}`);
+    case "shoe":
+    case "boot":
+    case "sandal":
+    case "slipper":
+      return svgWrap(`${path("M28 66 C40 66, 46 56, 52 56 C62 56, 70 62, 74 74 C60 80, 40 80, 28 76 Z", color("gray"))}${rect(30,62,18,8,4,color("blue"))}`);
+    case "sock":
+    case "mitten":
+    case "glove":
+    case "stocking":
+      return svgWrap(`${rect(40,26,20,40,10,color("white"))}${path("M40 66 C40 80, 30 80, 30 70 C30 62, 40 62, 40 66 Z", color("white"))}`);
+    case "hat":
+    case "beanie":
+    case "sunhat":
+    case "helmet":
+      return svgWrap(`${path("M25 56 C28 36, 72 36, 75 56 Z", color("gray"))}${rect(22,56,56,10,6,color("blue"))}`);
+    case "backpack":
+    case "purse":
+    case "lunchbox":
+    case "suitcase":
+    case "gym_bag":
+      return svgWrap(`${rect(30,32,40,52,14,color(v))}${path("M38 32 C38 22, 62 22, 62 32", "none", color("gray"), "6")}${rect(38,46,24,20,10,color("white"))}`);
+    case "coat":
+    case "jacket":
+    case "hoodie":
+    case "sweater":
+      return svgWrap(`${path("M30 30 L45 26 L55 26 L70 30 L70 84 L55 84 L55 46 L45 46 L45 84 L30 84 Z", color(v))}${rect(48,26,4,58,2,color("gray"))}`);
+
+    // SCHOOL
+    case "pencil":
+      return svgWrap(`${rect(26,48,52,14,6,color("yellow"))}${poly("78,48 90,55 78,62", color("tan"))}${rect(22,48,6,14,3,color("pink"))}`);
+    case "crayon":
+    case "marker":
+      return svgWrap(`${rect(26,44,54,20,10,color(v))}${rect(76,44,10,20,6,color("gray"))}`);
+    case "book":
+    case "notebook":
+    case "binder":
+      return svgWrap(`${rect(26,30,48,56,10,color(v))}${rect(30,34,10,48,6,color("white"))}${rect(44,36,24,8,4,color("white"))}`);
+    case "tablet":
+    case "laptop":
+    case "screen":
+    case "tv":
+      return svgWrap(`${rect(22,34,56,34,8,color("gray"))}${rect(28,40,44,22,6,color("black"))}${(k==="laptop")?rect(22,70,56,10,6,color("gray")):""}`);
+    case "scissors":
+    case "pliers":
+    case "tongs":
+    case "clip":
+      return svgWrap(`${circle(40,56,10,color("gray"))}${circle(60,56,10,color("gray"))}${path("M45 52 L78 30", "none", color("gray"), "4")}${path("M55 52 L78 74", "none", color("gray"), "4")}`);
+    case "glue":
+    case "lotion":
+    case "shampoo":
+      return svgWrap(`${rect(38,24,24,10,4,color("blue"))}${rect(34,34,32,52,14,color("white"))}${rect(40,46,20,18,8,color("blue"))}`);
+    case "clock":
+    case "timer":
+    case "compass":
+      return svgWrap(`${circle(50,55,28,color("white"))}${circle(50,55,26,color("gray"))}${path("M50 55 L50 40", "none", color("black"), "3")}${path("M50 55 L64 60", "none", color("black"), "3")}`);
+    default:
+      return svgWrap(`${circle(50,55,28,color("gray"))}`);
+  }
+}
+
+/* =========================================================
+   4) Trial building: target + identical + 3 similar + 4 unrelated
+   ========================================================= */
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i=a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function pickUnrelated(excludeIds, n=4) {
+  const pool = ITEMS.filter(x => !excludeIds.has(x.id));
+  return shuffle(pool).slice(0, n);
+}
+
+function buildTrial(item) {
+  const similar = similarFor(item);
+  const exclude = new Set([item.id, ...similar.map(s=>s.id)]);
+  const unrelated = pickUnrelated(exclude, 4);
+
+  // Build choices of 8: identical match is the same spec as item (a second card)
+  const choices = [
+    { ...item, choiceId: "correct" },            // the correct option
+    ...similar.map((s, idx)=>({ ...s, choiceId: "sim"+idx })),
+    ...unrelated.map((u, idx)=>({ ...u, choiceId: "u"+idx })),
+  ];
+
+  return {
+    sample: item,
+    choices: shuffle(choices),
+    correctChoiceId: "correct",
+  };
+}
+
+/* =========================================================
+   5) Scatter placement (no overlap)
+   ========================================================= */
+function placeChoices(choiceEls) {
+  const area = el.playArea.getBoundingClientRect();
+  const pad = 14;
+  const w = 132, h = 132;
+  const placed = [];
+
+  function collides(x,y) {
+    for (const p of placed) {
+      const overlap = !(x+w < p.x || x > p.x+w || y+h < p.y || y > p.y+h);
+      if (overlap) return true;
+    }
+    return false;
+  }
+
+  for (const node of choiceEls) {
+    let ok = false;
+    for (let tries=0; tries<300; tries++) {
+      const x = Math.floor(pad + Math.random()*(area.width - w - pad*2));
+      const y = Math.floor(pad + Math.random()*(area.height - h - pad*2));
+      if (!collides(x,y)) {
+        placed.push({x,y});
+        node.style.left = x+"px";
+        node.style.top  = y+"px";
+        ok = true;
+        break;
+      }
+    }
+    if (!ok) {
+      // Fallback: simple grid-ish placement if too cramped
+      const idx = placed.length;
+      const cols = Math.max(2, Math.floor((area.width - pad*2)/(w+10)));
+      const x = pad + (idx % cols) * (w+10);
+      const y = pad + Math.floor(idx / cols) * (h+10);
+      placed.push({x,y});
+      node.style.left = x+"px";
+      node.style.top  = y+"px";
+    }
+  }
+}
+
+/* =========================================================
+   6) Audio feedback (simple beeps) + Speech
+   ========================================================= */
+function beep(freq=880, ms=110) {
+  if (!state.settings.sounds) return;
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = "sine";
+  o.frequency.value = freq;
+  g.gain.value = 0.08;
+  o.connect(g); g.connect(ctx.destination);
+  o.start();
+  setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+}
+
+function speak(text) {
+  if (!state.settings.speech) return;
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.95;
+  u.pitch = 1.05;
+  window.speechSynthesis.speak(u);
+}
+
+/* =========================================================
+   7) UI helpers
+   ========================================================= */
+function setFeedback(type, text) {
+  el.feedback.innerHTML = "";
+  if (!text) return;
+  const span = document.createElement("span");
+  span.className = "pill " + (type==="ok" ? "ok" : "no");
+  span.textContent = text;
+  el.feedback.appendChild(span);
+}
+
+function confettiBurst() {
+  if (!state.settings.anim) return;
+  const layer = document.createElement("div");
+  layer.className = "confetti";
+  for (let i=0; i<18; i++) {
+    const d = document.createElement("div");
+    d.className = "dot";
+    d.style.left = Math.floor(Math.random()*100) + "%";
+    d.style.top = Math.floor(Math.random()*20) + "%";
+    d.style.background = ["#5a6eff","#22c55e","#f97316","#ef4444","#a855f7"][i%5];
+    d.style.animationDelay = (Math.random()*120) + "ms";
+    layer.appendChild(d);
+  }
+  el.playArea.appendChild(layer);
+  setTimeout(()=> layer.remove(), 900);
+}
+
+/* =========================================================
+   8) Session flow
+   ========================================================= */
+function startSession() {
+  state.trialIndex = 0;
+  state.data = state.data || [];
+  state.order = shuffle(ITEMS).slice(0, state.settings.sessionLen);
+  document.getElementById("trialTotal").textContent = state.settings.sessionLen;
+  nextTrial();
+}
+
+function nextTrial() {
+  if (state.trialIndex >= state.order.length) {
+    setFeedback("ok", "Session complete ✅");
+    speak("All done.");
+    el.playArea.innerHTML = "";
+    return;
+  }
+
+  const item = state.order[state.trialIndex];
+  state.current = item;
+  state.promptStep = 0;
+  state.errors = 0;
+  state.startMs = performance.now();
+
+  const trial = buildTrial(item);
+  state.choices = trial.choices;
+  state.correctChoiceId = trial.correctChoiceId;
+
+  // Sample
+  el.sampleSvg.innerHTML = renderIcon(item);
+  el.sampleLabel.textContent = "Match this.";
+  el.sampleHint.textContent = "Tap the one that is exactly the same.";
+  el.sampleBox.classList.remove("pulse");
+
+  // Choices
+  el.playArea.innerHTML = "";
+  const nodes = trial.choices.map((c) => {
+    const div = document.createElement("div");
+    div.className = "choice";
+    div.dataset.choiceId = c.choiceId;
+    div.dataset.itemId = c.id;
+    div.innerHTML = `<div class="choiceSvg">${renderIcon(c)}</div>`;
+    div.addEventListener("click", () => onChoice(div, c));
+    return div;
+  });
+  nodes.forEach(n => el.playArea.appendChild(n));
+  placeChoices(nodes);
+
+  // Update status
+  document.getElementById("trialNum").textContent = (state.trialIndex + 1);
+
+  // Trial start speech
+  speak("Match this.");
+  setFeedback("", "");
+}
+
+function logTrial(respId, correct, promptLabel, latency, errors) {
+  const row = {
+    time: new Date().toISOString(),
+    item: state.current.id,
+    response: respId,
+    correct: correct ? 1 : 0,
+    prompt: promptLabel,
+    latency_ms: Math.round(latency),
+    errors: errors,
+  };
+  state.data.push(row);
+  renderDataTable();
+}
+
+function promptLabelFromStep(step) {
+  switch (step) {
+    case 0: return "Independent";
+    case 1: return "Try Again";
+    case 2: return "Indirect";
+    case 3: return "Positional";
+    case 4: return "Model";
+    default: return "Independent";
+  }
+}
+
+function onChoice(node, choiceSpec) {
+  const latency = performance.now() - state.startMs;
+  const isCorrect = node.dataset.choiceId === state.correctChoiceId;
+
+  if (isCorrect) {
+    // Reinforcement schedule
+    state.correctStreak += 1;
+    const doReinf = (state.correctStreak % state.settings.reinfN === 0);
+
+    if (doReinf) {
+      beep(1040, 120);
+      confettiBurst();
+    } else {
+      beep(880, 90);
+    }
+
+    setFeedback("ok", "Correct ✅");
+    const promptLabel = promptLabelFromStep(state.promptStep);
+    logTrial(choiceSpec.id, true, promptLabel, latency, state.errors);
+
+    setTimeout(() => {
+      state.trialIndex += 1;
+      nextTrial();
+    }, 550);
+    return;
+  }
+
+  // Incorrect
+  beep(220, 140);
+  setFeedback("no", "Try again");
+  state.errors += 1;
+
+  // If prompts off: just reshuffle and repeat
+  if (!state.settings.prompts) {
+    node.classList.add("shake");
+    setTimeout(() => node.classList.remove("shake"), 260);
+    reshuffleSameTrial();
+    return;
+  }
+
+  // Apply error correction ladder
+  if (state.promptStep === 0) {
+    // Step 1: Try Again (no help)
+    state.promptStep = 1;
+    node.classList.add("shake");
+    setTimeout(() => node.classList.remove("shake"), 260);
+    reshuffleSameTrial();
+    return;
+  }
+
+  if (state.promptStep === 1) {
+    // Step 2: Indirect prompt
+    state.promptStep = 2;
+    speak("Look for the one that is exactly the same.");
+    el.sampleBox.classList.add("pulse");
+    setTimeout(() => el.sampleBox.classList.remove("pulse"), 1600);
+    reshuffleSameTrial();
+    return;
+  }
+
+  if (state.promptStep === 2) {
+    // Step 3: Positional prompt (brief glow correct)
+    state.promptStep = 3;
+    positionalPrompt();
+    return;
+  }
+
+  if (state.promptStep === 3) {
+    // Step 4: Model prompt then represent
+    state.promptStep = 4;
+    modelPromptThenRepeat();
+    return;
+  }
+
+  // If still incorrect after model step, keep repeating model step
+  state.promptStep = 4;
+  modelPromptThenRepeat();
+}
+
+function reshuffleSameTrial() {
+  // Re-render same sample and same choices (same 8), just reshuffle & scatter
+  const trial = { sample: state.current, choices: shuffle(state.choices), correctChoiceId: state.correctChoiceId };
+  state.choices = trial.choices;
+
+  el.playArea.innerHTML = "";
+  const nodes = trial.choices.map((c) => {
+    const div = document.createElement("div");
+    div.className = "choice";
+    div.dataset.choiceId = c.choiceId;
+    div.dataset.itemId = c.id;
+    div.innerHTML = `<div class="choiceSvg">${renderIcon(c)}</div>`;
+    div.addEventListener("click", () => onChoice(div, c));
+    return div;
+  });
+  nodes.forEach(n => el.playArea.appendChild(n));
+  placeChoices(nodes);
+}
+
+function positionalPrompt() {
+  // brief glow around correct answer
+  const correctEl = [...el.playArea.querySelectorAll(".choice")]
+    .find(n => n.dataset.choiceId === state.correctChoiceId);
+  if (!correctEl) { reshuffleSameTrial(); return; }
+  correctEl.classList.add("glow");
+  setTimeout(() => {
+    correctEl.classList.remove("glow");
+    reshuffleSameTrial();
+  }, 1050);
+}
+
+function modelPromptThenRepeat() {
+  const correctEl = [...el.playArea.querySelectorAll(".choice")]
+    .find(n => n.dataset.choiceId === state.correctChoiceId);
+  if (!correctEl) { reshuffleSameTrial(); return; }
+
+  // “Model” = animate correct briefly
+  correctEl.classList.add("glow");
+  setTimeout(() => {
+    correctEl.classList.remove("glow");
+    // Re-present same trial for independent attempt
+    reshuffleSameTrial();
+  }, 800);
+}
+
+/* =========================================================
+   9) Supervisor mode (press & hold corner 3s)
+   ========================================================= */
+let holdTimer = null;
+document.getElementById("hotCorner").addEventListener("pointerdown", () => {
+  holdTimer = setTimeout(() => openSupervisorGate(), 3000);
+});
+document.getElementById("hotCorner").addEventListener("pointerup", () => clearTimeout(holdTimer));
+document.getElementById("hotCorner").addEventListener("pointercancel", () => clearTimeout(holdTimer));
+document.getElementById("closeSup").addEventListener("click", () => el.dialog.close());
+
+function openSupervisorGate() {
+  // simple math gate
+  const a = 2 + Math.floor(Math.random()*8);
+  const b = 2 + Math.floor(Math.random()*8);
+  const ans = prompt(`Supervisor check: ${a} + ${b} = ?`);
+  if (String(a+b) !== String(ans).trim()) return;
+
+  // sync controls
+  document.getElementById("optSpeech").checked = state.settings.speech;
+  document.getElementById("optSounds").checked = state.settings.sounds;
+  document.getElementById("optAnim").checked = state.settings.anim;
+  document.getElementById("optPrompts").checked = state.settings.prompts;
+  document.getElementById("optSession").value = String(state.settings.sessionLen);
+  document.getElementById("optReinf").value = String(state.settings.reinfN);
+
+  el.dialog.showModal();
+}
+
+document.getElementById("optSpeech").addEventListener("change", e => state.settings.speech = e.target.checked);
+document.getElementById("optSounds").addEventListener("change", e => state.settings.sounds = e.target.checked);
+document.getElementById("optAnim").addEventListener("change", e => state.settings.anim = e.target.checked);
+document.getElementById("optPrompts").addEventListener("change", e => state.settings.prompts = e.target.checked);
+document.getElementById("optSession").addEventListener("change", e => {
+  state.settings.sessionLen = Number(e.target.value);
+  document.getElementById("trialTotal").textContent = state.settings.sessionLen;
+});
+document.getElementById("optReinf").addEventListener("change", e => state.settings.reinfN = Number(e.target.value));
+
+document.getElementById("btnRestart").addEventListener("click", () => {
+  el.dialog.close();
+  startSession();
+});
+
+document.getElementById("btnClearData").addEventListener("click", () => {
+  state.data = [];
+  renderDataTable();
+});
+
+document.getElementById("btnExport").addEventListener("click", () => exportCSV());
+
+function renderDataTable() {
+  el.dataBody.innerHTML = "";
+  for (const r of state.data.slice().reverse().slice(0, 120)) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.time}</td>
+      <td>${r.item}</td>
+      <td>${r.response}</td>
+      <td>${r.correct ? "1" : "0"}</td>
+      <td>${r.prompt}</td>
+      <td>${r.latency_ms}</td>
+      <td>${r.errors}</td>
+    `;
+    el.dataBody.appendChild(tr);
+  }
+}
+
+function exportCSV() {
+  const rows = state.data;
+  const headers = ["time","item","response","correct","prompt","latency_ms","errors"];
+  const csv = [
+    headers.join(","),
+    ...rows.map(r => headers.map(h => JSON.stringify(r[h] ?? "")).join(","))
+  ].join("\n");
+
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "vb-mapp-matching-data.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* =========================================================
+   10) Start
+   ========================================================= */
+(function init() {
+  // iOS speech sometimes needs user interaction; first tap will enable it naturally.
+  startSession();
+})();
+</script>
+</body>
+</html>
