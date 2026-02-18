@@ -1,0 +1,1132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <title>VB-MAPP Sorting — Colors & Shapes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #F5F0FF;
+      --surface: #FFFFFF;
+      --primary: #7C3AED;
+      --primary-light: #EDE9FE;
+      --primary-dark: #5B21B6;
+      --accent: #F59E0B;
+      --accent-light: #FEF3C7;
+      --green: #10B981;
+      --green-light: #D1FAE5;
+      --red: #EF4444;
+      --red-light: #FEE2E2;
+      --text: #1E1B4B;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+      --font: 'Nunito', sans-serif;
+      --radius: 20px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; font-family: var(--font);
+      background: var(--bg); color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none; user-select: none;
+    }
+    #app {
+      display: flex; flex-direction: column;
+      height: 100dvh; max-width: 860px; margin: 0 auto;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 2px solid var(--primary-light);
+      flex-shrink: 0;
+    }
+    .logo { font-size: 15px; font-weight: 900; color: var(--primary); }
+    .logo span { color: var(--accent); }
+    #progressWrap {
+      flex: 1; height: 12px; background: var(--primary-light);
+      border-radius: 999px; overflow: hidden;
+    }
+    #progressBar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #A78BFA);
+      border-radius: 999px; width: 0%;
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    #levelBadge {
+      font-size: 13px; font-weight: 800; color: var(--primary);
+      background: var(--primary-light); padding: 4px 12px; border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* ── STAR ROW ── */
+    #starRow {
+      display: flex; flex-wrap: wrap; gap: 3px;
+      padding: 5px 16px; flex-shrink: 0;
+    }
+    .star { font-size: 16px; filter: grayscale(1) opacity(0.3); transition: transform 0.3s, filter 0.3s; }
+    .star.earned { filter: none; transform: scale(1.1); }
+    .star.pop { animation: starPop 0.5s cubic-bezier(.36,.07,.19,.97); }
+    @keyframes starPop {
+      0%{transform:scale(1.1)} 30%{transform:scale(1.7)} 60%{transform:scale(0.9)} 100%{transform:scale(1.1)}
+    }
+
+    /* ── INSTRUCTION BANNER ── */
+    #instructBanner {
+      margin: 6px 16px; padding: 10px 16px;
+      background: var(--surface); border-radius: 14px;
+      border: 2px solid var(--primary-light);
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+    }
+    #instructIcon { font-size: 28px; flex-shrink: 0; }
+    #instructText { font-size: 14px; font-weight: 800; color: var(--primary); line-height: 1.3; }
+    #instructSub  { font-size: 12px; font-weight: 600; color: var(--muted); }
+
+    /* ── MAIN GAME AREA ── */
+    #gameArea {
+      flex: 1; display: flex; flex-direction: column;
+      padding: 6px 16px 10px; gap: 10px; min-height: 0;
+    }
+
+    /* ── PIECE TRAY ── */
+    #tray {
+      background: var(--surface); border-radius: var(--radius);
+      border: 2px solid var(--border);
+      min-height: 110px;
+      display: flex; flex-wrap: wrap;
+      align-items: center; justify-content: center;
+      gap: 10px; padding: 12px;
+      flex-shrink: 0;
+      transition: background 0.2s;
+      position: relative;
+    }
+    #trayLabel {
+      position: absolute; top: -10px; left: 16px;
+      font-size: 10px; font-weight: 900; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted);
+      background: var(--surface); padding: 0 6px;
+    }
+    #tray.drag-over { background: var(--primary-light); border-color: var(--primary); }
+
+    /* ── BIN ROW ── */
+    #binRow {
+      display: flex; gap: 10px; flex: 1; min-height: 0;
+    }
+
+    .bin {
+      flex: 1; border-radius: var(--radius);
+      border: 3px dashed var(--border);
+      background: var(--surface);
+      display: flex; flex-direction: column;
+      align-items: center;
+      padding: 10px 8px 8px;
+      gap: 6px;
+      min-height: 0;
+      position: relative;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .bin.drag-over {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      transform: scale(1.02);
+    }
+    .bin.correct-flash {
+      border-color: var(--green);
+      background: var(--green-light);
+      animation: binFlash 0.5s ease;
+    }
+    .bin.error-flash {
+      border-color: var(--red);
+      background: var(--red-light);
+      animation: binShake 0.4s ease;
+    }
+    @keyframes binFlash { 0%{transform:scale(1)} 40%{transform:scale(1.04)} 100%{transform:scale(1)} }
+    @keyframes binShake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)}
+      40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)}
+    }
+
+    .bin-label {
+      font-size: 13px; font-weight: 900; color: var(--muted);
+      text-align: center; letter-spacing: 0.3px; flex-shrink: 0;
+    }
+    .bin-hint {
+      width: 44px; height: 44px; border-radius: 10px;
+      border: 3px solid var(--border); flex-shrink: 0;
+      display: grid; place-items: center;
+    }
+    .bin-pieces {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      justify-content: center; align-items: flex-start;
+      flex: 1; overflow-y: auto;
+    }
+
+    /* ── DRAGGABLE PIECES ── */
+    .piece {
+      width: 72px; height: 72px;
+      border-radius: 14px;
+      border: 3px solid rgba(0,0,0,0.08);
+      cursor: grab;
+      display: grid; place-items: center;
+      flex-shrink: 0;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      animation: pieceIn 0.4s cubic-bezier(.36,.07,.19,.97) both;
+      position: relative;
+      touch-action: none;
+    }
+    .piece:active, .piece.dragging {
+      cursor: grabbing; opacity: 0.55;
+      transform: scale(1.08) rotate(3deg);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+    .piece.placed {
+      width: 52px; height: 52px;
+      border-radius: 10px;
+      cursor: default;
+      pointer-events: none;
+      animation: piecePlace 0.35s cubic-bezier(.36,.07,.19,.97);
+    }
+    @keyframes pieceIn {
+      from { transform: scale(0.6) rotate(-8deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes piecePlace {
+      0%  { transform: scale(1.3); }
+      60% { transform: scale(0.9); }
+      100%{ transform: scale(1); }
+    }
+
+    /* Shape SVG inside piece */
+    .piece svg { width: 44px; height: 44px; pointer-events: none; }
+    .piece.placed svg { width: 32px; height: 32px; }
+
+    /* ── FEEDBACK BAR ── */
+    #feedbackBar {
+      padding: 4px 16px 6px; min-height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .fb-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 18px; border-radius: 999px;
+      font-size: 14px; font-weight: 800;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .fb-pill.show { opacity: 1; transform: translateY(0); }
+    .fb-pill.ok   { background: var(--green-light); color: #065F46; }
+    .fb-pill.no   { background: var(--red-light);   color: #991B1B; }
+
+    /* ── GHOST (drag image) ── */
+    #dragGhost {
+      position: fixed; pointer-events: none; z-index: 9999;
+      opacity: 0.85; transform: translate(-50%,-50%) scale(1.1) rotate(4deg);
+      transition: none; display: none;
+    }
+
+    /* ── CONFETTI ── */
+    #confettiLayer { position:fixed;inset:0;pointer-events:none;z-index:9999; }
+    .cp {
+      position:absolute; border-radius:2px;
+      animation: cpFall linear forwards;
+    }
+    @keyframes cpFall {
+      0%  { transform:translateY(-20px) rotate(0deg); opacity:1; }
+      100%{ transform:translateY(100vh)  rotate(720deg); opacity:0; }
+    }
+
+    /* ── REWARD SCREEN ── */
+    #rewardScreen {
+      position:fixed;inset:0;z-index:500;
+      background:rgba(124,58,237,0.93); backdrop-filter:blur(6px);
+      display:none; flex-direction:column; align-items:center;
+      justify-content:center; gap:12px; text-align:center; color:#fff;
+    }
+    #rewardScreen.show { display:flex; }
+    #rewardEmoji { font-size:90px; animation:rewardBounce 0.6s cubic-bezier(.36,.07,.19,.97); }
+    @keyframes rewardBounce {
+      0%{transform:scale(0) rotate(-20deg)} 60%{transform:scale(1.2) rotate(5deg)} 100%{transform:scale(1)}
+    }
+    #rewardTitle { font-size:34px; font-weight:900; }
+    #rewardSub   { font-size:17px; font-weight:700; opacity:0.85; }
+    #rewardBtn {
+      margin-top:8px; background:#fff; color:var(--primary);
+      border:none; padding:14px 36px; border-radius:999px;
+      font-size:17px; font-weight:900; font-family:var(--font); cursor:pointer;
+    }
+
+    /* ── DONE SCREEN ── */
+    #doneScreen {
+      position:fixed;inset:0;z-index:600;
+      background:linear-gradient(160deg,#1E1B4B 0%,#4C1D95 100%);
+      display:none; flex-direction:column; align-items:center;
+      justify-content:center; gap:12px; text-align:center; color:#fff;
+    }
+    #doneScreen.show { display:flex; }
+    #doneTitle { font-size:30px; font-weight:900; }
+    #doneScore { font-size:62px; font-weight:900; color:var(--accent); }
+    #doneStats { font-size:17px; opacity:0.85; }
+    #doneBtn {
+      margin-top:6px; background:var(--accent); color:#1E1B4B;
+      border:none; padding:14px 34px; border-radius:999px;
+      font-size:17px; font-weight:900; font-family:var(--font); cursor:pointer;
+    }
+    #doneAccBar {
+      width:200px; height:14px; background:rgba(255,255,255,0.2);
+      border-radius:999px; overflow:hidden;
+    }
+    #doneAccFill {
+      height:100%; background:var(--accent); border-radius:999px;
+      width:0%; transition:width 1s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── HOT CORNER ── */
+    #hotCorner {
+      position:fixed; left:0; top:0; width:50px; height:50px;
+      z-index:1000; opacity:0.001; cursor:default;
+    }
+
+    /* Mobile tweaks */
+    @media (max-width:480px) {
+      .piece { width:60px; height:60px; }
+      .piece svg { width:36px; height:36px; }
+      .piece.placed { width:44px; height:44px; }
+      .piece.placed svg { width:26px; height:26px; }
+      .bin-hint { width:36px; height:36px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <header>
+    <div class="logo">VB-MAPP <span>★</span> Sort</div>
+    <div id="progressWrap"><div id="progressBar"></div></div>
+    <div id="levelBadge">Level 1</div>
+  </header>
+
+  <div id="starRow"></div>
+
+  <div id="instructBanner">
+    <div id="instructIcon">🎨</div>
+    <div>
+      <div id="instructText">Sort the colors!</div>
+      <div id="instructSub">Drag each piece into the matching bin</div>
+    </div>
+  </div>
+
+  <div id="gameArea">
+    <div id="tray">
+      <div id="trayLabel">Pieces to sort</div>
+    </div>
+    <div id="binRow"></div>
+  </div>
+
+  <div id="feedbackBar"><div class="fb-pill" id="fbPill"></div></div>
+</div>
+
+<!-- Ghost for touch drag -->
+<div id="dragGhost"></div>
+
+<!-- Confetti -->
+<div id="confettiLayer"></div>
+
+<!-- Reward -->
+<div id="rewardScreen" id="rewardScreen">
+  <div id="rewardEmoji">🌟</div>
+  <div id="rewardTitle">Amazing!</div>
+  <div id="rewardSub"></div>
+  <button id="rewardBtn">Next Round →</button>
+</div>
+
+<!-- Done -->
+<div id="doneScreen">
+  <div style="font-size:56px">🏆</div>
+  <div id="doneTitle">All Done!</div>
+  <div id="doneScore"></div>
+  <div id="doneStats"></div>
+  <div id="doneAccBar"><div id="doneAccFill"></div></div>
+  <button id="doneBtn" onclick="restartGame()">Play Again 🎉</button>
+</div>
+
+<div id="hotCorner"></div>
+
+<script>
+/* ================================================================
+   COLOR DEFINITIONS — shades of the same hue
+   ================================================================ */
+const COLOR_FAMILIES = [
+  {
+    id: "red", label: "Reds", icon: "#E53E3E",
+    shades: [
+      { hex: "#FEB2B2", name: "light red"   },
+      { hex: "#FC8181", name: "soft red"    },
+      { hex: "#E53E3E", name: "red"         },
+      { hex: "#9B2C2C", name: "dark red"    },
+    ]
+  },
+  {
+    id: "blue", label: "Blues", icon: "#3182CE",
+    shades: [
+      { hex: "#BEE3F8", name: "light blue"  },
+      { hex: "#63B3ED", name: "soft blue"   },
+      { hex: "#3182CE", name: "blue"        },
+      { hex: "#2A4365", name: "dark blue"   },
+    ]
+  },
+  {
+    id: "green", label: "Greens", icon: "#38A169",
+    shades: [
+      { hex: "#C6F6D5", name: "light green" },
+      { hex: "#68D391", name: "soft green"  },
+      { hex: "#38A169", name: "green"       },
+      { hex: "#276749", name: "dark green"  },
+    ]
+  },
+  {
+    id: "yellow", label: "Yellows", icon: "#D69E2E",
+    shades: [
+      { hex: "#FEFCBF", name: "light yellow"},
+      { hex: "#F6E05E", name: "soft yellow" },
+      { hex: "#D69E2E", name: "yellow"      },
+      { hex: "#744210", name: "dark yellow" },
+    ]
+  },
+  {
+    id: "purple", label: "Purples", icon: "#805AD5",
+    shades: [
+      { hex: "#E9D8FD", name: "light purple"},
+      { hex: "#B794F4", name: "soft purple" },
+      { hex: "#805AD5", name: "purple"      },
+      { hex: "#44337A", name: "dark purple" },
+    ]
+  },
+  {
+    id: "orange", label: "Oranges", icon: "#DD6B20",
+    shades: [
+      { hex: "#FEEBC8", name: "light orange"},
+      { hex: "#F6AD55", name: "soft orange" },
+      { hex: "#DD6B20", name: "orange"      },
+      { hex: "#7B341E", name: "dark orange" },
+    ]
+  },
+  {
+    id: "pink", label: "Pinks", icon: "#D53F8C",
+    shades: [
+      { hex: "#FED7E2", name: "light pink"  },
+      { hex: "#F687B3", name: "soft pink"   },
+      { hex: "#D53F8C", name: "pink"        },
+      { hex: "#702459", name: "dark pink"   },
+    ]
+  },
+  {
+    id: "teal", label: "Teals", icon: "#319795",
+    shades: [
+      { hex: "#B2F5EA", name: "light teal"  },
+      { hex: "#4FD1C5", name: "soft teal"   },
+      { hex: "#319795", name: "teal"        },
+      { hex: "#234E52", name: "dark teal"   },
+    ]
+  },
+];
+
+/* ================================================================
+   SHAPE DEFINITIONS
+   ================================================================ */
+const SHAPE_FAMILIES = [
+  {
+    id: "circles", label: "Circles", icon: "circle",
+    variants: [
+      { id:"circle_sm",  label:"small circle",  svg: makeSVG("circle",  50) },
+      { id:"circle_md",  label:"circle",         svg: makeSVG("circle",  70) },
+      { id:"circle_lg",  label:"big circle",     svg: makeSVG("circle",  90) },
+      { id:"oval",       label:"oval",           svg: makeSVG("oval",    70) },
+    ]
+  },
+  {
+    id: "squares", label: "Squares & Rectangles", icon: "square",
+    variants: [
+      { id:"square_sm",  label:"small square",  svg: makeSVG("square",  46) },
+      { id:"square_md",  label:"square",         svg: makeSVG("square",  62) },
+      { id:"rect_wide",  label:"wide rectangle", svg: makeSVG("rect_w",  0)  },
+      { id:"rect_tall",  label:"tall rectangle", svg: makeSVG("rect_t",  0)  },
+    ]
+  },
+  {
+    id: "triangles", label: "Triangles", icon: "triangle",
+    variants: [
+      { id:"tri_eq",     label:"triangle",       svg: makeSVG("tri_eq",  0) },
+      { id:"tri_right",  label:"right triangle", svg: makeSVG("tri_rt",  0) },
+      { id:"tri_flat",   label:"flat triangle",  svg: makeSVG("tri_fl",  0) },
+      { id:"tri_tall",   label:"tall triangle",  svg: makeSVG("tri_tl",  0) },
+    ]
+  },
+  {
+    id: "stars", label: "Stars", icon: "star",
+    variants: [
+      { id:"star4",  label:"4-point star",  svg: makeSVG("star4", 0) },
+      { id:"star5",  label:"star",          svg: makeSVG("star5", 0) },
+      { id:"star6",  label:"6-point star",  svg: makeSVG("star6", 0) },
+      { id:"star8",  label:"sunburst",      svg: makeSVG("star8", 0) },
+    ]
+  },
+  {
+    id: "hearts", label: "Hearts", icon: "heart",
+    variants: [
+      { id:"heart_sm",   label:"small heart",   svg: makeSVG("heart", 44) },
+      { id:"heart_md",   label:"heart",         svg: makeSVG("heart", 60) },
+      { id:"heart_wide", label:"wide heart",    svg: makeSVG("heart_w", 0) },
+      { id:"heart_tall", label:"tall heart",    svg: makeSVG("heart_t", 0) },
+    ]
+  },
+  {
+    id: "diamonds", label: "Diamonds", icon: "diamond",
+    variants: [
+      { id:"diamond_sm", label:"small diamond", svg: makeSVG("diamond", 44) },
+      { id:"diamond_md", label:"diamond",       svg: makeSVG("diamond", 60) },
+      { id:"rhombus",    label:"rhombus",       svg: makeSVG("rhombus", 0)  },
+      { id:"kite",       label:"kite",          svg: makeSVG("kite",    0)  },
+    ]
+  },
+];
+
+function makeSVG(type, size) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 100 100");
+
+  function poly(pts) {
+    const p = document.createElementNS(ns, "polygon");
+    p.setAttribute("points", pts);
+    return p;
+  }
+  function path(d) {
+    const p = document.createElementNS(ns, "path");
+    p.setAttribute("d", d);
+    return p;
+  }
+
+  let el;
+  switch(type) {
+    case "circle":
+      el = document.createElementNS(ns, "circle");
+      el.setAttribute("cx","50"); el.setAttribute("cy","50");
+      el.setAttribute("r", String(size/2));
+      break;
+    case "oval":
+      el = document.createElementNS(ns, "ellipse");
+      el.setAttribute("cx","50"); el.setAttribute("cy","50");
+      el.setAttribute("rx","40"); el.setAttribute("ry","26");
+      break;
+    case "square":
+      el = document.createElementNS(ns, "rect");
+      const o = (100-size)/2;
+      el.setAttribute("x",String(o)); el.setAttribute("y",String(o));
+      el.setAttribute("width",String(size)); el.setAttribute("height",String(size));
+      el.setAttribute("rx","4");
+      break;
+    case "rect_w":
+      el = document.createElementNS(ns, "rect");
+      el.setAttribute("x","8"); el.setAttribute("y","30");
+      el.setAttribute("width","84"); el.setAttribute("height","40"); el.setAttribute("rx","5");
+      break;
+    case "rect_t":
+      el = document.createElementNS(ns, "rect");
+      el.setAttribute("x","30"); el.setAttribute("y","8");
+      el.setAttribute("width","40"); el.setAttribute("height","84"); el.setAttribute("rx","5");
+      break;
+    case "tri_eq":  el = poly("50,8 92,88 8,88"); break;
+    case "tri_rt":  el = poly("10,10 90,90 10,90"); break;
+    case "tri_fl":  el = poly("5,35 95,35 50,85"); break;
+    case "tri_tl":  el = poly("50,5 80,95 20,95"); break;
+    case "star4":
+      el = path("M50,5 L58,42 L95,50 L58,58 L50,95 L42,58 L5,50 L42,42 Z"); break;
+    case "star5":
+      el = path("M50,5 L61,35 L95,35 L68,57 L79,91 L50,70 L21,91 L32,57 L5,35 L39,35 Z"); break;
+    case "star6":
+      el = path("M50,5 L59,38 L93,25 L70,55 L93,75 L59,62 L50,95 L41,62 L7,75 L30,55 L7,25 L41,38 Z"); break;
+    case "star8":
+      el = path("M50,5 L55,38 L80,15 L65,44 L95,50 L65,56 L80,85 L55,62 L50,95 L45,62 L20,85 L35,56 L5,50 L35,44 L20,15 L45,38 Z"); break;
+    case "heart":
+      const r2 = size/2, cx1=50-r2*0.6, cx2=50+r2*0.6, cy=50-r2*0.35;
+      el = path(`M50,${50+r2*0.55} C${50-r2*1.1},${50-r2*0.2} ${50-r2*1.1},${50-r2*0.9} ${cx1},${cy} A${r2*0.55},${r2*0.55} 0 0 1 50,${50-r2*0.4} A${r2*0.55},${r2*0.55} 0 0 1 ${cx2},${cy} C${50+r2*1.1},${50-r2*0.9} ${50+r2*1.1},${50-r2*0.2} 50,${50+r2*0.55} Z`);
+      break;
+    case "heart_w":
+      el = path("M50,75 C10,45 5,15 25,10 A22,22 0 0 1 50,32 A22,22 0 0 1 75,10 C95,15 90,45 50,75 Z");
+      el.setAttribute("transform","scale(1.1,0.9) translate(-5,5)"); break;
+    case "heart_t":
+      el = path("M50,85 C10,55 5,25 25,20 A22,22 0 0 1 50,42 A22,22 0 0 1 75,20 C95,25 90,55 50,85 Z");
+      el.setAttribute("transform","scale(0.85,1.15) translate(7,-7)"); break;
+    case "diamond": {
+      const dr = size/2;
+      el = poly(`50,${50-dr} ${50+dr*0.72},50 50,${50+dr} ${50-dr*0.72},50`); break;
+    }
+    case "rhombus": el = poly("50,10 85,50 50,90 15,50"); break;
+    case "kite":    el = poly("50,8 78,50 50,92 22,65"); break;
+    default: el = document.createElementNS(ns,"circle");
+      el.setAttribute("cx","50"); el.setAttribute("cy","50"); el.setAttribute("r","40");
+  }
+  svg.appendChild(el);
+  return svg;
+}
+
+/* ================================================================
+   LEVEL PLAN
+   Mode alternates: color → shape → color → shape…
+   Bins increase: 2 → 3 → 4 (then repeats at 4)
+   ================================================================ */
+const LEVEL_PLAN = [
+  { mode:"color",  bins:2, label:"Sort the Colors!",  icon:"🎨", sub:"Drag each square into the matching color bin" },
+  { mode:"shape",  bins:2, label:"Sort the Shapes!",  icon:"🔷", sub:"Drag each shape into the matching bin" },
+  { mode:"color",  bins:3, label:"Sort the Colors!",  icon:"🎨", sub:"3 color groups — can you sort them all?" },
+  { mode:"shape",  bins:3, label:"Sort the Shapes!",  icon:"🔷", sub:"3 shape groups — nice work!" },
+  { mode:"color",  bins:4, label:"Color Expert!",     icon:"🌈", sub:"4 colors — you're a sorting superstar!" },
+  { mode:"shape",  bins:4, label:"Shape Master!",     icon:"⭐", sub:"4 shape groups — the ultimate challenge!" },
+];
+
+/* ================================================================
+   GAME STATE
+   ================================================================ */
+const TOTAL_LEVELS = LEVEL_PLAN.length;
+const PIECES_PER_BIN = 4; // one shade per bin = 4 shades × bins pieces total
+
+const G = {
+  level: 0,
+  totalStars: 0,
+  correctCount: 0,
+  errorCount: 0,
+  pieces: [],      // { id, binId, placed, el }
+  bins: [],        // { id, el, pieces }
+  dragging: null,  // piece being dragged
+  locked: false,
+};
+
+/* ================================================================
+   DOM refs
+   ================================================================ */
+const D = {
+  tray:         document.getElementById("tray"),
+  binRow:       document.getElementById("binRow"),
+  starRow:      document.getElementById("starRow"),
+  progressBar:  document.getElementById("progressBar"),
+  levelBadge:   document.getElementById("levelBadge"),
+  instructIcon: document.getElementById("instructIcon"),
+  instructText: document.getElementById("instructText"),
+  instructSub:  document.getElementById("instructSub"),
+  fbPill:       document.getElementById("fbPill"),
+  confetti:     document.getElementById("confettiLayer"),
+  rewardScreen: document.getElementById("rewardScreen"),
+  rewardEmoji:  document.getElementById("rewardEmoji"),
+  rewardTitle:  document.getElementById("rewardTitle"),
+  rewardSub:    document.getElementById("rewardSub"),
+  rewardBtn:    document.getElementById("rewardBtn"),
+  doneScreen:   document.getElementById("doneScreen"),
+  doneScore:    document.getElementById("doneScore"),
+  doneStats:    document.getElementById("doneStats"),
+  doneAccFill:  document.getElementById("doneAccFill"),
+  ghost:        document.getElementById("dragGhost"),
+};
+
+/* ================================================================
+   INIT
+   ================================================================ */
+function init() {
+  buildStarRow();
+  loadLevel();
+  D.rewardBtn.addEventListener("click", advanceLevel);
+  document.getElementById("hotCorner").addEventListener("click", () => {
+    alert(`Level ${G.level+1} | Correct: ${G.correctCount} | Errors: ${G.errorCount}`);
+  });
+}
+
+function buildStarRow() {
+  D.starRow.innerHTML = "";
+  for (let i = 0; i < TOTAL_LEVELS; i++) {
+    const s = document.createElement("div");
+    s.className = "star"; s.textContent = "⭐"; s.id = `star-${i}`;
+    D.starRow.appendChild(s);
+  }
+}
+
+/* ================================================================
+   LEVEL LOADER
+   ================================================================ */
+function loadLevel() {
+  G.locked = false;
+  G.dragging = null;
+  const plan = LEVEL_PLAN[G.level];
+
+  // Update header
+  D.levelBadge.textContent = `Level ${G.level + 1}`;
+  D.progressBar.style.width = `${(G.level / TOTAL_LEVELS) * 100}%`;
+  D.instructIcon.textContent = plan.icon;
+  D.instructText.textContent = plan.label;
+  D.instructSub.textContent  = plan.sub;
+
+  // Clear
+  D.tray.innerHTML = '<div id="trayLabel">Pieces to sort</div>';
+  D.binRow.innerHTML = "";
+  G.pieces = []; G.bins = [];
+
+  if (plan.mode === "color") buildColorLevel(plan);
+  else                        buildShapeLevel(plan);
+
+  setFeedback(null);
+  setupDropZones();
+  speak(plan.label);
+}
+
+/* ── COLOR LEVEL ── */
+function buildColorLevel(plan) {
+  const families = shuffle(COLOR_FAMILIES.slice()).slice(0, plan.bins);
+
+  families.forEach(fam => {
+    // Pick PIECES_PER_BIN shades (all 4 if available)
+    const shades = fam.shades.slice(0, PIECES_PER_BIN);
+
+    // Bin
+    const bin = createBin(fam.id, fam.label);
+    const hint = bin.querySelector(".bin-hint");
+    hint.style.background = fam.icon;
+    hint.style.border = `3px solid ${fam.icon}`;
+    D.binRow.appendChild(bin);
+    G.bins.push({ id: fam.id, el: bin, count: 0, total: shades.length });
+
+    // Pieces
+    shades.forEach((shade, si) => {
+      const piece = createColorPiece(fam.id, shade, si);
+      G.pieces.push(piece);
+    });
+  });
+
+  // Shuffle pieces into tray
+  shuffle(G.pieces).forEach(p => D.tray.appendChild(p.el));
+}
+
+function createColorPiece(binId, shade, idx) {
+  const el = document.createElement("div");
+  el.className = "piece";
+  el.style.background = shade.hex;
+  el.style.animationDelay = (idx * 0.07) + "s";
+  el.setAttribute("aria-label", shade.name);
+  el.setAttribute("tabindex", "0");
+  el.dataset.binId = binId;
+
+  const pid = binId + "_" + idx;
+  el.dataset.pid = pid;
+
+  const p = { id: pid, binId, el, placed: false };
+  attachDrag(p);
+  return p;
+}
+
+/* ── SHAPE LEVEL ── */
+function buildShapeLevel(plan) {
+  const families = shuffle(SHAPE_FAMILIES.slice()).slice(0, plan.bins);
+  // Pick a random color for all pieces (so color is not a cue)
+  const fillColor = shuffle(COLOR_FAMILIES)[0].shades[2].hex;
+
+  families.forEach(fam => {
+    const variants = fam.variants.slice(0, PIECES_PER_BIN);
+
+    // Bin
+    const bin = createBin(fam.id, fam.label);
+    const hint = bin.querySelector(".bin-hint");
+    // Render the icon shape in the bin hint
+    const iconSvg = makeSVG(iconTypeForFamily(fam.id), 60);
+    iconSvg.style.width = "26px"; iconSvg.style.height = "26px";
+    iconSvg.querySelector("*").setAttribute("fill", "#7C3AED");
+    hint.appendChild(iconSvg);
+    D.binRow.appendChild(bin);
+    G.bins.push({ id: fam.id, el: bin, count: 0, total: variants.length });
+
+    // Pieces
+    variants.forEach((variant, vi) => {
+      const piece = createShapePiece(fam.id, variant, fillColor, vi);
+      G.pieces.push(piece);
+    });
+  });
+
+  shuffle(G.pieces).forEach(p => D.tray.appendChild(p.el));
+}
+
+function iconTypeForFamily(famId) {
+  const map = {
+    circles:"circle", squares:"square", triangles:"tri_eq",
+    stars:"star5", hearts:"heart", diamonds:"diamond"
+  };
+  return map[famId] || "circle";
+}
+
+function createShapePiece(binId, variant, fillColor, idx) {
+  const el = document.createElement("div");
+  el.className = "piece";
+  el.style.background = "#fff";
+  el.style.animationDelay = (idx * 0.07) + "s";
+  el.setAttribute("aria-label", variant.label);
+  el.setAttribute("tabindex", "0");
+  el.dataset.binId = binId;
+
+  const svgClone = variant.svg.cloneNode(true);
+  const shape = svgClone.querySelector("*");
+  if (shape) { shape.setAttribute("fill", fillColor); shape.setAttribute("stroke","none"); }
+  el.appendChild(svgClone);
+
+  const pid = binId + "_" + idx;
+  el.dataset.pid = pid;
+
+  const p = { id: pid, binId, el, placed: false };
+  attachDrag(p);
+  return p;
+}
+
+function createBin(id, label) {
+  const bin = document.createElement("div");
+  bin.className = "bin";
+  bin.dataset.bid = id;
+
+  const lbl = document.createElement("div");
+  lbl.className = "bin-label";
+  lbl.textContent = label;
+
+  const hint = document.createElement("div");
+  hint.className = "bin-hint";
+
+  const pieces = document.createElement("div");
+  pieces.className = "bin-pieces";
+
+  bin.appendChild(lbl);
+  bin.appendChild(hint);
+  bin.appendChild(pieces);
+  return bin;
+}
+
+/* ================================================================
+   DRAG AND DROP — unified mouse + touch
+   ================================================================ */
+function attachDrag(piece) {
+  const el = piece.el;
+
+  // Mouse
+  el.addEventListener("mousedown", e => startDrag(piece, e.clientX, e.clientY, e));
+  // Touch
+  el.addEventListener("touchstart", e => {
+    const t = e.touches[0];
+    startDrag(piece, t.clientX, t.clientY, e);
+  }, { passive: false });
+}
+
+function startDrag(piece, cx, cy, e) {
+  if (G.locked || piece.placed) return;
+  e.preventDefault();
+  G.dragging = piece;
+  piece.el.classList.add("dragging");
+
+  // Build ghost
+  const ghostInner = piece.el.cloneNode(true);
+  ghostInner.style.width  = piece.el.offsetWidth  + "px";
+  ghostInner.style.height = piece.el.offsetHeight + "px";
+  ghostInner.style.animationName = "none";
+  ghostInner.style.opacity = "1";
+  ghostInner.classList.remove("dragging");
+  D.ghost.innerHTML = "";
+  D.ghost.appendChild(ghostInner);
+  D.ghost.style.display = "block";
+  moveGhost(cx, cy);
+
+  // Move handlers
+  const onMove = (ex, ey) => {
+    moveGhost(ex, ey);
+    highlightBinUnder(ex, ey);
+  };
+  const onEnd = (ex, ey) => {
+    D.ghost.style.display = "none";
+    clearBinHighlights();
+    const bin = binUnder(ex, ey);
+    if (bin) handleDrop(piece, bin);
+    else piece.el.classList.remove("dragging");
+    G.dragging = null;
+    document.removeEventListener("mousemove", mmove);
+    document.removeEventListener("mouseup",   mup);
+    document.removeEventListener("touchmove", tmove);
+    document.removeEventListener("touchend",  tend);
+  };
+
+  const mmove = e => onMove(e.clientX, e.clientY);
+  const mup   = e => onEnd(e.clientX, e.clientY);
+  const tmove = e => { e.preventDefault(); const t=e.touches[0]; onMove(t.clientX,t.clientY); };
+  const tend  = e => { const t=e.changedTouches[0]; onEnd(t.clientX,t.clientY); };
+
+  document.addEventListener("mousemove", mmove);
+  document.addEventListener("mouseup",   mup);
+  document.addEventListener("touchmove", tmove, { passive:false });
+  document.addEventListener("touchend",  tend);
+}
+
+function moveGhost(cx, cy) {
+  D.ghost.style.left = cx + "px";
+  D.ghost.style.top  = cy + "px";
+}
+
+function binUnder(cx, cy) {
+  const bins = document.querySelectorAll(".bin");
+  for (const b of bins) {
+    const r = b.getBoundingClientRect();
+    if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) return b;
+  }
+  return null;
+}
+
+function highlightBinUnder(cx, cy) {
+  document.querySelectorAll(".bin").forEach(b => {
+    const r = b.getBoundingClientRect();
+    const over = cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+    b.classList.toggle("drag-over", over);
+  });
+}
+
+function clearBinHighlights() {
+  document.querySelectorAll(".bin").forEach(b => b.classList.remove("drag-over"));
+}
+
+function setupDropZones() {
+  // Tray as drop-back zone (for returning pieces — future enhancement)
+  D.tray.addEventListener("dragover", e => e.preventDefault());
+}
+
+/* ================================================================
+   DROP LOGIC
+   ================================================================ */
+function handleDrop(piece, binEl) {
+  piece.el.classList.remove("dragging");
+  const droppedBinId = binEl.dataset.bid;
+  const correct = droppedBinId === piece.binId;
+
+  if (correct) {
+    handleCorrectDrop(piece, binEl);
+  } else {
+    handleErrorDrop(piece, binEl);
+  }
+}
+
+function handleCorrectDrop(piece, binEl) {
+  piece.placed = true;
+  G.correctCount++;
+
+  // Move piece into bin
+  piece.el.classList.add("placed");
+  const piecesArea = binEl.querySelector(".bin-pieces");
+  piecesArea.appendChild(piece.el);
+
+  // Flash bin
+  binEl.classList.add("correct-flash");
+  setTimeout(() => binEl.classList.remove("correct-flash"), 600);
+
+  // Sounds
+  beep(880,90); setTimeout(()=>beep(1100,70),100);
+
+  // Confetti from bin
+  launchConfetti(binEl);
+
+  // Praise
+  const praises = ["Nice! ⭐","Yes! 🎉","Great! 🌟","Correct! ✨","Awesome! 🥳"];
+  setFeedback("ok", praises[Math.floor(Math.random()*praises.length)]);
+
+  // Update bin state
+  const binState = G.bins.find(b => b.id === binEl.dataset.bid);
+  if (binState) binState.count++;
+
+  // Check level complete
+  checkLevelComplete();
+}
+
+function handleErrorDrop(piece, binEl) {
+  G.errorCount++;
+  beep(280, 160);
+
+  // Shake bin
+  binEl.classList.add("error-flash");
+  setTimeout(() => binEl.classList.remove("error-flash"), 500);
+
+  // Piece shakes back
+  piece.el.style.animation = "none";
+  void piece.el.offsetWidth;
+  piece.el.style.animation = "";
+
+  setFeedback("no", "Try again! 👀");
+  speak("Try again.");
+}
+
+function checkLevelComplete() {
+  const allPlaced = G.pieces.every(p => p.placed);
+  if (!allPlaced) return;
+
+  G.locked = true;
+
+  // Earn star
+  const starEl = document.getElementById(`star-${G.level}`);
+  if (starEl) {
+    starEl.classList.add("earned");
+    setTimeout(() => { starEl.classList.add("pop"); setTimeout(()=>starEl.classList.remove("pop"),550); }, 100);
+  }
+
+  // Big confetti
+  setTimeout(() => {
+    bigConfetti();
+    if (G.level >= TOTAL_LEVELS - 1) {
+      setTimeout(showDoneScreen, 900);
+    } else {
+      showReward();
+    }
+  }, 400);
+}
+
+/* ================================================================
+   REWARD SCREEN
+   ================================================================ */
+const REWARDS = [
+  { emoji:"🌟", title:"Superstar!",    sub:"You sorted them all perfectly!" },
+  { emoji:"🎉", title:"Woohoo!",       sub:"Amazing sorting skills!" },
+  { emoji:"🦁", title:"So Smart!",     sub:"You're a sorting champion!" },
+  { emoji:"🏆", title:"Gold Star!",    sub:"Keep up the great work!" },
+  { emoji:"🌈", title:"Brilliant!",    sub:"You know your colors and shapes!" },
+  { emoji:"🚀", title:"Blast Off!",    sub:"To the next level!" },
+];
+
+function showReward() {
+  const r = REWARDS[G.level % REWARDS.length];
+  D.rewardEmoji.textContent = r.emoji;
+  D.rewardTitle.textContent = r.title;
+  D.rewardSub.textContent   = r.sub;
+  D.rewardScreen.classList.add("show");
+  beep(660,80); setTimeout(()=>beep(880,80),110); setTimeout(()=>beep(1100,130),240);
+}
+
+function advanceLevel() {
+  D.rewardScreen.classList.remove("show");
+  G.level++;
+  if (G.level >= TOTAL_LEVELS) { showDoneScreen(); return; }
+  setTimeout(loadLevel, 200);
+}
+
+/* ================================================================
+   DONE SCREEN
+   ================================================================ */
+function showDoneScreen() {
+  const total = G.correctCount + G.errorCount;
+  const acc = total > 0 ? Math.round((G.correctCount / total) * 100) : 100;
+  D.doneScore.textContent = acc + "% 🎯";
+  D.doneStats.textContent = `${G.correctCount} correct placements`;
+  D.doneScreen.classList.add("show");
+  D.progressBar.style.width = "100%";
+  setTimeout(() => { D.doneAccFill.style.width = acc + "%"; }, 400);
+  bigConfetti();
+}
+
+function restartGame() {
+  G.level = 0; G.correctCount = 0; G.errorCount = 0;
+  D.doneScreen.classList.remove("show");
+  buildStarRow();
+  loadLevel();
+}
+
+/* ================================================================
+   CONFETTI
+   ================================================================ */
+const CC = ["#7C3AED","#F59E0B","#10B981","#EF4444","#3B82F6","#EC4899","#FBBF24","#34D399"];
+
+function launchConfetti(anchor) {
+  const r = anchor.getBoundingClientRect();
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement("div");
+    p.className = "cp";
+    p.style.left = (r.left + r.width/2 + (Math.random()-0.5)*60) + "px";
+    p.style.top  = r.top + "px";
+    p.style.background = CC[i % CC.length];
+    p.style.width  = (7 + Math.random()*7) + "px";
+    p.style.height = (7 + Math.random()*7) + "px";
+    p.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+    p.style.animationDuration = (0.6 + Math.random()*0.5) + "s";
+    p.style.animationDelay    = (Math.random()*0.15) + "s";
+    D.confetti.appendChild(p);
+    p.addEventListener("animationend", () => p.remove());
+  }
+}
+
+function bigConfetti() {
+  for (let i = 0; i < 70; i++) {
+    const p = document.createElement("div");
+    p.className = "cp";
+    p.style.left = Math.random()*100 + "vw";
+    p.style.top  = "-10px";
+    p.style.background = CC[i % CC.length];
+    p.style.width  = (8 + Math.random()*10) + "px";
+    p.style.height = (8 + Math.random()*10) + "px";
+    p.style.borderRadius = Math.random() > 0.5 ? "50%" : "3px";
+    p.style.animationDuration = (1.2 + Math.random()*1.2) + "s";
+    p.style.animationDelay    = (Math.random()*0.8) + "s";
+    D.confetti.appendChild(p);
+    p.addEventListener("animationend", () => p.remove());
+  }
+}
+
+/* ================================================================
+   FEEDBACK
+   ================================================================ */
+function setFeedback(type, text) {
+  D.fbPill.className = "fb-pill";
+  D.fbPill.textContent = text || "";
+  if (text) {
+    void D.fbPill.offsetWidth;
+    D.fbPill.classList.add("show", type || "ok");
+  }
+}
+
+/* ================================================================
+   AUDIO
+   ================================================================ */
+let _ctx = null;
+function getCtx() { if (!_ctx) _ctx = new (window.AudioContext||window.webkitAudioContext)(); return _ctx; }
+function beep(freq=880, ms=110) {
+  try {
+    const ctx=getCtx(), o=ctx.createOscillator(), g=ctx.createGain();
+    o.type="sine"; o.frequency.value=freq; g.gain.value=0.07;
+    o.connect(g); g.connect(ctx.destination); o.start();
+    setTimeout(()=>{ try{o.stop();}catch(e){} }, ms);
+  } catch(e) {}
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate=0.92; u.pitch=1.08;
+  window.speechSynthesis.speak(u);
+}
+
+/* ================================================================
+   UTILS
+   ================================================================ */
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i=a.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/* ================================================================
+   START
+   ================================================================ */
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
