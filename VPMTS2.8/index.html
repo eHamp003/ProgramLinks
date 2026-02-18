@@ -1,569 +1,1315 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VB-MAPP Matching — Messy Array of 8 (Emoji Cards)</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <title>VB-MAPP Matching — VP/MTS 2.8</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
-    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    body { margin: 0; background: #f6f7fb; color: #111; }
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 14px; background: #fff; border-bottom: 1px solid #e8e8ef;
-      position: sticky; top: 0; z-index: 10;
+    :root {
+      --bg: #F5F0FF;
+      --surface: #FFFFFF;
+      --primary: #7C3AED;
+      --primary-light: #EDE9FE;
+      --accent: #F59E0B;
+      --accent-light: #FEF3C7;
+      --green: #10B981;
+      --green-light: #D1FAE5;
+      --red: #EF4444;
+      --red-light: #FEE2E2;
+      --text: #1E1B4B;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+      --radius: 20px;
+      --card-shadow: 0 8px 32px rgba(124,58,237,0.10);
+      --font: 'Nunito', sans-serif;
     }
-    .title { font-size: 16px; font-weight: 800; }
-    .sub { font-size: 12px; opacity: 0.75; }
-    .row { display: flex; gap: 12px; padding: 12px 14px; flex-wrap: wrap; }
-    .card {
-      background: #fff; border: 1px solid #e8e8ef; border-radius: 16px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
     }
 
-    /* Sample area (BIGGER) */
-    #sampleWrap { flex: 1 1 360px; min-width: 320px; padding: 14px; }
-    .sampleBox {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px; border-radius: 14px; border: 2px solid #dfe3ff;
-      background: #f3f5ff;
+    /* ── LAYOUT ── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      max-width: 900px;
+      margin: 0 auto;
     }
-    .sampleEmojiBox{
-      width: 150px; height: 150px;
-      border-radius: 18px;
-      border: 2px solid #eef0ff;
-      background: #fff;
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 2px solid var(--primary-light);
+      flex-shrink: 0;
+      gap: 10px;
+    }
+    .logo {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: -0.3px;
+    }
+    .logo span { color: var(--accent); }
+
+    /* Progress bar */
+    #progressWrap {
+      flex: 1;
+      background: var(--primary-light);
+      border-radius: 999px;
+      height: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    #progressBar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #A78BFA);
+      border-radius: 999px;
+      transition: width 0.4s cubic-bezier(.4,0,.2,1);
+      width: 0%;
+    }
+    #trialBadge {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary);
+      white-space: nowrap;
+      background: var(--primary-light);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* Star row */
+    #starRow {
+      display: flex;
+      gap: 3px;
+      padding: 0 16px 6px;
+      flex-shrink: 0;
+    }
+    .star {
+      font-size: 20px;
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1), filter 0.3s;
+      filter: grayscale(1) opacity(0.3);
+    }
+    .star.earned {
+      filter: none;
+      transform: scale(1.15);
+    }
+    .star.pop {
+      animation: starPop 0.5s cubic-bezier(.36,.07,.19,.97);
+    }
+    @keyframes starPop {
+      0%   { transform: scale(1.15); }
+      30%  { transform: scale(1.6); }
+      60%  { transform: scale(0.9); }
+      100% { transform: scale(1.15); }
+    }
+
+    /* ── SAMPLE CARD ── */
+    #sampleSection {
+      padding: 8px 16px 4px;
+      flex-shrink: 0;
+    }
+    #sampleCard {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 3px solid var(--primary);
+      box-shadow: var(--card-shadow);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .sample-emoji-frame {
+      width: 110px;
+      height: 110px;
+      border-radius: 16px;
+      background: var(--primary-light);
+      border: 3px solid var(--primary);
       display: grid;
       place-items: center;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
-      flex: 0 0 auto;
+      flex-shrink: 0;
+      position: relative;
     }
-    .sampleEmoji{
-      font-size: 92px;
+    .sample-emoji-frame::after {
+      content: "MATCH THIS";
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: var(--surface);
+      background: var(--primary);
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    #sampleEmoji {
+      font-size: 70px;
       line-height: 1;
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1);
     }
-    .sampleText { display:flex; flex-direction: column; gap: 6px; }
-    .sampleLabel { font-weight: 900; font-size: 18px; }
-    .sampleHint { font-size: 13px; opacity: 0.78; }
+    #sampleEmoji.bounce {
+      animation: emojiIn 0.5s cubic-bezier(.36,.07,.19,.97) forwards;
+    }
+    @keyframes emojiIn {
+      0%   { transform: scale(0.4) rotate(-10deg); opacity: 0; }
+      60%  { transform: scale(1.15) rotate(3deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .sample-info { flex: 1; }
+    #sampleLabel {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    #sampleHint {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
 
-    /* Playground */
-    #playWrap { flex: 2 1 560px; min-width: 340px; padding: 12px; }
+    /* ── PLAY AREA ── */
+    #playSection {
+      flex: 1;
+      padding: 8px 16px;
+      min-height: 0;
+    }
     #playArea {
       position: relative;
-      height: min(62vh, 560px);
-      min-height: 400px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
-      border: 1px solid #e8e8ef;
+      width: 100%;
+      height: 100%;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 2px solid var(--border);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.05);
       overflow: hidden;
       touch-action: manipulation;
     }
 
+    /* ── CHOICE CARDS ── */
     .choice {
       position: absolute;
-      width: 132px; height: 132px;
+      width: 120px;
+      height: 120px;
       border-radius: 18px;
-      border: 2px solid #eef0ff;
-      background: #fff;
+      background: var(--surface);
+      border: 3px solid var(--border);
       display: grid;
       place-items: center;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+      cursor: pointer;
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      transform: translateZ(0);
+      transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      animation: cardIn 0.4s cubic-bezier(.36,.07,.19,.97) forwards;
+      opacity: 0;
     }
-    .choice:active { transform: scale(0.98); }
-    .choiceEmoji{
-      font-size: 64px;
+    .choice:nth-child(1) { animation-delay: 0.02s; }
+    .choice:nth-child(2) { animation-delay: 0.06s; }
+    .choice:nth-child(3) { animation-delay: 0.10s; }
+    .choice:nth-child(4) { animation-delay: 0.14s; }
+    .choice:nth-child(5) { animation-delay: 0.18s; }
+    .choice:nth-child(6) { animation-delay: 0.22s; }
+    .choice:nth-child(7) { animation-delay: 0.26s; }
+    .choice:nth-child(8) { animation-delay: 0.30s; }
+    @keyframes cardIn {
+      from { transform: scale(0.7) rotate(-6deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .choice:active { transform: scale(0.93); }
+    .choiceEmoji {
+      font-size: 60px;
       line-height: 1;
-      transform: translateY(1px);
+      pointer-events: none;
     }
 
-    /* Feedback */
-    #feedback {
-      padding: 0 14px 14px;
-      font-size: 14px;
-      min-height: 22px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    /* Correct flash */
+    .choice.correct-flash {
+      border-color: var(--green);
+      background: var(--green-light);
+      box-shadow: 0 0 0 6px rgba(16,185,129,0.25);
+      animation: correctFlash 0.5s ease forwards;
     }
-    .pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 800;
-      border: 1px solid #e8e8ef; background: #fff;
+    @keyframes correctFlash {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.18); }
+      60%  { transform: scale(0.96); }
+      100% { transform: scale(1); }
     }
-    .ok { border-color:#d7f2d7; background:#f1fff1; }
-    .no { border-color:#ffe0e0; background:#fff3f3; }
 
-    /* Prompt highlighting */
-    .pulse { animation: pulse 700ms ease-in-out 2; }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(90,110,255,0.35); }
-      100% { box-shadow: 0 0 0 14px rgba(90,110,255,0); }
+    /* Error flash */
+    .choice.error-flash {
+      border-color: var(--red);
+      background: var(--red-light);
+      animation: shake 0.35s ease;
     }
-    .glow {
-      outline: 6px solid rgba(90,110,255,0.45);
-      outline-offset: 0px;
-      animation: glow 1s ease-in-out 1;
-    }
-    @keyframes glow {
-      0% { outline-color: rgba(90,110,255,0.0); }
-      40% { outline-color: rgba(90,110,255,0.55); }
-      100% { outline-color: rgba(90,110,255,0.0); }
-    }
-    .shake { animation: shake 250ms linear 1; }
     @keyframes shake {
       0%,100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      75% { transform: translateX(6px); }
+      20%     { transform: translateX(-10px); }
+      40%     { transform: translateX(10px); }
+      60%     { transform: translateX(-7px); }
+      80%     { transform: translateX(7px); }
     }
 
-    /* Confetti */
-    .confetti { position:absolute; inset:0; pointer-events:none; }
-    .dot {
-      position:absolute; width:10px; height:10px; border-radius:50%;
-      opacity:0.9;
-      animation: fall 650ms ease-out forwards;
+    /* Prompt highlight */
+    .choice.prompt-glow {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 5px rgba(124,58,237,0.3), 0 0 20px rgba(124,58,237,0.4);
+      animation: promptPulse 0.8s ease-in-out 2;
     }
-    @keyframes fall {
-      from { transform: translateY(-10px) scale(1); opacity: 1; }
-      to   { transform: translateY(120px) scale(0.7); opacity: 0; }
+    @keyframes promptPulse {
+      0%,100% { box-shadow: 0 0 0 3px rgba(124,58,237,0.3); }
+      50%     { box-shadow: 0 0 0 10px rgba(124,58,237,0.15); }
     }
 
-    /* Supervisor hot corner */
+    /* ── FEEDBACK BAR ── */
+    #feedbackBar {
+      padding: 6px 16px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .fb-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 800;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .fb-pill.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fb-pill.ok  { background: var(--green-light); color: #065F46; }
+    .fb-pill.no  { background: var(--red-light);   color: #991B1B; }
+    .fb-pill.hint { background: var(--accent-light); color: #92400E; }
+
+    /* ── CONFETTI ── */
+    #confettiLayer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── REWARD SCREEN ── */
+    #rewardScreen {
+      position: fixed;
+      inset: 0;
+      background: rgba(124,58,237,0.92);
+      z-index: 500;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      text-align: center;
+      color: #fff;
+      backdrop-filter: blur(4px);
+    }
+    #rewardScreen.show { display: flex; }
+    #rewardEmoji { font-size: 100px; animation: rewardBounce 0.6s cubic-bezier(.36,.07,.19,.97); }
+    @keyframes rewardBounce {
+      0%   { transform: scale(0) rotate(-20deg); }
+      60%  { transform: scale(1.2) rotate(5deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    #rewardTitle { font-size: 36px; font-weight: 900; }
+    #rewardSub   { font-size: 18px; font-weight: 700; opacity: 0.85; }
+    #rewardBtn {
+      margin-top: 10px;
+      background: #fff;
+      color: var(--primary);
+      border: none;
+      padding: 14px 36px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 900;
+      font-family: var(--font);
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.15s;
+    }
+    #rewardBtn:active { transform: scale(0.95); }
+
+    /* ── SESSION COMPLETE ── */
+    #doneScreen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(160deg, #1E1B4B 0%, #4C1D95 100%);
+      z-index: 600;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      color: #fff;
+    }
+    #doneScreen.show { display: flex; }
+    #doneTitle { font-size: 32px; font-weight: 900; }
+    #doneStats { font-size: 18px; opacity: 0.85; }
+    #doneScore { font-size: 64px; font-weight: 900; color: var(--accent); }
+    #doneBtn {
+      margin-top: 8px;
+      background: var(--accent);
+      color: #1E1B4B;
+      border: none;
+      padding: 14px 36px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 900;
+      font-family: var(--font);
+      cursor: pointer;
+    }
+
+    /* ── HOT CORNER (supervisor) ── */
     #hotCorner {
-      position: fixed; left: 0; top: 0;
-      width: 44px; height: 44px;
+      position: fixed;
+      left: 0; top: 0;
+      width: 50px; height: 50px;
       z-index: 1000;
-      opacity: 0.0001;
+      opacity: 0.001;
     }
 
-    /* Modal */
+    /* ── SUPERVISOR DIALOG ── */
     dialog {
-      border: none; border-radius: 16px; padding: 0;
-      width: min(760px, 94vw);
-      box-shadow: 0 24px 70px rgba(0,0,0,0.22);
+      border: none;
+      border-radius: 24px;
+      padding: 0;
+      width: min(720px, 95vw);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+      font-family: var(--font);
     }
-    .modalHead {
-      padding: 12px 14px; background:#fff; border-bottom:1px solid #e8e8ef;
-      display:flex; align-items:center; justify-content:space-between;
+    dialog::backdrop { background: rgba(30,27,75,0.5); backdrop-filter: blur(4px); }
+    .modal-head {
+      padding: 16px 20px;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 24px 24px 0 0;
     }
-    .modalBody { padding: 12px 14px; background:#fbfbff; }
-    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .grid label { display:flex; align-items:center; gap: 8px; font-size: 14px; }
-    .controls { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-    button {
-      border: 1px solid #e8e8ef; background:#fff; border-radius: 12px;
-      padding: 10px 12px; font-weight: 800; cursor: pointer;
-    }
-    button.primary { background:#5a6eff; border-color:#5a6eff; color:#fff; }
-    select { padding: 8px 10px; border-radius: 10px; border:1px solid #e0e0ef; background:#fff; font-weight: 700; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; background:#fff; border-radius:12px; overflow:hidden; }
-    th, td { border-bottom: 1px solid #eef0ff; padding: 8px; text-align: left; }
-    th { background: #f3f5ff; font-weight: 900; }
+    .modal-head-title { font-size: 17px; font-weight: 900; }
+    .modal-body { padding: 16px 20px; background: #FAFAFA; border-radius: 0 0 24px 24px; }
 
-    /* Slightly larger tap targets on small screens */
-    @media (max-width: 480px){
-      .choice { width: 120px; height: 120px; }
-      .choiceEmoji { font-size: 58px; }
-      .sampleEmojiBox { width: 140px; height: 140px; }
-      .sampleEmoji { font-size: 86px; }
+    .opt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .opt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .opt-row input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .opt-row select {
+      margin-left: auto;
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-weight: 700;
+      font-family: var(--font);
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 12px 0 6px;
+    }
+
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .btn {
+      border: 2px solid var(--border);
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-weight: 800;
+      font-family: var(--font);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { border-color: var(--primary); background: var(--primary-light); }
+    .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn.primary:hover { background: #6D28D9; }
+    .btn-close {
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      padding: 6px 14px;
+      color: #fff;
+      font-weight: 800;
+      font-family: var(--font);
+      cursor: pointer;
+    }
+
+    /* Data table */
+    .table-wrap {
+      max-height: 240px;
+      overflow: auto;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--surface); }
+    th, td { border-bottom: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+    th { background: var(--primary-light); font-weight: 900; color: var(--primary); position: sticky; top: 0; }
+    tr:last-child td { border-bottom: none; }
+    .td-correct { color: var(--green); font-weight: 900; }
+    .td-error   { color: var(--red);   font-weight: 900; }
+
+    /* Accuracy bar in done screen */
+    #doneAccBar {
+      width: 200px;
+      height: 14px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    #doneAccFill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 1s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* Responsive */
+    @media (max-width: 520px) {
+      .choice { width: 104px; height: 104px; }
+      .choiceEmoji { font-size: 52px; }
+      .sample-emoji-frame { width: 90px; height: 90px; }
+      #sampleEmoji { font-size: 56px; }
+      #sampleLabel { font-size: 18px; }
+      .opt-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
-
 <body>
-  <div id="hotCorner" title="Supervisor"></div>
 
+<div id="app">
   <header>
-    <div>
-      <div class="title">VB-MAPP Matching</div>
-      <div class="sub">Match identical picture in a messy array of 8 (50 targets)</div>
-    </div>
-    <div class="pill" id="statusPill">Trial <span id="trialNum">1</span>/<span id="trialTotal">10</span></div>
+    <div class="logo">VB-MAPP <span>★</span> Matching</div>
+    <div id="progressWrap"><div id="progressBar"></div></div>
+    <div id="trialBadge">1 / 10</div>
   </header>
 
-  <div class="row">
-    <div class="card" id="sampleWrap">
-      <div class="sampleBox" id="sampleBox">
-        <div class="sampleEmojiBox">
-          <div class="sampleEmoji" id="sampleEmoji">🍎</div>
-        </div>
-        <div class="sampleText">
-          <div class="sampleLabel" id="sampleLabel">Match this.</div>
-          <div class="sampleHint" id="sampleHint">Tap the one that is exactly the same.</div>
-        </div>
-      </div>
-    </div>
+  <div id="starRow"></div>
 
-    <div class="card" id="playWrap">
-      <div id="playArea"></div>
+  <div id="sampleSection">
+    <div id="sampleCard">
+      <div class="sample-emoji-frame">
+        <div id="sampleEmoji">🍎</div>
+      </div>
+      <div class="sample-info">
+        <div id="sampleLabel">apple</div>
+        <div id="sampleHint">Tap the one that is exactly the same!</div>
+      </div>
     </div>
   </div>
 
-  <div id="feedback"></div>
+  <div id="playSection">
+    <div id="playArea"></div>
+  </div>
 
-  <dialog id="supervisorDialog">
-    <div class="modalHead">
-      <div style="font-weight:900;">Supervisor Mode</div>
-      <button id="closeSup">Close</button>
+  <div id="feedbackBar">
+    <div class="fb-pill" id="fbPill"></div>
+  </div>
+</div>
+
+<!-- Reward overlay (every N correct) -->
+<div id="rewardScreen">
+  <div id="rewardEmoji">🌟</div>
+  <div id="rewardTitle">Amazing!</div>
+  <div id="rewardSub"></div>
+  <button id="rewardBtn">Keep Going! →</button>
+</div>
+
+<!-- Session complete -->
+<div id="doneScreen">
+  <div style="font-size:60px;">🏆</div>
+  <div id="doneTitle">Session Complete!</div>
+  <div id="doneScore"></div>
+  <div id="doneStats"></div>
+  <div id="doneAccBar"><div id="doneAccFill" style="width:0%"></div></div>
+  <button id="doneBtn" onclick="restartSession()">Play Again 🎉</button>
+  <button class="btn" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;margin-top:0;" onclick="openSupervisor()">View Data</button>
+</div>
+
+<!-- Confetti layer -->
+<div id="confettiLayer"></div>
+
+<!-- Supervisor hot corner -->
+<div id="hotCorner" title="Supervisor"></div>
+
+<!-- Supervisor Dialog -->
+<dialog id="supervisorDialog">
+  <div class="modal-head">
+    <div class="modal-head-title">🔒 Supervisor Mode — VB-MAPP VP/MTS 2.8</div>
+    <button class="btn-close" id="closeSup">Close</button>
+  </div>
+  <div class="modal-body">
+    <div class="section-label">Settings</div>
+    <div class="opt-grid">
+      <div class="opt-row">
+        <input type="checkbox" id="optSpeech" checked/>
+        <label for="optSpeech">Speech ("Match this.")</label>
+      </div>
+      <div class="opt-row">
+        <input type="checkbox" id="optSounds" checked/>
+        <label for="optSounds">Sound effects</label>
+      </div>
+      <div class="opt-row">
+        <input type="checkbox" id="optAnim" checked/>
+        <label for="optAnim">Animations & confetti</label>
+      </div>
+      <div class="opt-row">
+        <input type="checkbox" id="optPrompts" checked/>
+        <label for="optPrompts">Prompt hierarchy (ITT)</label>
+      </div>
+      <div class="opt-row">
+        <label for="optSession">Session length</label>
+        <select id="optSession">
+          <option value="10">10 trials</option>
+          <option value="15">15 trials</option>
+          <option value="50">50 trials</option>
+        </select>
+      </div>
+      <div class="opt-row">
+        <label for="optReinf">Reinforce every</label>
+        <select id="optReinf">
+          <option value="1">Every correct (CRF)</option>
+          <option value="2">Every 2 correct</option>
+          <option value="3">Every 3 correct</option>
+          <option value="5">Every 5 correct</option>
+        </select>
+      </div>
     </div>
-    <div class="modalBody">
-      <div class="grid">
-        <label><input type="checkbox" id="optSpeech" checked> Speech (“Match this.”)</label>
-        <label><input type="checkbox" id="optSounds" checked> Sounds</label>
-        <label><input type="checkbox" id="optAnim" checked> Animations</label>
-        <label><input type="checkbox" id="optPrompts" checked> Prompt hierarchy</label>
 
-        <label>Session length
-          <select id="optSession">
-            <option value="10">10</option>
-            <option value="15">15</option>
-            <option value="50">50</option>
-          </select>
-        </label>
-
-        <label>Reinforce every N correct
-          <select id="optReinf">
-            <option value="1">1 (continuous)</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="5">5</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="controls">
-        <button class="primary" id="btnRestart">Restart Session</button>
-        <button id="btnExport">Export CSV</button>
-        <button id="btnClearData">Clear Data</button>
-      </div>
-
-      <div style="margin-top:12px; font-weight:900;">Data (Supervisor only)</div>
-      <div style="max-height: 260px; overflow:auto; border-radius:12px; margin-top:8px;">
-        <table id="dataTable">
-          <thead>
-            <tr>
-              <th>Time</th><th>Item</th><th>Resp</th><th>Correct</th><th>Prompt</th><th>Latency(ms)</th><th>Errors</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <div class="section-label">Session Controls</div>
+    <div class="btn-row">
+      <button class="btn primary" id="btnRestart">↺ Restart Session</button>
+      <button class="btn" id="btnExport">⬇ Export CSV</button>
+      <button class="btn" id="btnClearData">🗑 Clear Data</button>
     </div>
-  </dialog>
+
+    <div class="section-label">Session Data</div>
+    <div class="table-wrap">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Time</th><th>Item</th><th>Correct?</th><th>Prompt</th><th>Latency (ms)</th><th>Errors</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</dialog>
 
 <script>
-/* =========================================================
-   DATASET: 50 targets (emoji “photo-like” on iPad)
-   Each item has: emoji, label, category, color, shape tags.
-   Similar distractors will be chosen by same CATEGORY or COLOR or SHAPE.
-   ========================================================= */
-
+/* ==========================================================
+   DATASET: 50 emoji targets for VP/MTS matching
+   Tags: category, color, shape — used for intelligent distractor selection
+   ========================================================== */
 const ITEMS = [
-  // Food
-  {id:"red_apple", emoji:"🍎", label:"apple", category:"food", color:"red", shape:"round"},
-  {id:"banana", emoji:"🍌", label:"banana", category:"food", color:"yellow", shape:"long"},
-  {id:"orange", emoji:"🍊", label:"orange", category:"food", color:"orange", shape:"round"},
-  {id:"strawberry", emoji:"🍓", label:"strawberry", category:"food", color:"red", shape:"triangle"},
-  {id:"carrot", emoji:"🥕", label:"carrot", category:"food", color:"orange", shape:"triangle"},
-  {id:"broccoli", emoji:"🥦", label:"broccoli", category:"food", color:"green", shape:"bumpy"},
-  {id:"pizza", emoji:"🍕", label:"pizza", category:"food", color:"yellow", shape:"triangle"},
-  {id:"burger", emoji:"🍔", label:"burger", category:"food", color:"brown", shape:"round"},
-  {id:"cookie", emoji:"🍪", label:"cookie", category:"food", color:"brown", shape:"round"},
-  {id:"cupcake", emoji:"🧁", label:"cupcake", category:"food", color:"pink", shape:"round"},
-  {id:"icecream", emoji:"🍦", label:"ice cream", category:"food", color:"white", shape:"triangle"},
-  {id:"milk", emoji:"🥛", label:"milk", category:"food", color:"white", shape:"rect"},
-  {id:"juice", emoji:"🧃", label:"juice", category:"food", color:"orange", shape:"rect"},
-  {id:"water", emoji:"🚰", label:"water", category:"food", color:"blue", shape:"rect"},
-  {id:"lollipop", emoji:"🍭", label:"lollipop", category:"food", color:"red", shape:"round"},
+  // ── Food ──
+  { id:"apple",      emoji:"🍎", label:"apple",      category:"food",    color:"red",    shape:"round"    },
+  { id:"banana",     emoji:"🍌", label:"banana",     category:"food",    color:"yellow", shape:"long"     },
+  { id:"orange",     emoji:"🍊", label:"orange",     category:"food",    color:"orange", shape:"round"    },
+  { id:"strawberry", emoji:"🍓", label:"strawberry", category:"food",    color:"red",    shape:"triangle" },
+  { id:"grapes",     emoji:"🍇", label:"grapes",     category:"food",    color:"purple", shape:"round"    },
+  { id:"watermelon", emoji:"🍉", label:"watermelon", category:"food",    color:"green",  shape:"round"    },
+  { id:"carrot",     emoji:"🥕", label:"carrot",     category:"food",    color:"orange", shape:"long"     },
+  { id:"broccoli",   emoji:"🥦", label:"broccoli",   category:"food",    color:"green",  shape:"bumpy"    },
+  { id:"pizza",      emoji:"🍕", label:"pizza",      category:"food",    color:"yellow", shape:"triangle" },
+  { id:"cookie",     emoji:"🍪", label:"cookie",     category:"food",    color:"brown",  shape:"round"    },
+  { id:"cupcake",    emoji:"🧁", label:"cupcake",    category:"food",    color:"pink",   shape:"round"    },
+  { id:"icecream",   emoji:"🍦", label:"ice cream",  category:"food",    color:"white",  shape:"triangle" },
+  { id:"lollipop",   emoji:"🍭", label:"lollipop",   category:"food",    color:"red",    shape:"round"    },
+  { id:"cake",       emoji:"🎂", label:"cake",       category:"food",    color:"pink",   shape:"round"    },
+  { id:"egg",        emoji:"🥚", label:"egg",        category:"food",    color:"white",  shape:"oval"     },
 
-  // Toys / play
-  {id:"teddy", emoji:"🧸", label:"teddy bear", category:"toy", color:"brown", shape:"round"},
-  {id:"toy_car", emoji:"🚗", label:"car", category:"toy", color:"red", shape:"rect"},
-  {id:"soccer_ball", emoji:"⚽", label:"soccer ball", category:"toy", color:"white", shape:"round"},
-  {id:"block", emoji:"🧊", label:"block", category:"toy", color:"blue", shape:"square"},
-  {id:"doll", emoji:"🪆", label:"doll", category:"toy", color:"red", shape:"round"},
-  {id:"train", emoji:"🚂", label:"train", category:"toy", color:"black", shape:"rect"},
-  {id:"dino", emoji:"🦖", label:"dinosaur", category:"toy", color:"green", shape:"bumpy"},
-  {id:"duck", emoji:"🦆", label:"duck", category:"toy", color:"green", shape:"round"},
-  {id:"robot", emoji:"🤖", label:"robot", category:"toy", color:"gray", shape:"rect"},
-  {id:"kite", emoji:"🪁", label:"kite", category:"toy", color:"red", shape:"diamond"},
+  // ── Toys / Animals ──
+  { id:"teddy",      emoji:"🧸", label:"teddy bear", category:"toy",     color:"brown",  shape:"round"    },
+  { id:"toy_car",    emoji:"🚗", label:"car",        category:"toy",     color:"red",    shape:"rect"     },
+  { id:"soccer",     emoji:"⚽", label:"ball",       category:"toy",     color:"white",  shape:"round"    },
+  { id:"blocks",     emoji:"🧊", label:"block",      category:"toy",     color:"blue",   shape:"square"   },
+  { id:"train",      emoji:"🚂", label:"train",      category:"toy",     color:"black",  shape:"rect"     },
+  { id:"dino",       emoji:"🦖", label:"dinosaur",   category:"toy",     color:"green",  shape:"bumpy"    },
+  { id:"robot",      emoji:"🤖", label:"robot",      category:"toy",     color:"gray",   shape:"rect"     },
+  { id:"kite",       emoji:"🪁", label:"kite",       category:"toy",     color:"red",    shape:"diamond"  },
+  { id:"balloon",    emoji:"🎈", label:"balloon",    category:"toy",     color:"red",    shape:"round"    },
+  { id:"drum",       emoji:"🥁", label:"drum",       category:"toy",     color:"brown",  shape:"round"    },
 
-  // Household
-  {id:"spoon", emoji:"🥄", label:"spoon", category:"house", color:"gray", shape:"long"},
-  {id:"fork", emoji:"🍴", label:"fork", category:"house", color:"gray", shape:"long"},
-  {id:"plate", emoji:"🍽️", label:"plate", category:"house", color:"white", shape:"round"},
-  {id:"cup", emoji:"🥤", label:"cup", category:"house", color:"blue", shape:"rect"},
-  {id:"toothbrush", emoji:"🪥", label:"toothbrush", category:"house", color:"blue", shape:"long"},
-  {id:"soap", emoji:"🧼", label:"soap", category:"house", color:"white", shape:"rect"},
-  {id:"towel", emoji:"🧻", label:"towel", category:"house", color:"white", shape:"rect"},
-  {id:"pillow", emoji:"🛏️", label:"bed/pillow", category:"house", color:"blue", shape:"rect"},
-  {id:"chair", emoji:"🪑", label:"chair", category:"house", color:"brown", shape:"rect"},
-  {id:"lamp", emoji:"💡", label:"lamp", category:"house", color:"yellow", shape:"round"},
+  // ── Household ──
+  { id:"spoon",      emoji:"🥄", label:"spoon",      category:"house",   color:"gray",   shape:"long"     },
+  { id:"fork",       emoji:"🍴", label:"fork",       category:"house",   color:"gray",   shape:"long"     },
+  { id:"cup",        emoji:"🥤", label:"cup",        category:"house",   color:"blue",   shape:"rect"     },
+  { id:"toothbrush", emoji:"🪥", label:"toothbrush", category:"house",   color:"blue",   shape:"long"     },
+  { id:"soap",       emoji:"🧼", label:"soap",       category:"house",   color:"white",  shape:"rect"     },
+  { id:"towel",      emoji:"🧻", label:"towel",      category:"house",   color:"white",  shape:"rect"     },
+  { id:"chair",      emoji:"🪑", label:"chair",      category:"house",   color:"brown",  shape:"rect"     },
+  { id:"lamp",       emoji:"💡", label:"lamp",       category:"house",   color:"yellow", shape:"round"    },
+  { id:"phone",      emoji:"📱", label:"phone",      category:"house",   color:"black",  shape:"rect"     },
+  { id:"key",        emoji:"🔑", label:"key",        category:"house",   color:"yellow", shape:"long"     },
 
-  // Clothing
-  {id:"shirt", emoji:"👕", label:"shirt", category:"clothes", color:"blue", shape:"rect"},
-  {id:"pants", emoji:"👖", label:"pants", category:"clothes", color:"blue", shape:"rect"},
-  {id:"shoe", emoji:"👟", label:"shoe", category:"clothes", color:"gray", shape:"rect"},
-  {id:"sock", emoji:"🧦", label:"sock", category:"clothes", color:"red", shape:"long"},
-  {id:"hat", emoji:"🧢", label:"hat", category:"clothes", color:"blue", shape:"round"},
-  {id:"backpack", emoji:"🎒", label:"backpack", category:"clothes", color:"blue", shape:"rect"},
-  {id:"coat", emoji:"🧥", label:"coat", category:"clothes", color:"green", shape:"rect"},
+  // ── Clothing ──
+  { id:"shirt",      emoji:"👕", label:"shirt",      category:"clothes", color:"blue",   shape:"rect"     },
+  { id:"pants",      emoji:"👖", label:"pants",      category:"clothes", color:"blue",   shape:"rect"     },
+  { id:"shoe",       emoji:"👟", label:"shoe",       category:"clothes", color:"gray",   shape:"rect"     },
+  { id:"sock",       emoji:"🧦", label:"sock",       category:"clothes", color:"red",    shape:"long"     },
+  { id:"hat",        emoji:"🧢", label:"hat",        category:"clothes", color:"blue",   shape:"round"    },
+  { id:"backpack",   emoji:"🎒", label:"backpack",   category:"clothes", color:"blue",   shape:"rect"     },
+  { id:"coat",       emoji:"🧥", label:"coat",       category:"clothes", color:"green",  shape:"rect"     },
 
-  // School
-  {id:"pencil", emoji:"✏️", label:"pencil", category:"school", color:"yellow", shape:"long"},
-  {id:"crayon", emoji:"🖍️", label:"crayon", category:"school", color:"red", shape:"long"},
-  {id:"book", emoji:"📕", label:"book", category:"school", color:"red", shape:"rect"},
-  {id:"scissors", emoji:"✂️", label:"scissors", category:"school", color:"gray", shape:"long"},
-  {id:"glue", emoji:"🧴", label:"glue/bottle", category:"school", color:"white", shape:"rect"},
-  {id:"ruler", emoji:"📏", label:"ruler", category:"school", color:"yellow", shape:"long"},
-  {id:"clock", emoji:"🕒", label:"clock", category:"school", color:"blue", shape:"round"},
-  {id:"laptop", emoji:"💻", label:"laptop", category:"school", color:"gray", shape:"rect"},
+  // ── School ──
+  { id:"pencil",     emoji:"✏️", label:"pencil",     category:"school",  color:"yellow", shape:"long"     },
+  { id:"crayon",     emoji:"🖍️", label:"crayon",     category:"school",  color:"red",    shape:"long"     },
+  { id:"book",       emoji:"📕", label:"book",       category:"school",  color:"red",    shape:"rect"     },
+  { id:"scissors",   emoji:"✂️", label:"scissors",   category:"school",  color:"gray",   shape:"long"     },
+  { id:"ruler",      emoji:"📏", label:"ruler",      category:"school",  color:"yellow", shape:"long"     },
+  { id:"clock",      emoji:"🕒", label:"clock",      category:"school",  color:"blue",   shape:"round"    },
+  { id:"laptop",     emoji:"💻", label:"laptop",     category:"school",  color:"gray",   shape:"rect"     },
+  { id:"pencilcase", emoji:"🖊️", label:"pen",        category:"school",  color:"blue",   shape:"long"     },
 ];
 
-/* =========================================================
-   Game State & Settings
-   ========================================================= */
+/* ==========================================================
+   State
+   ========================================================== */
 const state = {
-  settings: {
-    speech: true,
-    sounds: true,
-    anim: true,
-    prompts: true,
-    sessionLen: 10,
-    reinfN: 1,
-  },
+  settings: { speech:true, sounds:true, anim:true, prompts:true, sessionLen:10, reinfN:1 },
   trialIndex: 0,
   order: [],
   current: null,
   choices: [],
   correctChoiceId: "",
-  promptStep: 0, // 0=independent, 1=try again, 2=indirect, 3=positional, 4=model
+  promptStep: 0,   // 0=independent,1=try again,2=gesture prompt,3=position prompt,4=full prompt
   errors: 0,
   startMs: 0,
   correctCount: 0,
   data: [],
+  locked: false,
 };
 
 const el = {
-  playArea: document.getElementById("playArea"),
-  sampleEmoji: document.getElementById("sampleEmoji"),
-  sampleBox: document.getElementById("sampleBox"),
-  trialNum: document.getElementById("trialNum"),
-  trialTotal: document.getElementById("trialTotal"),
-  feedback: document.getElementById("feedback"),
-  dialog: document.getElementById("supervisorDialog"),
-  dataBody: document.querySelector("#dataTable tbody"),
+  playArea:       document.getElementById("playArea"),
+  sampleEmoji:    document.getElementById("sampleEmoji"),
+  sampleLabel:    document.getElementById("sampleLabel"),
+  sampleHint:     document.getElementById("sampleHint"),
+  trialBadge:     document.getElementById("trialBadge"),
+  progressBar:    document.getElementById("progressBar"),
+  starRow:        document.getElementById("starRow"),
+  fbPill:         document.getElementById("fbPill"),
+  rewardScreen:   document.getElementById("rewardScreen"),
+  rewardEmoji:    document.getElementById("rewardEmoji"),
+  rewardTitle:    document.getElementById("rewardTitle"),
+  rewardSub:      document.getElementById("rewardSub"),
+  rewardBtn:      document.getElementById("rewardBtn"),
+  doneScreen:     document.getElementById("doneScreen"),
+  doneScore:      document.getElementById("doneScore"),
+  doneStats:      document.getElementById("doneStats"),
+  doneAccFill:    document.getElementById("doneAccFill"),
+  dialog:         document.getElementById("supervisorDialog"),
+  dataBody:       document.querySelector("#dataTable tbody"),
+  confetti:       document.getElementById("confettiLayer"),
 };
 
-/* =========================================================
-   Utils
-   ========================================================= */
-function shuffle(arr) {
-  const a = arr.slice();
-  for (let i=a.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]] = [a[j],a[i]];
+/* ==========================================================
+   Init
+   ========================================================== */
+function init() {
+  buildStarRow();
+  buildTrialOrder();
+  loadTrial();
+  bindUI();
+}
+
+function buildStarRow() {
+  const n = state.settings.sessionLen;
+  el.starRow.innerHTML = "";
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement("div");
+    s.className = "star";
+    s.textContent = "⭐";
+    s.id = `star-${i}`;
+    el.starRow.appendChild(s);
   }
-  return a;
 }
 
-function setFeedback(type, text) {
-  el.feedback.innerHTML = "";
-  if (!text) return;
-  const span = document.createElement("span");
-  span.className = "pill " + (type==="ok" ? "ok" : "no");
-  span.textContent = text;
-  el.feedback.appendChild(span);
-}
-
-function confettiBurst() {
-  if (!state.settings.anim) return;
-  const layer = document.createElement("div");
-  layer.className = "confetti";
-  for (let i=0; i<18; i++) {
-    const d = document.createElement("div");
-    d.className = "dot";
-    d.style.left = Math.floor(Math.random()*100) + "%";
-    d.style.top = Math.floor(Math.random()*20) + "%";
-    d.style.background = ["#5a6eff","#22c55e","#f97316","#ef4444","#a855f7"][i%5];
-    d.style.animationDelay = (Math.random()*120) + "ms";
-    layer.appendChild(d);
+function buildTrialOrder() {
+  // Shuffle items and take sessionLen
+  const n = state.settings.sessionLen;
+  const shuffled = shuffle(ITEMS.slice());
+  state.order = shuffled.slice(0, Math.min(n, ITEMS.length));
+  if (n > ITEMS.length) {
+    // Repeat if session longer than dataset
+    while (state.order.length < n) {
+      state.order.push(...shuffle(ITEMS.slice()));
+    }
+    state.order = state.order.slice(0, n);
   }
-  el.playArea.appendChild(layer);
-  setTimeout(()=> layer.remove(), 900);
+  state.trialIndex = 0;
+  state.correctCount = 0;
+  state.data = [];
+  el.dataBody.innerHTML = "";
+  updateProgress();
 }
 
-/* =========================================================
-   Audio
-   ========================================================= */
-function beep(freq=880, ms=110) {
-  if (!state.settings.sounds) return;
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const o = ctx.createOscillator();
-  const g = ctx.createGain();
-  o.type = "sine";
-  o.frequency.value = freq;
-  g.gain.value = 0.08;
-  o.connect(g); g.connect(ctx.destination);
-  o.start();
-  setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+/* ==========================================================
+   Trial loading
+   ========================================================== */
+function loadTrial() {
+  if (state.trialIndex >= state.order.length) {
+    showDoneScreen();
+    return;
+  }
+  state.locked = false;
+  state.current = state.order[state.trialIndex];
+  state.errors = 0;
+  state.promptStep = 0;
+  state.startMs = Date.now();
+
+  const { choices, correctChoiceId } = buildTrial(state.current);
+  state.choices = choices;
+  state.correctChoiceId = correctChoiceId;
+
+  // Update sample card
+  el.sampleEmoji.textContent = state.current.emoji;
+  el.sampleEmoji.classList.remove("bounce");
+  void el.sampleEmoji.offsetWidth; // reflow
+  el.sampleEmoji.classList.add("bounce");
+  el.sampleLabel.textContent = state.current.label;
+
+  // Clear feedback
+  setFeedback(null);
+
+  // Render choices
+  renderChoices(choices);
+  updateProgress();
+
+  // Speech
+  setTimeout(() => speak("Match this."), 300);
 }
 
-function speak(text) {
-  if (!state.settings.speech) return;
-  if (!("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.95;
-  u.pitch = 1.05;
-  window.speechSynthesis.speak(u);
+/* ==========================================================
+   Trial builder
+   ========================================================== */
+function buildTrial(target) {
+  const similar = getSimilar3(target);
+  const excludeIds = new Set([target.id, ...similar.map(s => s.id)]);
+  const unrelated = pickUnrelated4(excludeIds, target);
+
+  const choices = [
+    { ...target, choiceId: "correct" },
+    ...similar.map((s, i) => ({ ...s, choiceId: "sim" + i })),
+    ...unrelated.map((u, i) => ({ ...u, choiceId: "u" + i })),
+  ];
+
+  return { choices: shuffle(choices).slice(0, 8), correctChoiceId: "correct" };
 }
 
-/* =========================================================
-   Similar selection (NO “same exact thing”)
-   Rule: pick 3 from pool that share CATEGORY or COLOR or SHAPE.
-   Must NOT be the target, must NOT duplicate.
-   ========================================================= */
 function getSimilar3(target) {
-  // candidates share at least one attribute (category OR color OR shape)
   const candidates = ITEMS.filter(x =>
     x.id !== target.id &&
     (x.category === target.category || x.color === target.color || x.shape === target.shape)
   );
-
-  // We want diversity: ideally mix which attribute matches (category/color/shape)
-  // So we score candidates by how many dimensions they share; prefer 1–2 matches (avoid near-identical)
   const scored = candidates.map(x => {
-    let matches = 0;
-    if (x.category === target.category) matches++;
-    if (x.color === target.color) matches++;
-    if (x.shape === target.shape) matches++;
-    return { x, matches };
+    let m = 0;
+    if (x.category === target.category) m++;
+    if (x.color === target.color) m++;
+    if (x.shape === target.shape) m++;
+    return { x, m };
   });
-
-  // Prefer 1–2 matches, then 3, then 0 (shouldn't happen)
-  scored.sort((a,b) => {
-    const pa = (a.matches===1||a.matches===2) ? 0 : (a.matches===3 ? 1 : 2);
-    const pb = (b.matches===1||b.matches===2) ? 0 : (b.matches===3 ? 1 : 2);
-    if (pa !== pb) return pa - pb;
-    // slight randomness among equals
-    return Math.random() - 0.5;
+  scored.sort((a, b) => {
+    const pa = (a.m === 1 || a.m === 2) ? 0 : 1;
+    const pb = (b.m === 1 || b.m === 2) ? 0 : 1;
+    return pa - pb || Math.random() - 0.5;
   });
-
-  const picked = [];
-  const used = new Set([target.id]);
+  const picked = [], used = new Set([target.id]);
   for (const s of scored) {
     if (picked.length >= 3) break;
-    const c = s.x;
-    if (used.has(c.id)) continue;
-    picked.push(c);
-    used.add(c.id);
+    if (used.has(s.x.id)) continue;
+    picked.push(s.x); used.add(s.x.id);
   }
-
-  // Fallback (should rarely happen): fill from remaining non-target items
-  if (picked.length < 3) {
-    for (const c of shuffle(ITEMS)) {
-      if (picked.length >= 3) break;
-      if (c.id === target.id) continue;
-      if (used.has(c.id)) continue;
-      picked.push(c);
-      used.add(c.id);
-    }
+  // Fallback
+  for (const c of shuffle(ITEMS)) {
+    if (picked.length >= 3) break;
+    if (c.id === target.id || used.has(c.id)) continue;
+    picked.push(c); used.add(c.id);
   }
-
-  return picked.slice(0,3);
+  return picked.slice(0, 3);
 }
 
-function pickUnrelated4(excludeIds) {
-  // unrelated = items that do NOT match category, color, or shape if possible
-  const target = state.current;
-  const poolStrict = ITEMS.filter(x =>
+function pickUnrelated4(excludeIds, target) {
+  const strict = ITEMS.filter(x =>
     !excludeIds.has(x.id) &&
     x.category !== target.category &&
     x.color !== target.color &&
     x.shape !== target.shape
   );
-  const poolLoose = ITEMS.filter(x => !excludeIds.has(x.id));
-
-  const pool = poolStrict.length >= 4 ? poolStrict : poolLoose;
-  return shuffle(pool).slice(0,4);
+  const pool = strict.length >= 4 ? strict : ITEMS.filter(x => !excludeIds.has(x.id));
+  return shuffle(pool).slice(0, 4);
 }
 
-/* =========================================================
-   Trial build: target sample + choices (8)
-   Must include EXACT ONE identical match + 3 similar + 4 unrelated
-   ========================================================= */
-function buildTrial(target) {
-  const similar = getSimilar3(target);
-
-  // Exclude set: target + similar
-  const exclude = new Set([target.id, ...similar.map(s=>s.id)]);
-
-  const unrelated = pickUnrelated4(exclude);
-
-  // Create 8 choices:
-  // - one "correct" card uses the same emoji as target (identical match)
-  // - 3 similar items (different emojis)
-  // - 4 unrelated items (different emojis)
-  const choices = [
-    { ...target, choiceId: "correct" },
-    ...similar.map((s,i)=>({ ...s, choiceId: "sim"+i })),
-    ...unrelated.map((u,i)=>({ ...u, choiceId: "u"+i })),
-  ];
-
-  // Safety: ensure no duplicated emojis in the array that could look identical
-  // (e.g., some emoji could repeat if dataset has same emoji—ours does not, but this keeps it safe.)
-  const seenEmoji = new Set();
-  const deduped = [];
-  for (const c of choices) {
-    const key = c.choiceId === "correct" ? "CORRECT_"+c.emoji : c.emoji;
-    if (c.choiceId !== "correct" && seenEmoji.has(key)) continue;
-    seenEmoji.add(key);
-    deduped.push(c);
-  }
-  // If dedupe removed something (unlikely), fill with extra unrelated
-  while (deduped.length < 8) {
-    const filler = shuffle(ITEMS).find(x => x.id !== target.id && !deduped.some(d => d.id === x.id));
-    if (!filler) break;
-    deduped.push({ ...filler, choiceId: "f"+deduped.length });
-  }
-
-  return { sample: target, choices: shuffle(deduped).slice(0,8), correctChoiceId: "correct" };
-}
-
-/* =========================================================
-   Scatter placement (no overlap)
-   ========================================================= */
-function placeChoices(choiceEls) {
+/* ==========================================================
+   Render
+   ========================================================== */
+function renderChoices(choices) {
+  el.playArea.innerHTML = "";
   const area = el.playArea.getBoundingClientRect();
-  const pad = 14;
-  const w = 132, h = 132;
+  const cardW = 120, cardH = 120, pad = 12;
   const placed = [];
 
-  function collides(x,y) {
+  function collides(x, y) {
     for (const p of placed) {
-      const overlap = !(x+w < p.x || x > p.x+w || y+h < p.y || y > p.y+h);
-      if (overlap) return true;
+      if (!(x + cardW < p.x || x > p.x + cardW || y + cardH < p.y || y > p.y + cardH)) return true;
     }
     return false;
   }
 
-  for (const node of choiceEls) {
-    let ok = false;
-    for (let tries=0; tries<350; tries++) {
-      const x = Math.floor(pad + Math.random()*(area.width - w - pad*2));
-      const y = Math.floor(pad + Math.random()*(area.height - h - pad*2));
-      if (!collides(x,y)) {
-        placed.push({x,y});
-        node.style.left = x+"px";
-        node.style.top  = y+"px";
-        ok = true;
-        break;
-      }
+  choices.forEach((c, i) => {
+    const node = document.createElement("div");
+    node.className = "choice";
+    node.dataset.cid = c.choiceId;
+    node.setAttribute("role", "button");
+    node.setAttribute("aria-label", c.label);
+    node.setAttribute("tabindex", "0");
+
+    const span = document.createElement("span");
+    span.className = "choiceEmoji";
+    span.textContent = c.emoji;
+    node.appendChild(span);
+
+    // Position: random non-overlapping
+    let px, py, ok = false;
+    for (let t = 0; t < 400; t++) {
+      px = pad + Math.floor(Math.random() * (area.width - cardW - pad * 2));
+      py = pad + Math.floor(Math.random() * (area.height - cardH - pad * 2));
+      if (!collides(px, py)) { ok = true; break; }
     }
     if (!ok) {
-      // Fallback: simple grid-ish placement if too cramped
-      const idx = placed.length;
-      const cols = Math.max(2, Math.floor((area.wid
+      // Grid fallback
+      const cols = Math.floor(area.width / (cardW + pad));
+      const col = i % cols, row = Math.floor(i / cols);
+      px = pad + col * (cardW + pad);
+      py = pad + row * (cardH + pad);
+    }
+    placed.push({ x: px, y: py });
+    node.style.left = px + "px";
+    node.style.top  = py + "px";
+
+    node.addEventListener("click",    () => handleChoice(c, node));
+    node.addEventListener("keydown",  e => { if (e.key === " " || e.key === "Enter") handleChoice(c, node); });
+    el.playArea.appendChild(node);
+  });
+}
+
+function updateProgress() {
+  const n = state.settings.sessionLen;
+  const done = state.trialIndex;
+  el.trialBadge.textContent = `${Math.min(done + 1, n)} / ${n}`;
+  el.progressBar.style.width = `${(done / n) * 100}%`;
+}
+
+/* ==========================================================
+   Interaction handling
+   ========================================================== */
+function handleChoice(choice, node) {
+  if (state.locked) return;
+
+  const isCorrect = choice.choiceId === state.correctChoiceId;
+  const latency   = Date.now() - state.startMs;
+
+  if (isCorrect) {
+    handleCorrect(choice, node, latency);
+  } else {
+    handleError(choice, node);
+  }
+}
+
+function handleCorrect(choice, node, latency) {
+  state.locked = true;
+
+  // Visual feedback
+  node.classList.add("correct-flash");
+  beep(880, 100);
+  setTimeout(() => beep(1100, 80), 120);
+
+  // Log prompt level name
+  const promptNames = ["Independent", "Try Again", "Gesture Prompt", "Position Prompt", "Full Prompt"];
+  const promptUsed  = promptNames[state.promptStep] || "Independent";
+
+  // Record data
+  state.data.push({
+    time:    new Date().toLocaleTimeString(),
+    item:    `${state.current.emoji} ${state.current.label}`,
+    correct: true,
+    prompt:  promptUsed,
+    latency: latency,
+    errors:  state.errors,
+  });
+  addDataRow(state.data[state.data.length - 1]);
+
+  // Earn star
+  earnStar(state.trialIndex);
+
+  state.correctCount++;
+  state.trialIndex++;
+
+  // Feedback text
+  const praises = ["Great job! ⭐", "You got it! 🎉", "Awesome! 🌟", "Yes! 🥳", "Perfect! ✨"];
+  setFeedback("ok", praises[Math.floor(Math.random() * praises.length)]);
+
+  // Confetti
+  if (state.settings.anim) launchConfetti(node);
+
+  // Check reinforcement
+  const reinfN = state.settings.reinfN;
+  if (state.correctCount % reinfN === 0) {
+    setTimeout(() => showReward(), 400);
+  } else {
+    setTimeout(() => loadTrial(), 700);
+  }
+}
+
+function handleError(choice, node) {
+  state.errors++;
+  beep(300, 150);
+  node.classList.add("error-flash");
+  setTimeout(() => node.classList.remove("error-flash"), 400);
+
+  // Log error to data
+  state.data.push({
+    time:    new Date().toLocaleTimeString(),
+    item:    `${state.current.emoji} ${state.current.label}`,
+    correct: false,
+    prompt:  "—",
+    latency: Date.now() - state.startMs,
+    errors:  state.errors,
+  });
+  addDataRow(state.data[state.data.length - 1]);
+
+  if (!state.settings.prompts) {
+    setFeedback("no", "Try again! 👀");
+    return;
+  }
+
+  // ITT Prompt hierarchy
+  state.promptStep++;
+  applyPrompt();
+}
+
+function applyPrompt() {
+  const step = state.promptStep;
+  // Find correct card node
+  const correctNode = el.playArea.querySelector(`[data-cid="correct"]`);
+
+  if (step === 1) {
+    setFeedback("no", "Try again! Look carefully. 👀");
+    speak("Try again.");
+  } else if (step === 2) {
+    setFeedback("hint", "Look at the picture on the left. 🔍");
+    speak("Look at the picture.");
+    // Animate sample card
+    document.getElementById("sampleCard").style.animation = "none";
+    document.getElementById("sampleCard").style.outline = "4px solid #7C3AED";
+    setTimeout(() => { document.getElementById("sampleCard").style.outline = ""; }, 1200);
+  } else if (step === 3) {
+    setFeedback("hint", "Look over here… 🫵");
+    speak("Look over here.");
+    if (correctNode) {
+      correctNode.classList.add("prompt-glow");
+      setTimeout(() => correctNode.classList.remove("prompt-glow"), 2000);
+    }
+  } else if (step >= 4) {
+    setFeedback("hint", "This one! 🫵");
+    speak("This one. Match this.");
+    // Full physical prompt: pulse the correct card strongly
+    if (correctNode) {
+      correctNode.classList.remove("prompt-glow");
+      void correctNode.offsetWidth;
+      correctNode.classList.add("prompt-glow");
+    }
+  }
+}
+
+/* ==========================================================
+   Star row
+   ========================================================== */
+function earnStar(index) {
+  const s = document.getElementById(`star-${index}`);
+  if (!s) return;
+  s.classList.add("earned");
+  setTimeout(() => s.classList.add("pop"), 50);
+  setTimeout(() => s.classList.remove("pop"), 550);
+}
+
+/* ==========================================================
+   Feedback pill
+   ========================================================== */
+function setFeedback(type, text) {
+  el.fbPill.className = "fb-pill";
+  el.fbPill.textContent = text || "";
+  if (text) {
+    void el.fbPill.offsetWidth;
+    el.fbPill.classList.add("show", type || "ok");
+  }
+}
+
+/* ==========================================================
+   Reward screen
+   ========================================================== */
+const REWARDS = [
+  { emoji:"🌟", title:"Superstar!", sub:"You're doing amazing!" },
+  { emoji:"🎉", title:"Woohoo!",    sub:"Keep up the great work!" },
+  { emoji:"🦁", title:"So Brave!",  sub:"You're a matching champion!" },
+  { emoji:"🏆", title:"Winner!",    sub:"Gold star for you!" },
+  { emoji:"🚀", title:"Blast off!", sub:"To the moon and back!" },
+  { emoji:"🌈", title:"Rainbow!",   sub:"Colorful and brilliant!" },
+];
+
+function showReward() {
+  if (state.trialIndex >= state.order.length) { showDoneScreen(); return; }
+  const r = REWARDS[Math.floor(Math.random() * REWARDS.length)];
+  el.rewardEmoji.textContent = r.emoji;
+  el.rewardTitle.textContent = r.title;
+  el.rewardSub.textContent   = r.sub;
+  el.rewardScreen.classList.add("show");
+  bigConfetti();
+  beep(660, 80); setTimeout(() => beep(880, 80), 100); setTimeout(() => beep(1100, 120), 220);
+}
+
+el.rewardBtn.addEventListener("click", () => {
+  el.rewardScreen.classList.remove("show");
+  setTimeout(() => loadTrial(), 200);
+});
+
+/* ==========================================================
+   Done screen
+   ========================================================== */
+function showDoneScreen() {
+  const n    = state.settings.sessionLen;
+  const correct = state.data.filter(d => d.correct).length;
+  const total   = state.data.length;
+  const acc = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  el.doneScore.textContent = `${acc}% 🎯`;
+  el.doneStats.textContent = `${correct} correct out of ${total} responses`;
+  el.doneScreen.classList.add("show");
+  setTimeout(() => { el.doneAccFill.style.width = acc + "%"; }, 300);
+  bigConfetti();
+}
+
+function restartSession() {
+  el.doneScreen.classList.remove("show");
+  buildStarRow();
+  buildTrialOrder();
+  loadTrial();
+}
+
+/* ==========================================================
+   Confetti
+   ========================================================== */
+const CONFETTI_COLORS = ["#7C3AED","#F59E0B","#10B981","#EF4444","#3B82F6","#EC4899","#FBBF24"];
+
+function launchConfetti(anchorNode) {
+  if (!state.settings.anim) return;
+  const rect = anchorNode.getBoundingClientRect();
+  for (let i = 0; i < 16; i++) {
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.left   = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 80) + "px";
+    p.style.top    = rect.top + "px";
+    p.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    p.style.width  = (8 + Math.random() * 8) + "px";
+    p.style.height = (8 + Math.random() * 8) + "px";
+    p.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+    p.style.animationDuration = (0.6 + Math.random() * 0.6) + "s";
+    p.style.animationDelay    = (Math.random() * 0.2) + "s";
+    el.confetti.appendChild(p);
+    p.addEventListener("animationend", () => p.remove());
+  }
+}
+
+function bigConfetti() {
+  if (!state.settings.anim) return;
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.left   = Math.random() * 100 + "vw";
+    p.style.top    = "-10px";
+    p.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    p.style.width  = (8 + Math.random() * 10) + "px";
+    p.style.height = (8 + Math.random() * 10) + "px";
+    p.style.borderRadius = Math.random() > 0.5 ? "50%" : "3px";
+    p.style.animationDuration = (1.2 + Math.random() * 1.2) + "s";
+    p.style.animationDelay    = (Math.random() * 0.8) + "s";
+    el.confetti.appendChild(p);
+    p.addEventListener("animationend", () => p.remove());
+  }
+}
+
+/* ==========================================================
+   Audio
+   ========================================================== */
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq = 880, ms = 110, vol = 0.08) {
+  if (!state.settings.sounds) return;
+  try {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = freq;
+    g.gain.value = vol;
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); setTimeout(() => { try { o.stop(); } catch(e){} }, ms);
+  } catch(e){}
+}
+
+function speak(text) {
+  if (!state.settings.speech || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate  = 0.92;
+  u.pitch = 1.08;
+  window.speechSynthesis.speak(u);
+}
+
+/* ==========================================================
+   Data table
+   ========================================================== */
+function addDataRow(d) {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${d.time}</td>
+    <td>${d.item}</td>
+    <td class="${d.correct ? "td-correct" : "td-error"}">${d.correct ? "✓ Yes" : "✗ No"}</td>
+    <td>${d.prompt}</td>
+    <td>${d.latency}</td>
+    <td>${d.errors}</td>
+  `;
+  el.dataBody.appendChild(tr);
+}
+
+/* ==========================================================
+   Supervisor dialog
+   ========================================================== */
+function openSupervisor() { el.dialog.showModal(); }
+
+document.getElementById("hotCorner").addEventListener("click", openSupervisor);
+document.getElementById("closeSup").addEventListener("click", () => el.dialog.close());
+
+document.getElementById("optSpeech").addEventListener("change", e => state.settings.speech  = e.target.checked);
+document.getElementById("optSounds").addEventListener("change", e => state.settings.sounds  = e.target.checked);
+document.getElementById("optAnim"  ).addEventListener("change", e => state.settings.anim    = e.target.checked);
+document.getElementById("optPrompts").addEventListener("change", e => state.settings.prompts = e.target.checked);
+document.getElementById("optSession").addEventListener("change", e => { state.settings.sessionLen = +e.target.value; });
+document.getElementById("optReinf" ).addEventListener("change", e => { state.settings.reinfN     = +e.target.value; });
+
+document.getElementById("btnRestart").addEventListener("click", () => {
+  el.dialog.close();
+  restartSession();
+});
+
+document.getElementById("btnClearData").addEventListener("click", () => {
+  state.data = [];
+  el.dataBody.innerHTML = "";
+});
+
+document.getElementById("btnExport").addEventListener("click", () => {
+  const header = "Time,Item,Correct,Prompt,Latency(ms),Errors";
+  const rows = state.data.map(d =>
+    `${d.time},"${d.item}",${d.correct},${d.prompt},${d.latency},${d.errors}`
+  );
+  const blob = new Blob([[header, ...rows].join("\n")], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `vbmapp_matching_${Date.now()}.csv`;
+  a.click();
+});
+
+/* ==========================================================
+   Bind remaining UI
+   ========================================================== */
+function bindUI() {
+  // Keyboard accessibility for supervisor
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") el.dialog.close();
+  });
+}
+
+/* ==========================================================
+   Utilities
+   ========================================================== */
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ==========================================================
+   Start
+   ========================================================== */
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
