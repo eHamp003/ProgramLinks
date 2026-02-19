@@ -39,8 +39,10 @@
     /* ── HEADER ── */
     header {
       display: flex; align-items: center; gap: 10px;
-      padding: 10px 16px; background: var(--surface);
-      border-bottom: 2px solid var(--primary-light); flex-shrink: 0;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 2px solid var(--primary-light);
+      flex-shrink: 0;
     }
     .logo { font-size: 15px; font-weight: 900; color: var(--primary); white-space: nowrap; }
     .logo span { color: var(--accent); }
@@ -63,7 +65,7 @@
     /* ── STAR ROW ── */
     #starRow {
       display: flex; flex-wrap: wrap; gap: 3px;
-      padding: 5px 16px; flex-shrink: 0;
+      padding: 5px 16px 3px; flex-shrink: 0;
     }
     .star { font-size: 16px; filter: grayscale(1) opacity(0.3); transition: transform 0.3s, filter 0.3s; }
     .star.earned { filter: none; transform: scale(1.1); }
@@ -77,86 +79,79 @@
       margin: 5px 16px; padding: 9px 14px;
       background: var(--surface); border-radius: 14px;
       border: 2px solid var(--primary-light);
-      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
     }
     #instructIcon { font-size: 26px; flex-shrink: 0; }
-    #instructText { font-size: 14px; font-weight: 900; color: var(--primary); line-height: 1.3; }
-    #instructSub  { font-size: 11px; font-weight: 600; color: var(--muted); }
+    #instructText { font-size: 14px; font-weight: 900; color: var(--primary); }
+    #instructSub  { font-size: 12px; font-weight: 600; color: var(--muted); }
 
     /* ── GAME AREA ── */
     #gameArea {
       flex: 1; display: flex; flex-direction: column;
-      padding: 6px 16px 8px; gap: 8px; min-height: 0;
+      padding: 5px 16px 8px; gap: 8px; min-height: 0;
     }
 
     /* ── TRAY ── */
     #tray {
-      background: var(--surface); border-radius: 16px;
+      background: var(--surface); border-radius: var(--radius);
       border: 2px solid var(--border);
-      min-height: 100px;
+      min-height: 108px;
       display: flex; flex-wrap: wrap;
       align-items: center; justify-content: center;
       gap: 8px; padding: 10px 12px;
       flex-shrink: 0; position: relative;
-      transition: background 0.2s, border-color 0.2s;
     }
     #trayLabel {
-      position: absolute; top: -10px; left: 14px;
-      font-size: 10px; font-weight: 900; letter-spacing: 1.2px;
+      position: absolute; top: -10px; left: 16px;
+      font-size: 10px; font-weight: 900; letter-spacing: 1.5px;
       text-transform: uppercase; color: var(--muted);
       background: var(--surface); padding: 0 6px;
     }
 
-    /* ── BIN ROW ── */
-    #binRow {
-      display: flex; gap: 8px; flex: 1; min-height: 0;
-    }
+    /* ── BINS ── */
+    #binRow { display: flex; gap: 8px; flex: 1; min-height: 0; }
 
     .bin {
       flex: 1; border-radius: var(--radius);
-      border: 3px dashed var(--border); background: var(--surface);
+      border: 3px dashed var(--border);
+      background: var(--surface);
       display: flex; flex-direction: column;
       align-items: center; padding: 8px 6px 6px;
       gap: 5px; min-height: 0; overflow: hidden;
       transition: border-color 0.2s, background 0.2s, transform 0.15s;
     }
     .bin.drag-over {
-      border-color: var(--primary); background: var(--primary-light);
-      transform: scale(1.02);
+      border-color: var(--primary); background: var(--primary-light); transform: scale(1.02);
     }
     .bin.correct-flash {
       border-color: var(--green); background: var(--green-light);
-      animation: binPop 0.45s ease;
+      animation: binFlash 0.5s ease;
     }
     .bin.error-flash {
       border-color: var(--red); background: var(--red-light);
       animation: binShake 0.4s ease;
     }
-    @keyframes binPop { 0%{transform:scale(1)} 40%{transform:scale(1.04)} 100%{transform:scale(1)} }
+    @keyframes binFlash { 0%{transform:scale(1)} 40%{transform:scale(1.04)} 100%{transform:scale(1)} }
     @keyframes binShake {
-      0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)}
-      40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)}
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)}
+      50%{transform:translateX(7px)} 80%{transform:translateX(-4px)}
     }
 
-    /* Bin header: icon + label */
-    .bin-head {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      flex-shrink: 0;
-    }
-    .bin-icon {
-      width: 48px; height: 48px; border-radius: 10px;
-      object-fit: cover; border: 3px solid var(--border);
-      background: #f3f3f3;
-    }
-    .bin-icon.color-swatch {
-      border-radius: 10px;
-    }
     .bin-label {
       font-size: 11px; font-weight: 900; color: var(--muted);
-      text-align: center; letter-spacing: 0.3px;
+      text-align: center; letter-spacing: 0.3px; flex-shrink: 0;
     }
 
-    /* Placed pieces inside bin */
+    /* Bin hint swatch / icon */
+    .bin-hint {
+      width: 44px; height: 44px; border-radius: 12px;
+      border: 3px solid rgba(0,0,0,0.1); flex-shrink: 0;
+      display: grid; place-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      font-size: 24px; line-height: 1;
+    }
+
     .bin-pieces {
       display: flex; flex-wrap: wrap; gap: 5px;
       justify-content: center; align-items: flex-start;
@@ -165,67 +160,58 @@
 
     /* ── PIECE CARDS ── */
     .piece {
-      width: 76px; height: 76px;
-      border-radius: 14px;
-      border: 3px solid rgba(0,0,0,0.07);
+      width: 80px; height: 80px;
+      border-radius: 16px;
+      border: 3px solid var(--border);
+      background: #fff;
       cursor: grab;
-      display: grid; place-items: center;
-      flex-shrink: 0; overflow: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px; flex-shrink: 0;
       transition: transform 0.12s, box-shadow 0.12s, opacity 0.15s;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.09);
       animation: pieceIn 0.4s cubic-bezier(.36,.07,.19,.97) both;
-      position: relative; background: #f8f8f8;
       touch-action: none;
     }
-    .piece img {
-      width: 100%; height: 100%;
-      object-fit: cover; pointer-events: none;
-      border-radius: 11px;
-    }
-    /* Loading shimmer */
-    .piece::before {
-      content: "";
-      position: absolute; inset: 0;
-      background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.2s infinite;
-      border-radius: 11px;
-      z-index: 0;
-    }
-    .piece img.loaded { position: relative; z-index: 1; }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    /* staggered entrance */
+    .piece:nth-child(1){animation-delay:.03s} .piece:nth-child(2){animation-delay:.07s}
+    .piece:nth-child(3){animation-delay:.11s} .piece:nth-child(4){animation-delay:.15s}
+    .piece:nth-child(5){animation-delay:.19s} .piece:nth-child(6){animation-delay:.23s}
+    .piece:nth-child(7){animation-delay:.27s} .piece:nth-child(8){animation-delay:.31s}
+    .piece:nth-child(9){animation-delay:.35s} .piece:nth-child(10){animation-delay:.39s}
+    .piece:nth-child(11){animation-delay:.43s} .piece:nth-child(12){animation-delay:.47s}
+    .piece:nth-child(13){animation-delay:.51s} .piece:nth-child(14){animation-delay:.55s}
+    .piece:nth-child(15){animation-delay:.59s} .piece:nth-child(16){animation-delay:.63s}
+    .piece:nth-child(17){animation-delay:.67s} .piece:nth-child(18){animation-delay:.71s}
+    .piece:nth-child(19){animation-delay:.75s} .piece:nth-child(20){animation-delay:.79s}
 
-    .piece.dragging {
-      cursor: grabbing; opacity: 0.5;
-      transform: scale(1.1) rotate(3deg);
-      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
-      z-index: 999;
-    }
-    .piece.placed {
-      width: 54px; height: 54px;
-      border-radius: 10px; cursor: default;
-      pointer-events: none;
-      animation: piecePlace 0.35s cubic-bezier(.36,.07,.19,.97);
-    }
-    .piece.placed img { border-radius: 7px; }
     @keyframes pieceIn {
       from { transform: scale(0.6) rotate(-8deg); opacity: 0; }
       to   { transform: scale(1) rotate(0deg); opacity: 1; }
     }
-    @keyframes piecePlace {
-      0%{transform:scale(1.3)} 60%{transform:scale(0.9)} 100%{transform:scale(1)}
+    .piece.dragging { opacity: 0.4; transform: scale(1.08) rotate(3deg); cursor: grabbing; }
+
+    .piece-emoji {
+      font-size: 42px; line-height: 1; pointer-events: none;
+    }
+    .piece-label {
+      font-size: 9px; font-weight: 800; color: var(--muted);
+      text-align: center; pointer-events: none;
+      padding: 0 4px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; width: 100%;
     }
 
-    /* piece label tooltip on hover */
-    .piece-label {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(30,27,75,0.75); color: #fff;
-      font-size: 9px; font-weight: 800; text-align: center;
-      padding: 2px 2px; border-radius: 0 0 10px 10px;
-      opacity: 0; transition: opacity 0.2s;
-      pointer-events: none; z-index: 2;
+    /* Placed (smaller inside bin) */
+    .piece.placed {
+      width: 58px; height: 58px; border-radius: 12px;
+      cursor: default; pointer-events: none;
+      animation: piecePlace 0.35s cubic-bezier(.36,.07,.19,.97);
     }
-    .piece:hover .piece-label { opacity: 1; }
+    .piece.placed .piece-emoji { font-size: 30px; }
+    .piece.placed .piece-label { font-size: 8px; }
+    @keyframes piecePlace {
+      0%{transform:scale(1.3)} 60%{transform:scale(0.92)} 100%{transform:scale(1)}
+    }
 
     /* ── FEEDBACK ── */
     #feedbackBar {
@@ -243,27 +229,24 @@
     .fb-pill.ok  { background: var(--green-light); color: #065F46; }
     .fb-pill.no  { background: var(--red-light);   color: #991B1B; }
 
-    /* ── GHOST ── */
+    /* ── DRAG GHOST ── */
     #dragGhost {
       position: fixed; pointer-events: none; z-index: 9999;
-      transform: translate(-50%,-50%) scale(1.1) rotate(4deg);
+      transform: translate(-50%,-50%) scale(1.12) rotate(4deg);
       display: none;
     }
 
     /* ── CONFETTI ── */
-    #confettiLayer { position:fixed;inset:0;pointer-events:none;z-index:9999; }
-    .cp {
-      position: absolute; border-radius: 2px;
-      animation: cpFall linear forwards;
-    }
+    #confettiLayer { position:fixed; inset:0; pointer-events:none; z-index:9998; }
+    .cp { position:absolute; border-radius:2px; animation: cpFall linear forwards; }
     @keyframes cpFall {
       0%  { transform:translateY(-20px) rotate(0deg); opacity:1; }
-      100%{ transform:translateY(100vh) rotate(720deg); opacity:0; }
+      100%{ transform:translateY(100vh)  rotate(720deg); opacity:0; }
     }
 
     /* ── REWARD ── */
     #rewardScreen {
-      position:fixed;inset:0;z-index:500;
+      position:fixed; inset:0; z-index:500;
       background:rgba(124,58,237,0.93); backdrop-filter:blur(6px);
       display:none; flex-direction:column; align-items:center;
       justify-content:center; gap:12px; text-align:center; color:#fff;
@@ -274,39 +257,41 @@
       0%{transform:scale(0) rotate(-20deg)} 60%{transform:scale(1.2) rotate(5deg)} 100%{transform:scale(1)}
     }
     #rewardTitle { font-size:32px; font-weight:900; }
-    #rewardSub   { font-size:16px; font-weight:700; opacity:0.85; }
+    #rewardSub   { font-size:16px; font-weight:700; opacity:.85; }
     #rewardBtn {
       margin-top:8px; background:#fff; color:var(--primary);
-      border:none; padding:13px 34px; border-radius:999px;
-      font-size:16px; font-weight:900; font-family:var(--font); cursor:pointer;
+      border:none; padding:14px 34px; border-radius:999px;
+      font-size:17px; font-weight:900; font-family:var(--font); cursor:pointer;
     }
 
     /* ── DONE ── */
     #doneScreen {
-      position:fixed;inset:0;z-index:600;
+      position:fixed; inset:0; z-index:600;
       background:linear-gradient(160deg,#1E1B4B 0%,#4C1D95 100%);
       display:none; flex-direction:column; align-items:center;
       justify-content:center; gap:12px; text-align:center; color:#fff;
     }
     #doneScreen.show { display:flex; }
-    #doneTitle { font-size:28px; font-weight:900; }
-    #doneScore { font-size:58px; font-weight:900; color:var(--accent); }
-    #doneStats { font-size:16px; opacity:0.85; }
+    #doneTitle { font-size:30px; font-weight:900; }
+    #doneScore { font-size:60px; font-weight:900; color:var(--accent); }
+    #doneStats { font-size:16px; opacity:.85; }
+    #doneAccBar { width:200px; height:14px; background:rgba(255,255,255,0.2); border-radius:999px; overflow:hidden; }
+    #doneAccFill { height:100%; background:var(--accent); border-radius:999px; width:0%; transition:width 1s cubic-bezier(.4,0,.2,1); }
     #doneBtn {
       margin-top:6px; background:var(--accent); color:#1E1B4B;
-      border:none; padding:13px 32px; border-radius:999px;
-      font-size:16px; font-weight:900; font-family:var(--font); cursor:pointer;
+      border:none; padding:14px 34px; border-radius:999px;
+      font-size:17px; font-weight:900; font-family:var(--font); cursor:pointer;
     }
-    #doneAccBar { width:200px;height:13px;background:rgba(255,255,255,0.2);border-radius:999px;overflow:hidden; }
-    #doneAccFill { height:100%;background:var(--accent);border-radius:999px;width:0%;transition:width 1s cubic-bezier(.4,0,.2,1); }
 
     /* ── HOT CORNER ── */
-    #hotCorner { position:fixed;left:0;top:0;width:50px;height:50px;z-index:1000;opacity:0.001; }
+    #hotCorner { position:fixed; left:0; top:0; width:50px; height:50px; z-index:1000; opacity:.001; }
 
-    @media (max-width:480px) {
-      .piece { width:64px; height:64px; }
-      .piece.placed { width:46px; height:46px; }
-      .bin-icon { width:38px; height:38px; }
+    /* Responsive */
+    @media(max-width:520px){
+      .piece { width:68px; height:68px; }
+      .piece-emoji { font-size:36px; }
+      .piece.placed { width:50px; height:50px; }
+      .piece.placed .piece-emoji { font-size:26px; }
     }
   </style>
 </head>
@@ -318,30 +303,24 @@
     <div id="progressWrap"><div id="progressBar"></div></div>
     <div id="levelBadge">Level 1</div>
   </header>
-
   <div id="starRow"></div>
-
   <div id="instructBanner">
     <div id="instructIcon">🎨</div>
     <div>
-      <div id="instructText">Sort by Color!</div>
+      <div id="instructText">Sort by color!</div>
       <div id="instructSub">Drag each picture into the matching color bin</div>
     </div>
   </div>
-
   <div id="gameArea">
     <div id="tray"><div id="trayLabel">Pieces to sort</div></div>
     <div id="binRow"></div>
   </div>
-
   <div id="feedbackBar"><div class="fb-pill" id="fbPill"></div></div>
 </div>
 
 <div id="dragGhost"></div>
 <div id="confettiLayer"></div>
-<div id="hotCorner"></div>
 
-<!-- REWARD -->
 <div id="rewardScreen">
   <div id="rewardEmoji">🌟</div>
   <div id="rewardTitle">Amazing!</div>
@@ -349,7 +328,6 @@
   <button id="rewardBtn">Next Round →</button>
 </div>
 
-<!-- DONE -->
 <div id="doneScreen">
   <div style="font-size:54px">🏆</div>
   <div id="doneTitle">All Done!</div>
@@ -359,139 +337,116 @@
   <button id="doneBtn" onclick="restartGame()">Play Again 🎉</button>
 </div>
 
+<div id="hotCorner"></div>
+
 <script>
-/* =================================================================
-   IMAGE DATA
-   Using Unsplash Source API: https://source.unsplash.com/featured/?{keyword}&w=300&h=300
-   Each item: { label, color, shape, url }
-   ================================================================= */
+/* ================================================================
+   ITEM DATABASE — emoji-based real items
+   ================================================================ */
 
-// Reliable Unsplash photo IDs for each item (hand-picked for clarity)
-// Format: https://images.unsplash.com/photo-{id}?w=300&h=300&fit=crop&auto=format
-function img(id, fallbackEmoji) {
-  return { url: `https://images.unsplash.com/photo-${id}?w=300&h=300&fit=crop&auto=format&q=80`, emoji: fallbackEmoji };
-}
-
-/* ── COLOR ITEMS (4 per color) ── */
-const COLOR_DATA = {
+// Color sorting items — 4 clearly colored real items per color
+const COLOR_ITEMS = {
   red: {
-    label: "Red",
-    swatch: "#E53E3E",
+    label: "Red", swatch: "#E53E3E",
     items: [
-      { label:"apple",       ...img("1567306301-8bc765d3-b6f8-4e77-92aa-c8dc934c1777", "🍎") },
-      { label:"strawberry",  ...img("1464965911861-746a04b4bca6", "🍓") },
-      { label:"fire truck",  ...img("1558618666-fcd25c85cd64", "🚒") },
-      { label:"red ball",    ...img("1576423902053-97c1e1a0e7b4", "🔴") },
+      { id:"apple",      label:"apple",       emoji:"🍎" },
+      { id:"strawberry", label:"strawberry",  emoji:"🍓" },
+      { id:"firetruck",  label:"fire truck",  emoji:"🚒" },
+      { id:"redballoon", label:"balloon",     emoji:"🎈" },
     ]
   },
   blue: {
-    label: "Blue",
-    swatch: "#3182CE",
+    label: "Blue", swatch: "#3182CE",
     items: [
-      { label:"blueberries", ...img("1498557850523-fd3d118b962e", "🫐") },
-      { label:"blue shirt",  ...img("1521572163474-6864f9cf17ab", "👕") },
-      { label:"blue cup",    ...img("1577937927133-66ef06acdf18", "🥤") },
-      { label:"blue crayon", ...img("1513542789411-b6a5d4f31634", "🖍️") },
+      { id:"bluehat",     label:"blue hat",    emoji:"🧢" },
+      { id:"blueheart",   label:"blue heart",  emoji:"💙" },
+      { id:"whale",      label:"whale",       emoji:"🐋" },
+      { id:"raindrop",   label:"water drop",  emoji:"💧" },
     ]
   },
   green: {
-    label: "Green",
-    swatch: "#38A169",
+    label: "Green", swatch: "#38A169",
     items: [
-      { label:"broccoli",    ...img("1459411621453-7b03977f4bfc", "🥦") },
-      { label:"frog",        ...img("1531946803-48f4fa29c53d", "🐸") },
-      { label:"green apple", ...img("1585059895524-72359e06133a", "🍏") },
-      { label:"turtle",      ...img("1497752531616-c3afd9760a11", "🐢") },
+      { id:"broccoli",   label:"broccoli",    emoji:"🥦" },
+      { id:"frog",       label:"frog",        emoji:"🐸" },
+      { id:"greenapple", label:"green apple", emoji:"🍏" },
+      { id:"turtle",     label:"turtle",      emoji:"🐢" },
     ]
   },
   yellow: {
-    label: "Yellow",
-    swatch: "#D69E2E",
+    label: "Yellow", swatch: "#D69E2E",
     items: [
-      { label:"banana",      ...img("1528825871115-3581a5387919", "🍌") },
-      { label:"school bus",  ...img("1558618644-e6e6e0e8b877", "🚌") },
-      { label:"sunflower",   ...img("1490750967868-88df5691cc3d", "🌻") },
-      { label:"lemon",       ...img("1582979512210-d2a4e1519b2b", "🍋") },
+      { id:"banana",     label:"banana",      emoji:"🍌" },
+      { id:"schoolbus",  label:"school bus",  emoji:"🚌" },
+      { id:"sunflower",  label:"sunflower",   emoji:"🌻" },
+      { id:"lemon",      label:"lemon",       emoji:"🍋" },
     ]
   },
   orange: {
-    label: "Orange",
-    swatch: "#DD6B20",
+    label: "Orange", swatch: "#DD6B20",
     items: [
-      { label:"orange",      ...img("1547514701-42782101795e", "🍊") },
-      { label:"carrot",      ...img("1598170845058-32b9d6a5da37", "🥕") },
-      { label:"basketball",  ...img("1546519638-68e109498ffc", "🏀") },
-      { label:"tiger",       ...img("1561731216-c3a4d99437d5", "🐯") },
+      { id:"orange",     label:"orange",      emoji:"🍊" },
+      { id:"carrot",     label:"carrot",      emoji:"🥕" },
+      { id:"basketball", label:"basketball",  emoji:"🏀" },
+      { id:"tiger",      label:"tiger",       emoji:"🐯" },
     ]
   },
 };
 
-/* ── SHAPE ITEMS (4 per shape) ── */
-const SHAPE_DATA = {
+// Shape sorting items — 4 real items that clearly represent each shape
+const SHAPE_ITEMS = {
   round: {
-    label: "Round",
-    icon: "⭕",
+    label: "Round", icon: "⭕",
     items: [
-      { label:"orange",      ...img("1547514701-42782101795e", "🍊") },
-      { label:"clock",       ...img("1563861826100-9cb868fdbe1c", "🕒") },
-      { label:"ball",        ...img("1576423902053-97c1e1a0e7b4", "⚽") },
-      { label:"pizza",       ...img("1513104890138-7c749659a591", "🍕") },
+      { id:"s_ball",    label:"ball",        emoji:"⚽" },
+      { id:"s_orange",  label:"orange",      emoji:"🍊" },
+      { id:"s_clock",   label:"clock",       emoji:"🕒" },
+      { id:"s_donut",   label:"donut",       emoji:"🍩" },
     ]
   },
-  square: {
-    label: "Square / Rectangle",
-    icon: "▭",
+  rect: {
+    label: "Rectangle", icon: "▭",
     items: [
-      { label:"book",        ...img("1544716278-ca5e3f4abd8c", "📕") },
-      { label:"cereal box",  ...img("1619566636145-17c7c0a4c1f9", "📦") },
-      { label:"picture frame",...img("1513519245088-0e12902e5a38", "🖼️") },
-      { label:"tablet",      ...img("1561154464-02ce0a1eb084", "📱") },
+      { id:"s_book",    label:"book",        emoji:"📕" },
+      { id:"s_phone",   label:"phone",       emoji:"📱" },
+      { id:"s_laptop",  label:"laptop",      emoji:"💻" },
+      { id:"s_door",    label:"door",        emoji:"🚪" },
     ]
   },
-  pointy: {
-    label: "Pointy / Triangle",
-    icon: "🔺",
+  triangle: {
+    label: "Pointy", icon: "🔺",
     items: [
-      { label:"party hat",   ...img("1530103862676-de8c9debad1d", "🎉") },
-      { label:"ice cream cone",...img("1557142046-c704a3adf364", "🍦") },
-      { label:"carrot",      ...img("1598170845058-32b9d6a5da37", "🥕") },
-      { label:"pine tree",   ...img("1545259741-2ea3ebf61fa3", "🌲") },
+      { id:"s_pizza",   label:"pizza slice", emoji:"🍕" },
+      { id:"s_warning",   label:"warning sign", emoji:"⚠️" },
+      { id:"s_redflag",   label:"red flag",     emoji:"🚩" },
+      { id:"s_carrot",  label:"carrot",      emoji:"🥕" },
     ]
   },
 };
 
-/* =================================================================
-   LEVEL PLAN — alternating color / shape, bins grow 2→3→4→3→...
-   ================================================================= */
+/* ================================================================
+   LEVEL PLAN — alternates color → shape, bins grow 2 → 3 → 4/5
+   ================================================================ */
 const LEVEL_PLAN = [
-  // Level 1: Color, 2 bins
-  { mode:"color", bins:2, colors:["red","blue"],
-    label:"Sort by Color!", icon:"🎨", sub:"Drag each picture into the matching color bin" },
-  // Level 2: Shape, 2 bins
-  { mode:"shape", bins:2, shapes:["round","square"],
-    label:"Sort by Shape!", icon:"🔷", sub:"Does it have curves or straight edges?" },
-  // Level 3: Color, 3 bins
-  { mode:"color", bins:3, colors:["red","green","yellow"],
-    label:"3 Colors — Sort Them!", icon:"🎨", sub:"Three color bins — you can do it!" },
-  // Level 4: Shape, 3 bins
-  { mode:"shape", bins:3, shapes:["round","square","pointy"],
-    label:"3 Shapes — Sort Them!", icon:"🔷", sub:"Round, square, or pointy — where does it go?" },
-  // Level 5: Color, 4 bins
-  { mode:"color", bins:4, colors:["red","blue","green","yellow"],
-    label:"4 Colors — Expert Mode!", icon:"🌈", sub:"Four color groups — amazing job!" },
-  // Level 6: Color, 5 bins (all colors)
-  { mode:"color", bins:5, colors:["red","blue","green","yellow","orange"],
-    label:"All 5 Colors — Champion!", icon:"🏆", sub:"Sort all five colors like a champion!" },
-  // Level 7: Shape, 3 bins (repeat with harder timing expectation)
-  { mode:"shape", bins:3, shapes:["round","square","pointy"],
-    label:"Shape Master!", icon:"⭐", sub:"You know your shapes — show it off!" },
+  { mode:"color", bins:2, keys:["red","blue"],
+    label:"Sort by Color!", icon:"🎨", sub:"2 colors — drag each picture to its matching bin" },
+  { mode:"shape", bins:2, keys:["round","rect"],
+    label:"Sort by Shape!", icon:"🔷", sub:"Round or rectangle — look carefully!" },
+  { mode:"color", bins:3, keys:["red","blue","green"],
+    label:"Sort by Color!", icon:"🎨", sub:"3 colors now — you've got this!" },
+  { mode:"shape", bins:3, keys:["round","rect","triangle"],
+    label:"Sort by Shape!", icon:"🔺", sub:"3 shape groups — great sorting skills!" },
+  { mode:"color", bins:4, keys:["red","blue","green","yellow"],
+    label:"Color Expert!",  icon:"🌈", sub:"4 colors — amazing work!" },
+  { mode:"color", bins:5, keys:["red","blue","green","yellow","orange"],
+    label:"Rainbow Master!", icon:"🌈", sub:"All 5 colors — the ultimate challenge!" },
 ];
 
 const TOTAL_LEVELS = LEVEL_PLAN.length;
 
-/* =================================================================
-   STATE
-   ================================================================= */
+/* ================================================================
+   GAME STATE
+   ================================================================ */
 const G = {
   level: 0,
   correctCount: 0,
@@ -525,16 +480,16 @@ const D = {
   ghost:        document.getElementById("dragGhost"),
 };
 
-/* =================================================================
+/* ================================================================
    INIT
-   ================================================================= */
+   ================================================================ */
 function init() {
   buildStarRow();
   loadLevel();
   D.rewardBtn.addEventListener("click", advanceLevel);
-  document.getElementById("hotCorner").addEventListener("click", () =>
-    alert(`Level ${G.level+1}/${TOTAL_LEVELS} | ✓ ${G.correctCount} | ✗ ${G.errorCount}`)
-  );
+  document.getElementById("hotCorner").addEventListener("click", () => {
+    alert(`Session Stats\nLevel: ${G.level+1}/${TOTAL_LEVELS}\nCorrect: ${G.correctCount}\nErrors: ${G.errorCount}`);
+  });
 }
 
 function buildStarRow() {
@@ -546,11 +501,12 @@ function buildStarRow() {
   }
 }
 
-/* =================================================================
+/* ================================================================
    LEVEL LOADER
-   ================================================================= */
+   ================================================================ */
 function loadLevel() {
   G.locked = false; G.dragging = null;
+  G.pieces = []; G.bins = [];
   const plan = LEVEL_PLAN[G.level];
 
   D.levelBadge.textContent   = `Level ${G.level + 1}`;
@@ -559,149 +515,108 @@ function loadLevel() {
   D.instructText.textContent = plan.label;
   D.instructSub.textContent  = plan.sub;
 
-  D.tray.innerHTML = '<div id="trayLabel">Pieces to sort</div>';
+  D.tray.innerHTML   = '<div id="trayLabel">Pieces to sort</div>';
   D.binRow.innerHTML = "";
-  G.pieces = []; G.bins = [];
 
-  if (plan.mode === "color") buildColorLevel(plan);
-  else                        buildShapeLevel(plan);
-
+  plan.mode === "color" ? buildColorLevel(plan) : buildShapeLevel(plan);
   setFeedback(null);
   speak(plan.label);
 }
 
 /* ── COLOR LEVEL ── */
 function buildColorLevel(plan) {
-  plan.colors.forEach(colorKey => {
-    const fam = COLOR_DATA[colorKey];
+  plan.keys.forEach(colorKey => {
+    const group = COLOR_ITEMS[colorKey];
 
-    // Build bin
-    const { binEl, piecesArea } = createBin(colorKey, fam.label);
-
-    // Color swatch as bin icon
-    const swatch = document.createElement("div");
-    swatch.className = "bin-icon color-swatch";
-    swatch.style.background = fam.swatch;
-    swatch.style.border = `3px solid rgba(0,0,0,0.1)`;
-    binEl.querySelector(".bin-head").prepend(swatch);
-
+    // Bin
+    const binEl = createBinEl(colorKey, group.label);
+    const hint  = binEl.querySelector(".bin-hint");
+    hint.style.background  = group.swatch;
+    hint.style.borderColor = group.swatch;
     D.binRow.appendChild(binEl);
-    G.bins.push({ id: colorKey, el: binEl, piecesArea, count: 0, total: fam.items.length });
+    G.bins.push({ id: colorKey, el: binEl, count: 0, total: group.items.length });
 
-    // Create pieces
-    fam.items.forEach((item, i) => {
-      const piece = createPiece(colorKey, item, i);
-      G.pieces.push(piece);
+    // Pieces
+    group.items.forEach((item, i) => {
+      G.pieces.push(createPiece(item, colorKey, i));
     });
   });
 
-  shuffleIntoTray();
+  shuffle(G.pieces).forEach(p => D.tray.appendChild(p.el));
 }
 
 /* ── SHAPE LEVEL ── */
 function buildShapeLevel(plan) {
-  // Use a single accent color for all pieces so shape is the only cue
-  plan.shapes.forEach(shapeKey => {
-    const fam = SHAPE_DATA[shapeKey];
+  plan.keys.forEach(shapeKey => {
+    const group = SHAPE_ITEMS[shapeKey];
 
-    const { binEl, piecesArea } = createBin(shapeKey, fam.label);
-
-    // Shape icon emoji as bin hint
-    const iconEl = document.createElement("div");
-    iconEl.className = "bin-icon";
-    iconEl.style.cssText = `
-      display:grid;place-items:center;
-      background:var(--primary-light);
-      border:3px solid var(--primary);
-      font-size:22px;
-    `;
-    iconEl.textContent = fam.icon;
-    binEl.querySelector(".bin-head").prepend(iconEl);
-
+    // Bin
+    const binEl = createBinEl(shapeKey, group.label);
+    const hint  = binEl.querySelector(".bin-hint");
+    hint.style.background  = "#EDE9FE";
+    hint.style.borderColor = "#C4B5FD";
+    hint.textContent = group.icon;
     D.binRow.appendChild(binEl);
-    G.bins.push({ id: shapeKey, el: binEl, piecesArea, count: 0, total: fam.items.length });
+    G.bins.push({ id: shapeKey, el: binEl, count: 0, total: group.items.length });
 
-    fam.items.forEach((item, i) => {
-      const piece = createPiece(shapeKey, item, i);
-      G.pieces.push(piece);
+    // Pieces
+    group.items.forEach((item, i) => {
+      G.pieces.push(createPiece(item, shapeKey, i));
     });
   });
 
-  shuffleIntoTray();
+  shuffle(G.pieces).forEach(p => D.tray.appendChild(p.el));
 }
 
 /* ── CREATE BIN ── */
-function createBin(id, label) {
-  const binEl = document.createElement("div");
-  binEl.className = "bin"; binEl.dataset.bid = id;
+function createBinEl(id, label) {
+  const bin = document.createElement("div");
+  bin.className = "bin"; bin.dataset.bid = id;
 
-  const head = document.createElement("div");
-  head.className = "bin-head";
-
-  const lbl = document.createElement("div");
+  const lbl    = document.createElement("div");
   lbl.className = "bin-label"; lbl.textContent = label;
-  head.appendChild(lbl);
 
-  const piecesArea = document.createElement("div");
-  piecesArea.className = "bin-pieces";
+  const hint   = document.createElement("div");
+  hint.className = "bin-hint";
 
-  binEl.appendChild(head);
-  binEl.appendChild(piecesArea);
-  return { binEl, piecesArea };
+  const pieces = document.createElement("div");
+  pieces.className = "bin-pieces";
+
+  bin.appendChild(lbl); bin.appendChild(hint); bin.appendChild(pieces);
+  return bin;
 }
 
 /* ── CREATE PIECE ── */
-function createPiece(binId, item, idx) {
+function createPiece(item, binId, idx) {
   const el = document.createElement("div");
   el.className = "piece";
-  el.style.animationDelay = (idx * 0.06) + "s";
-  el.setAttribute("aria-label", item.label);
-  el.setAttribute("tabindex", "0");
+  el.dataset.pid   = item.id;
   el.dataset.binId = binId;
+  el.setAttribute("aria-label", item.label);
+  el.setAttribute("tabindex",   "0");
 
-  const pid = binId + "_" + idx;
-  el.dataset.pid = pid;
+  const emoji = document.createElement("div");
+  emoji.className    = "piece-emoji";
+  emoji.textContent  = item.emoji;
 
-  // Image
-  const imgEl = document.createElement("img");
-  imgEl.alt = item.label;
-  imgEl.loading = "lazy";
-
-  // Fallback: if image fails, show emoji
-  imgEl.onerror = () => {
-    el.style.background = "#f0f0f0";
-    el.style.fontSize = "36px";
-    el.innerHTML = "";
-    el.textContent = item.emoji || "📷";
-    const lb = document.createElement("div");
-    lb.className = "piece-label"; lb.textContent = item.label;
-    el.appendChild(lb);
-  };
-  imgEl.onload = () => imgEl.classList.add("loaded");
-  imgEl.src = item.url;
-  el.appendChild(imgEl);
-
-  // Label overlay
   const lbl = document.createElement("div");
-  lbl.className = "piece-label"; lbl.textContent = item.label;
+  lbl.className   = "piece-label";
+  lbl.textContent = item.label;
+
+  el.appendChild(emoji);
   el.appendChild(lbl);
 
-  const p = { id: pid, binId, el, placed: false };
+  const p = { id: item.id, binId, el, placed: false };
   attachDrag(p);
   return p;
 }
 
-function shuffleIntoTray() {
-  shuffle(G.pieces).forEach(p => D.tray.appendChild(p.el));
-}
-
-/* =================================================================
+/* ================================================================
    DRAG & DROP — unified mouse + touch
-   ================================================================= */
+   ================================================================ */
 function attachDrag(piece) {
-  const el = piece.el;
-  el.addEventListener("mousedown",  e => startDrag(piece, e.clientX, e.clientY, e));
-  el.addEventListener("touchstart", e => {
+  piece.el.addEventListener("mousedown",  e => startDrag(piece, e.clientX, e.clientY, e));
+  piece.el.addEventListener("touchstart", e => {
     const t = e.touches[0];
     startDrag(piece, t.clientX, t.clientY, e);
   }, { passive: false });
@@ -713,11 +628,8 @@ function startDrag(piece, cx, cy, e) {
   G.dragging = piece;
   piece.el.classList.add("dragging");
 
-  // Build ghost
   const clone = piece.el.cloneNode(true);
-  clone.style.width  = piece.el.offsetWidth  + "px";
-  clone.style.height = piece.el.offsetHeight + "px";
-  clone.style.animationName = "none";
+  clone.style.cssText = `width:${piece.el.offsetWidth}px;height:${piece.el.offsetHeight}px;animation:none;opacity:1;`;
   clone.classList.remove("dragging");
   D.ghost.innerHTML = "";
   D.ghost.appendChild(clone);
@@ -727,10 +639,10 @@ function startDrag(piece, cx, cy, e) {
   const onMove = (ex, ey) => { moveGhost(ex, ey); highlightBins(ex, ey); };
   const onEnd  = (ex, ey) => {
     D.ghost.style.display = "none";
-    clearBinHighlights();
+    clearHighlights();
     const bin = binUnder(ex, ey);
     if (bin) handleDrop(piece, bin);
-    else     piece.el.classList.remove("dragging");
+    else piece.el.classList.remove("dragging");
     G.dragging = null;
     document.removeEventListener("mousemove", mm);
     document.removeEventListener("mouseup",   mu);
@@ -745,37 +657,34 @@ function startDrag(piece, cx, cy, e) {
 
   document.addEventListener("mousemove", mm);
   document.addEventListener("mouseup",   mu);
-  document.addEventListener("touchmove", tm, { passive:false });
+  document.addEventListener("touchmove", tm, { passive: false });
   document.addEventListener("touchend",  te);
 }
 
 function moveGhost(cx, cy) {
-  D.ghost.style.left = cx + "px"; D.ghost.style.top = cy + "px";
+  D.ghost.style.left = cx + "px";
+  D.ghost.style.top  = cy + "px";
 }
-
 function binUnder(cx, cy) {
   for (const b of document.querySelectorAll(".bin")) {
     const r = b.getBoundingClientRect();
-    if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) return b;
+    if (cx>=r.left && cx<=r.right && cy>=r.top && cy<=r.bottom) return b;
   }
   return null;
 }
-
 function highlightBins(cx, cy) {
   document.querySelectorAll(".bin").forEach(b => {
     const r = b.getBoundingClientRect();
-    const over = cx>=r.left && cx<=r.right && cy>=r.top && cy<=r.bottom;
-    b.classList.toggle("drag-over", over);
+    b.classList.toggle("drag-over", cx>=r.left && cx<=r.right && cy>=r.top && cy<=r.bottom);
   });
 }
-
-function clearBinHighlights() {
+function clearHighlights() {
   document.querySelectorAll(".bin").forEach(b => b.classList.remove("drag-over"));
 }
 
-/* =================================================================
+/* ================================================================
    DROP LOGIC
-   ================================================================= */
+   ================================================================ */
 function handleDrop(piece, binEl) {
   piece.el.classList.remove("dragging");
   if (binEl.dataset.bid === piece.binId) handleCorrect(piece, binEl);
@@ -785,20 +694,16 @@ function handleDrop(piece, binEl) {
 function handleCorrect(piece, binEl) {
   piece.placed = true;
   G.correctCount++;
-
   piece.el.classList.add("placed");
-  const binState = G.bins.find(b => b.id === binEl.dataset.bid);
-  binState.piecesArea.appendChild(piece.el);
-  binState.count++;
-
+  binEl.querySelector(".bin-pieces").appendChild(piece.el);
   binEl.classList.add("correct-flash");
-  setTimeout(() => binEl.classList.remove("correct-flash"), 500);
+  setTimeout(() => binEl.classList.remove("correct-flash"), 600);
 
-  beep(880,90); setTimeout(()=>beep(1100,70),110);
+  beep(880, 90); setTimeout(() => beep(1100, 70), 110);
   launchConfetti(binEl);
 
-  const praise = ["Nice! ⭐","Yes! 🎉","Great! 🌟","Correct! ✨","Awesome! 🥳","Perfect! 💜"];
-  setFeedback("ok", praise[Math.floor(Math.random()*praise.length)]);
+  const praises = ["Nice! ⭐","Yes! 🎉","Great! 🌟","Correct! ✨","Awesome! 🥳","Perfect! 💯"];
+  setFeedback("ok", praises[Math.floor(Math.random() * praises.length)]);
 
   checkLevelComplete();
 }
@@ -816,30 +721,29 @@ function checkLevelComplete() {
   if (!G.pieces.every(p => p.placed)) return;
   G.locked = true;
 
-  const starEl = document.getElementById(`star-${G.level}`);
-  if (starEl) {
-    starEl.classList.add("earned");
-    setTimeout(() => { starEl.classList.add("pop"); setTimeout(()=>starEl.classList.remove("pop"),550); }, 100);
+  const star = document.getElementById(`star-${G.level}`);
+  if (star) {
+    star.classList.add("earned");
+    setTimeout(() => { star.classList.add("pop"); setTimeout(() => star.classList.remove("pop"), 550); }, 100);
   }
 
   setTimeout(() => {
     bigConfetti();
     if (G.level >= TOTAL_LEVELS - 1) setTimeout(showDoneScreen, 900);
     else showReward();
-  }, 350);
+  }, 400);
 }
 
-/* =================================================================
+/* ================================================================
    REWARD
-   ================================================================= */
+   ================================================================ */
 const REWARDS = [
-  { emoji:"🌟", title:"Superstar!",  sub:"You sorted them all correctly!" },
-  { emoji:"🎉", title:"Woohoo!",     sub:"Amazing sorting skills!" },
-  { emoji:"🦁", title:"So Smart!",   sub:"You're a sorting champion!" },
-  { emoji:"🏆", title:"Gold Star!",  sub:"Keep up the great work!" },
-  { emoji:"🌈", title:"Brilliant!",  sub:"You know your colors and shapes!" },
-  { emoji:"🚀", title:"Blast Off!",  sub:"To the next level!" },
-  { emoji:"🦋", title:"Beautiful!",  sub:"Just like a butterfly — amazing!" },
+  { emoji:"🌟", title:"Superstar!",   sub:"You sorted them all perfectly!" },
+  { emoji:"🎉", title:"Woohoo!",      sub:"Amazing sorting skills!" },
+  { emoji:"🦁", title:"So Smart!",    sub:"You're a sorting champion!" },
+  { emoji:"🏆", title:"Gold Star!",   sub:"Keep up the great work!" },
+  { emoji:"🌈", title:"Brilliant!",   sub:"You know your colors and shapes!" },
+  { emoji:"🚀", title:"Blast Off!",   sub:"On to the next challenge!" },
 ];
 
 function showReward() {
@@ -858,13 +762,13 @@ function advanceLevel() {
   setTimeout(loadLevel, 200);
 }
 
-/* =================================================================
+/* ================================================================
    DONE SCREEN
-   ================================================================= */
+   ================================================================ */
 function showDoneScreen() {
   const total = G.correctCount + G.errorCount;
-  const acc = total > 0 ? Math.round((G.correctCount / total) * 100) : 100;
-  D.doneScore.textContent = acc + "% 🎯";
+  const acc   = total > 0 ? Math.round((G.correctCount / total) * 100) : 100;
+  D.doneScore.textContent = `${acc}% 🎯`;
   D.doneStats.textContent = `${G.correctCount} correct placements`;
   D.doneScreen.classList.add("show");
   D.progressBar.style.width = "100%";
@@ -873,71 +777,79 @@ function showDoneScreen() {
 }
 
 function restartGame() {
-  G.level=0; G.correctCount=0; G.errorCount=0;
+  G.level = 0; G.correctCount = 0; G.errorCount = 0;
   D.doneScreen.classList.remove("show");
-  buildStarRow(); loadLevel();
+  buildStarRow();
+  loadLevel();
 }
 
-/* =================================================================
+/* ================================================================
    CONFETTI
-   ================================================================= */
+   ================================================================ */
 const CC = ["#7C3AED","#F59E0B","#10B981","#EF4444","#3B82F6","#EC4899","#FBBF24","#34D399"];
 function launchConfetti(anchor) {
   const r = anchor.getBoundingClientRect();
-  for (let i=0;i<14;i++) {
-    const p=document.createElement("div"); p.className="cp";
-    p.style.left=(r.left+r.width/2+(Math.random()-0.5)*60)+"px";
-    p.style.top=r.top+"px";
-    p.style.background=CC[i%CC.length];
-    p.style.width=(7+Math.random()*7)+"px"; p.style.height=(7+Math.random()*7)+"px";
-    p.style.borderRadius=Math.random()>0.5?"50%":"2px";
-    p.style.animationDuration=(0.6+Math.random()*0.5)+"s";
-    p.style.animationDelay=(Math.random()*0.15)+"s";
-    D.confetti.appendChild(p); p.addEventListener("animationend",()=>p.remove());
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement("div"); p.className = "cp";
+    p.style.left = (r.left + r.width/2 + (Math.random()-.5)*70) + "px";
+    p.style.top  = r.top + "px";
+    p.style.background = CC[i % CC.length];
+    p.style.width  = (7 + Math.random()*7) + "px";
+    p.style.height = (7 + Math.random()*7) + "px";
+    p.style.borderRadius     = Math.random() > .5 ? "50%" : "2px";
+    p.style.animationDuration = (0.6 + Math.random()*.5) + "s";
+    p.style.animationDelay   = (Math.random()*.15) + "s";
+    D.confetti.appendChild(p);
+    p.addEventListener("animationend", () => p.remove());
   }
 }
 function bigConfetti() {
-  for (let i=0;i<65;i++) {
-    const p=document.createElement("div"); p.className="cp";
-    p.style.left=Math.random()*100+"vw"; p.style.top="-10px";
-    p.style.background=CC[i%CC.length];
-    p.style.width=(8+Math.random()*10)+"px"; p.style.height=(8+Math.random()*10)+"px";
-    p.style.borderRadius=Math.random()>0.5?"50%":"3px";
-    p.style.animationDuration=(1.2+Math.random()*1.2)+"s";
-    p.style.animationDelay=(Math.random()*0.8)+"s";
-    D.confetti.appendChild(p); p.addEventListener("animationend",()=>p.remove());
+  for (let i = 0; i < 70; i++) {
+    const p = document.createElement("div"); p.className = "cp";
+    p.style.left = Math.random()*100 + "vw"; p.style.top = "-10px";
+    p.style.background = CC[i % CC.length];
+    p.style.width  = (8 + Math.random()*10) + "px";
+    p.style.height = (8 + Math.random()*10) + "px";
+    p.style.borderRadius     = Math.random() > .5 ? "50%" : "3px";
+    p.style.animationDuration = (1.2 + Math.random()*1.2) + "s";
+    p.style.animationDelay   = (Math.random()*.8) + "s";
+    D.confetti.appendChild(p);
+    p.addEventListener("animationend", () => p.remove());
   }
 }
 
-/* =================================================================
-   FEEDBACK + AUDIO
-   ================================================================= */
+/* ================================================================
+   AUDIO / SPEECH / UTILS
+   ================================================================ */
 function setFeedback(type, text) {
-  D.fbPill.className="fb-pill"; D.fbPill.textContent=text||"";
-  if(text){ void D.fbPill.offsetWidth; D.fbPill.classList.add("show", type||"ok"); }
+  D.fbPill.className = "fb-pill";
+  D.fbPill.textContent = text || "";
+  if (text) { void D.fbPill.offsetWidth; D.fbPill.classList.add("show", type || "ok"); }
 }
 
-let _ctx=null;
-function getCtx(){ if(!_ctx) _ctx=new(window.AudioContext||window.webkitAudioContext)(); return _ctx; }
-function beep(freq=880,ms=110){
-  try{
-    const ctx=getCtx(),o=ctx.createOscillator(),g=ctx.createGain();
-    o.type="sine";o.frequency.value=freq;g.gain.value=0.07;
-    o.connect(g);g.connect(ctx.destination);o.start();
-    setTimeout(()=>{try{o.stop();}catch(e){}},ms);
-  }catch(e){}
+let _ctx = null;
+function getCtx() { if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)(); return _ctx; }
+function beep(freq = 880, ms = 110) {
+  try {
+    const c = getCtx(), o = c.createOscillator(), g = c.createGain();
+    o.type = "sine"; o.frequency.value = freq; g.gain.value = 0.07;
+    o.connect(g); g.connect(c.destination); o.start();
+    setTimeout(() => { try { o.stop(); } catch(e) {} }, ms);
+  } catch(e) {}
 }
-function speak(text){
-  if(!("speechSynthesis" in window))return;
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  u.rate=0.92;u.pitch=1.08;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.92; u.pitch = 1.08;
   window.speechSynthesis.speak(u);
 }
-
-function shuffle(arr){
-  const a=arr.slice();
-  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
   return a;
 }
 
