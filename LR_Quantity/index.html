@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <title>VB-MAPP — Listener Quantity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #FFF8EC;
+      --surface:  #FFFFFF;
+      --primary:  #FF6B35;
+      --p-light:  #FFE8DF;
+      --p-dark:   #C94F1E;
+      --teal:     #00C9A7;
+      --teal-lt:  #DFFAF5;
+      --yellow:   #FFD166;
+      --yellow-lt:#FFF6D6;
+      --purple:   #9B5DE5;
+      --purple-lt:#EFE3FF;
+      --green:    #06D6A0;
+      --green-lt: #D4FAF0;
+      --red:      #EF476F;
+      --red-lt:   #FFE0E8;
+      --text:     #1A1A2E;
+      --muted:    #6B7280;
+      --border:   #F0E6D3;
+      --font-display: 'Fredoka One', cursive;
+      --font:     'Nunito', sans-serif;
+      --radius:   24px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; font-family: var(--font);
+      background: var(--bg); color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none; user-select: none;
+    }
+
+    /* ── BACKGROUND DOODLES ── */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255,107,53,0.06) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(0,201,167,0.07) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(155,93,229,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    #app {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column;
+      height: 100dvh; max-width: 860px; margin: 0 auto;
+      padding: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 18px 8px;
+      flex-shrink: 0;
+    }
+    .logo {
+      font-family: var(--font-display);
+      font-size: 18px; color: var(--primary);
+      letter-spacing: 0.5px; white-space: nowrap;
+    }
+    .logo em { color: var(--teal); font-style: normal; }
+    #progressWrap {
+      flex: 1; height: 14px;
+      background: #FFE0CF; border-radius: 999px; overflow: hidden;
+    }
+    #progressBar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--yellow));
+      border-radius: 999px; width: 0%;
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    #trialBadge {
+      font-size: 13px; font-weight: 900; color: var(--primary);
+      background: var(--p-light); padding: 4px 12px;
+      border-radius: 999px; white-space: nowrap;
+    }
+
+    /* ── STAR ROW ── */
+    #starRow {
+      display: flex; gap: 2px; flex-wrap: wrap;
+      padding: 0 18px 6px; flex-shrink: 0;
+    }
+    .star { font-size: 17px; filter: grayscale(1) opacity(0.25); transition: transform 0.3s, filter 0.3s; }
+    .star.earned { filter: none; transform: scale(1.15); }
+    .star.pop { animation: starPop 0.5s cubic-bezier(.36,.07,.19,.97); }
+    @keyframes starPop {
+      0%{transform:scale(1.15)} 35%{transform:scale(1.8)} 65%{transform:scale(0.9)} 100%{transform:scale(1.15)}
+    }
+
+    /* ── TARGET CARD ── */
+    #targetCard {
+      margin: 0 18px 8px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 3px solid var(--yellow);
+      box-shadow: 0 6px 24px rgba(255,209,102,0.25), 0 2px 8px rgba(0,0,0,0.06);
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; flex-shrink: 0;
+    }
+    .target-left { display: flex; flex-direction: column; gap: 2px; }
+    .target-prompt {
+      font-size: 13px; font-weight: 800;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+    }
+    .target-instruction {
+      font-family: var(--font-display);
+      font-size: 20px; color: var(--text);
+      line-height: 1.2;
+    }
+    .target-instruction em { color: var(--primary); font-style: normal; }
+
+    /* Big numeral display */
+    #numeralDisplay {
+      width: 90px; height: 90px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--primary), var(--p-dark));
+      display: grid; place-items: center;
+      box-shadow: 0 8px 20px rgba(255,107,53,0.35);
+      flex-shrink: 0;
+      position: relative;
+    }
+    #numeralText {
+      font-family: var(--font-display);
+      font-size: 54px; color: #fff; line-height: 1;
+      transition: transform 0.3s cubic-bezier(.36,.07,.19,.97);
+    }
+    #numeralDisplay.pop #numeralText {
+      animation: numPop 0.5s cubic-bezier(.36,.07,.19,.97);
+    }
+    @keyframes numPop {
+      0%{transform:scale(0.3) rotate(-15deg)} 60%{transform:scale(1.2) rotate(4deg)} 100%{transform:scale(1)}
+    }
+
+    /* Speak button */
+    #speakBtn {
+      width: 46px; height: 46px; border-radius: 14px;
+      background: var(--yellow-lt); border: 2px solid var(--yellow);
+      font-size: 24px; cursor: pointer;
+      display: grid; place-items: center;
+      transition: transform 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+    #speakBtn:active { transform: scale(0.9); background: var(--yellow); }
+
+    /* ── GAME AREA ── */
+    #gameArea {
+      flex: 1; display: flex; gap: 10px;
+      padding: 0 18px 8px; min-height: 0;
+    }
+
+    /* ── TRAY (source) ── */
+    #trayWrap {
+      flex: 1; display: flex; flex-direction: column; gap: 6px; min-height: 0;
+    }
+    .zone-label {
+      font-size: 11px; font-weight: 900; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted);
+      padding-left: 4px;
+    }
+    #tray {
+      flex: 1;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 2px solid var(--border);
+      display: flex; flex-wrap: wrap;
+      align-items: flex-start; align-content: flex-start;
+      justify-content: center;
+      gap: 8px; padding: 12px;
+      overflow-y: auto; min-height: 0;
+      transition: background 0.2s;
+    }
+    #tray.drag-over { background: var(--p-light); border-color: var(--primary); }
+
+    /* ── DROP ZONE ── */
+    #dropWrap {
+      width: 180px; flex-shrink: 0;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    #dropZone {
+      flex: 1;
+      border-radius: var(--radius);
+      border: 3px dashed var(--teal);
+      background: var(--teal-lt);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      padding: 10px 8px;
+      gap: 6px; min-height: 0;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      position: relative;
+    }
+    #dropZone.drag-over {
+      border-color: var(--teal); background: #B8F5EC;
+      transform: scale(1.02);
+    }
+    #dropZone.correct-flash {
+      border-color: var(--green); background: var(--green-lt);
+      animation: zoneFlash 0.5s ease;
+    }
+    #dropZone.error-flash {
+      border-color: var(--red); background: var(--red-lt);
+      animation: zoneShake 0.4s ease;
+    }
+    @keyframes zoneFlash { 0%{transform:scale(1)} 40%{transform:scale(1.04)} 100%{transform:scale(1)} }
+    @keyframes zoneShake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)}
+      50%{transform:translateX(8px)} 80%{transform:translateX(-5px)}
+    }
+
+    .drop-hint {
+      font-size: 11px; font-weight: 900; letter-spacing: 0.5px;
+      color: var(--teal); text-align: center; flex-shrink: 0;
+    }
+    #dropIcon {
+      font-size: 28px; opacity: 0.4; flex-shrink: 0;
+      transition: opacity 0.3s;
+    }
+    #dropZone.has-items #dropIcon { display: none; }
+
+    #dropPieces {
+      display: flex; flex-wrap: wrap; gap: 5px;
+      justify-content: center; align-items: flex-start;
+      flex: 1; overflow-y: auto; width: 100%;
+    }
+
+    /* ── COUNTER BUBBLE ── */
+    #counterBubble {
+      position: absolute; top: 8px; right: 8px;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--teal);
+      color: #fff; font-family: var(--font-display);
+      font-size: 18px; display: grid; place-items: center;
+      box-shadow: 0 3px 10px rgba(0,201,167,0.4);
+      transition: transform 0.2s, background 0.2s;
+      pointer-events: none;
+    }
+    #counterBubble.hidden { display: none; }
+    #counterBubble.pulse { animation: cPulse 0.25s ease; }
+    #counterBubble.over  { background: var(--red); box-shadow: 0 3px 10px rgba(239,71,111,0.4); }
+    #counterBubble.match { background: var(--green); box-shadow: 0 3px 10px rgba(6,214,160,0.4); }
+    @keyframes cPulse { 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
+
+    /* ── PIECES ── */
+    .piece {
+      width: 74px; height: 74px;
+      border-radius: 16px;
+      border: 3px solid var(--border);
+      background: var(--surface);
+      cursor: grab;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2px; flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+      animation: pieceIn 0.35s cubic-bezier(.36,.07,.19,.97) both;
+      touch-action: none;
+      transition: transform 0.1s, box-shadow 0.1s, opacity 0.12s;
+    }
+    .piece.dragging { opacity: 0.4; transform: scale(1.08) rotate(4deg); cursor: grabbing; }
+    .piece-emoji { font-size: 38px; line-height: 1; pointer-events: none; }
+    @keyframes pieceIn {
+      from { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    /* stagger */
+    .piece:nth-child(1){animation-delay:.02s} .piece:nth-child(2){animation-delay:.05s}
+    .piece:nth-child(3){animation-delay:.08s} .piece:nth-child(4){animation-delay:.11s}
+    .piece:nth-child(5){animation-delay:.14s} .piece:nth-child(6){animation-delay:.17s}
+    .piece:nth-child(7){animation-delay:.20s} .piece:nth-child(8){animation-delay:.23s}
+    .piece:nth-child(9){animation-delay:.26s} .piece:nth-child(10){animation-delay:.29s}
+
+    /* Placed (smaller in drop zone) */
+    .piece.placed {
+      width: 52px; height: 52px; border-radius: 12px;
+      cursor: default;
+      animation: piecePlace 0.3s cubic-bezier(.36,.07,.19,.97);
+    }
+    .piece.placed .piece-emoji { font-size: 28px; }
+    @keyframes piecePlace {
+      0%{transform:scale(1.35)} 60%{transform:scale(0.9)} 100%{transform:scale(1)}
+    }
+
+    /* ── CHECK BUTTON ── */
+    #checkBtn {
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, var(--teal), #00A88D);
+      color: #fff; border: none; border-radius: 16px;
+      font-family: var(--font-display); font-size: 18px;
+      cursor: pointer; letter-spacing: 0.5px;
+      box-shadow: 0 4px 14px rgba(0,201,167,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    #checkBtn:active { transform: scale(0.96); }
+    #checkBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── FEEDBACK ── */
+    #feedbackBar {
+      padding: 3px 18px 8px; min-height: 36px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .fb-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; border-radius: 999px;
+      font-size: 15px; font-weight: 900;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .fb-pill.show { opacity: 1; transform: translateY(0); }
+    .fb-pill.ok   { background: var(--green-lt); color: #065F46; }
+    .fb-pill.no   { background: var(--red-lt);   color: #9B1C3A; }
+    .fb-pill.hint { background: var(--yellow-lt); color: #92400E; }
+
+    /* ── DRAG GHOST ── */
+    #dragGhost {
+      position: fixed; pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%) scale(1.15) rotate(5deg);
+      display: none;
+    }
+
+    /* ── CONFETTI ── */
+    #confettiLayer { position:fixed; inset:0; pointer-events:none; z-index:9998; }
+    .cp { position:absolute; border-radius:3px; animation: cpFall linear forwards; }
+    @keyframes cpFall {
+      0%  { transform:translateY(-20px) rotate(0deg); opacity:1; }
+      100%{ transform:translateY(100vh)  rotate(720deg); opacity:0; }
+    }
+
+    /* ── REWARD SCREEN ── */
+    #rewardScreen {
+      position:fixed; inset:0; z-index:500;
+      background: linear-gradient(160deg, rgba(255,107,53,0.94), rgba(255,65,108,0.94));
+      backdrop-filter:blur(6px);
+      display:none; flex-direction:column; align-items:center;
+      justify-content:center; gap:12px; text-align:center; color:#fff;
+    }
+    #rewardScreen.show { display:flex; }
+    #rewardEmoji { font-size:90px; animation:rBounce 0.6s cubic-bezier(.36,.07,.19,.97); }
+    @keyframes rBounce { 0%{transform:scale(0) rotate(-20deg)} 60%{transform:scale(1.2) rotate(5deg)} 100%{transform:scale(1)} }
+    #rewardTitle { font-family: var(--font-display); font-size:36px; }
+    #rewardSub   { font-size:17px; font-weight:700; opacity:.88; }
+    #rewardBtn {
+      margin-top:8px; background:#fff; color:var(--primary);
+      border:none; padding:14px 36px; border-radius:999px;
+      font-family:var(--font-display); font-size:20px; cursor:pointer;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    /* ── DONE SCREEN ── */
+    #doneScreen {
+      position:fixed; inset:0; z-index:600;
+      background: linear-gradient(160deg, #1A1A2E 0%, #16213E 100%);
+      display:none; flex-direction:column; align-items:center;
+      justify-content:center; gap:12px; text-align:center; color:#fff;
+    }
+    #doneScreen.show { display:flex; }
+    #doneTitle { font-family: var(--font-display); font-size:32px; }
+    #doneScore { font-family: var(--font-display); font-size:66px; color:var(--yellow); }
+    #doneStats { font-size:17px; opacity:.85; }
+    #doneAccBar { width:200px; height:14px; background:rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
+    #doneAccFill { height:100%; background:var(--yellow); border-radius:999px; width:0%; transition:width 1s cubic-bezier(.4,0,.2,1); }
+    #doneBtn {
+      margin-top:6px; background:var(--yellow); color:var(--text);
+      border:none; padding:14px 36px; border-radius:999px;
+      font-family:var(--font-display); font-size:20px; cursor:pointer;
+    }
+
+    /* ── SUPERVISOR MODAL ── */
+    #hotCorner { position:fixed; left:0; top:0; width:50px; height:50px; z-index:1000; opacity:.001; }
+    dialog {
+      border:none; border-radius:24px; padding:0;
+      width:min(680px,94vw);
+      box-shadow:0 24px 60px rgba(0,0,0,0.2);
+      font-family:var(--font);
+    }
+    dialog::backdrop { background:rgba(26,26,46,0.55); backdrop-filter:blur(4px); }
+    .modal-head {
+      padding:14px 18px; border-radius:24px 24px 0 0;
+      background: linear-gradient(135deg, var(--primary), var(--p-dark));
+      color:#fff; display:flex; align-items:center; justify-content:space-between;
+    }
+    .modal-head-title { font-family:var(--font-display); font-size:18px; }
+    .modal-body { padding:16px 18px; background:#FAFAFA; border-radius:0 0 24px 24px; }
+    .opt-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+    .opt-row {
+      display:flex; align-items:center; gap:10px;
+      background:#fff; border:2px solid #EEE; border-radius:14px;
+      padding:10px 14px; font-size:14px; font-weight:700;
+    }
+    .opt-row input[type="checkbox"] { width:18px; height:18px; accent-color:var(--primary); cursor:pointer; }
+    .opt-row select {
+      margin-left:auto; padding:4px 8px; border-radius:8px;
+      border:1px solid #DDD; font-weight:700; font-family:var(--font); font-size:13px;
+    }
+    .section-label {
+      font-size:11px; font-weight:900; letter-spacing:1.5px;
+      text-transform:uppercase; color:var(--muted); margin:10px 0 6px;
+    }
+    .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .mbtn {
+      border:2px solid #EEE; background:#fff; border-radius:12px;
+      padding:9px 14px; font-weight:800; font-family:var(--font); font-size:13px; cursor:pointer;
+    }
+    .mbtn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+    .btn-close {
+      background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.3);
+      border-radius:10px; padding:6px 14px; color:#fff;
+      font-weight:800; font-family:var(--font); cursor:pointer;
+    }
+    .table-wrap { max-height:220px; overflow:auto; border-radius:12px; border:2px solid #EEE; }
+    table { width:100%; border-collapse:collapse; font-size:12px; background:#fff; }
+    th,td { border-bottom:1px solid #EEE; padding:8px 10px; text-align:left; }
+    th { background:#FFF3E0; font-weight:900; color:var(--primary); position:sticky; top:0; }
+    .td-ok { color:var(--green); font-weight:900; }
+    .td-err { color:var(--red); font-weight:900; }
+
+    @media(max-width:520px){
+      .piece { width:62px; height:62px; }
+      .piece-emoji { font-size:32px; }
+      .piece.placed { width:46px; height:46px; }
+      .piece.placed .piece-emoji { font-size:24px; }
+      #dropWrap { width:150px; }
+      #numeralDisplay { width:72px; height:72px; }
+      #numeralText { font-size:42px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <header>
+    <div class="logo">Count <em>&</em> Drop!</div>
+    <div id="progressWrap"><div id="progressBar"></div></div>
+    <div id="trialBadge">1 / 10</div>
+  </header>
+
+  <div id="starRow"></div>
+
+  <!-- Target card -->
+  <div id="targetCard">
+    <div class="target-left">
+      <div class="target-prompt">Give me…</div>
+      <div class="target-instruction" id="targetInstruction">
+        <em id="targetWord">three</em> of these!
+      </div>
+    </div>
+    <button id="speakBtn" title="Hear it again">🔊</button>
+    <div id="numeralDisplay">
+      <div id="numeralText">3</div>
+    </div>
+  </div>
+
+  <!-- Game area -->
+  <div id="gameArea">
+    <!-- Source tray -->
+    <div id="trayWrap">
+      <div class="zone-label">Items</div>
+      <div id="tray"></div>
+    </div>
+
+    <!-- Drop zone -->
+    <div id="dropWrap">
+      <div class="zone-label">Your answer</div>
+      <div id="dropZone">
+        <div class="drop-hint">Drop here</div>
+        <div id="dropIcon">👇</div>
+        <div id="dropPieces"></div>
+        <div id="counterBubble" class="hidden">0</div>
+      </div>
+      <button id="checkBtn" disabled>Check ✓</button>
+    </div>
+  </div>
+
+  <div id="feedbackBar"><div class="fb-pill" id="fbPill"></div></div>
+</div>
+
+<div id="dragGhost"></div>
+<div id="confettiLayer"></div>
+
+<!-- Reward -->
+<div id="rewardScreen">
+  <div id="rewardEmoji">🌟</div>
+  <div id="rewardTitle">Amazing!</div>
+  <div id="rewardSub"></div>
+  <button id="rewardBtn">Next! →</button>
+</div>
+
+<!-- Done -->
+<div id="doneScreen">
+  <div style="font-size:56px">🏆</div>
+  <div id="doneTitle">All Done!</div>
+  <div id="doneScore"></div>
+  <div id="doneStats"></div>
+  <div id="doneAccBar"><div id="doneAccFill"></div></div>
+  <button id="doneBtn" onclick="restartSession()">Play Again 🎉</button>
+</div>
+
+<!-- Supervisor -->
+<div id="hotCorner"></div>
+<dialog id="supDialog">
+  <div class="modal-head">
+    <div class="modal-head-title">🔒 Supervisor Mode</div>
+    <button class="btn-close" id="closeSup">Close</button>
+  </div>
+  <div class="modal-body">
+    <div class="section-label">Settings</div>
+    <div class="opt-grid">
+      <div class="opt-row">
+        <input type="checkbox" id="optSpeech" checked/>
+        <label for="optSpeech">Auto-speak target</label>
+      </div>
+      <div class="opt-row">
+        <input type="checkbox" id="optCounter" checked/>
+        <label for="optCounter">Show counter</label>
+      </div>
+      <div class="opt-row">
+        <input type="checkbox" id="optSounds" checked/>
+        <label for="optSounds">Sound effects</label>
+      </div>
+      <div class="opt-row">
+        <input type="checkbox" id="optAnim" checked/>
+        <label for="optAnim">Animations</label>
+      </div>
+      <div class="opt-row">
+        <label for="optSession">Session length</label>
+        <select id="optSession">
+          <option value="10" selected>10 trials</option>
+          <option value="15">15 trials</option>
+          <option value="25">25 trials</option>
+        </select>
+      </div>
+      <div class="opt-row">
+        <label for="optRange">Max quantity</label>
+        <select id="optRange">
+          <option value="5">1–5</option>
+          <option value="10" selected>1–10</option>
+        </select>
+      </div>
+    </div>
+    <div class="section-label">Controls</div>
+    <div class="btn-row">
+      <button class="mbtn primary" id="btnRestart">↺ Restart</button>
+      <button class="mbtn" id="btnExport">⬇ Export CSV</button>
+      <button class="mbtn" id="btnClear">🗑 Clear Data</button>
+    </div>
+    <div class="section-label">Session Data</div>
+    <div class="table-wrap">
+      <table id="dataTable">
+        <thead>
+          <tr><th>Time</th><th>Target</th><th>Given</th><th>Correct?</th><th>Errors</th><th>Latency(ms)</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</dialog>
+
+<script>
+/* ================================================================
+   EMOJI SETS — one per trial, 10 items shown in tray
+   ================================================================ */
+const EMOJI_SETS = [
+  { emoji:"⭐", label:"stars"     },
+  { emoji:"🍎", label:"apples"    },
+  { emoji:"🐶", label:"dogs"      },
+  { emoji:"🌸", label:"flowers"   },
+  { emoji:"🚗", label:"cars"      },
+  { emoji:"🦋", label:"butterflies" },
+  { emoji:"🍪", label:"cookies"   },
+  { emoji:"🐸", label:"frogs"     },
+  { emoji:"🎈", label:"balloons"  },
+  { emoji:"🏀", label:"basketballs" },
+  { emoji:"🐱", label:"cats"      },
+  { emoji:"🍦", label:"ice creams" },
+  { emoji:"🦄", label:"unicorns"  },
+  { emoji:"🌈", label:"rainbows"  },
+  { emoji:"🎸", label:"guitars"   },
+  { emoji:"🦊", label:"foxes"     },
+  { emoji:"🍉", label:"watermelons" },
+  { emoji:"🐠", label:"fish"      },
+  { emoji:"🎀", label:"bows"      },
+  { emoji:"🚀", label:"rockets"   },
+];
+
+const NUMBER_WORDS = ["","one","two","three","four","five","six","seven","eight","nine","ten"];
+
+/* ================================================================
+   STATE
+   ================================================================ */
+const S = {
+  settings: { speech:true, counter:true, sounds:true, anim:true, sessionLen:10, maxQty:10 },
+  trialIndex: 0,
+  order: [],         // sequence of { target, emojiSet }
+  target: 0,
+  emojiSet: null,
+  droppedCount: 0,
+  errors: 0,
+  startMs: 0,
+  correctCount: 0,
+  data: [],
+  locked: false,
+};
+
+const D = {
+  tray:           document.getElementById("tray"),
+  dropZone:       document.getElementById("dropZone"),
+  dropPieces:     document.getElementById("dropPieces"),
+  dropIcon:       document.getElementById("dropIcon"),
+  counterBubble:  document.getElementById("counterBubble"),
+  starRow:        document.getElementById("starRow"),
+  progressBar:    document.getElementById("progressBar"),
+  trialBadge:     document.getElementById("trialBadge"),
+  targetInstruction: document.getElementById("targetInstruction"),
+  targetWord:     document.getElementById("targetWord"),
+  numeralDisplay: document.getElementById("numeralDisplay"),
+  numeralText:    document.getElementById("numeralText"),
+  speakBtn:       document.getElementById("speakBtn"),
+  checkBtn:       document.getElementById("checkBtn"),
+  fbPill:         document.getElementById("fbPill"),
+  confetti:       document.getElementById("confettiLayer"),
+  rewardScreen:   document.getElementById("rewardScreen"),
+  rewardEmoji:    document.getElementById("rewardEmoji"),
+  rewardTitle:    document.getElementById("rewardTitle"),
+  rewardSub:      document.getElementById("rewardSub"),
+  rewardBtn:      document.getElementById("rewardBtn"),
+  doneScreen:     document.getElementById("doneScreen"),
+  doneScore:      document.getElementById("doneScore"),
+  doneStats:      document.getElementById("doneStats"),
+  doneAccFill:    document.getElementById("doneAccFill"),
+  ghost:          document.getElementById("dragGhost"),
+  dialog:         document.getElementById("supDialog"),
+  dataBody:       document.querySelector("#dataTable tbody"),
+};
+
+/* ================================================================
+   INIT
+   ================================================================ */
+function init() {
+  buildSession();
+  buildStarRow();
+  loadTrial();
+  bindUI();
+}
+
+function buildSession() {
+  const n      = S.settings.sessionLen;
+  const maxQty = S.settings.maxQty;
+  S.order = [];
+  const usedSets = shuffle(EMOJI_SETS.slice());
+  for (let i = 0; i < n; i++) {
+    // Target: 1–maxQty, no two consecutive same
+    let target;
+    do { target = Math.floor(Math.random() * maxQty) + 1; }
+    while (S.order.length && S.order[S.order.length-1].target === target);
+    S.order.push({ target, emojiSet: usedSets[i % usedSets.length] });
+  }
+  S.trialIndex = 0;
+  S.correctCount = 0;
+  S.data = [];
+  D.dataBody.innerHTML = "";
+}
+
+function buildStarRow() {
+  D.starRow.innerHTML = "";
+  for (let i = 0; i < S.settings.sessionLen; i++) {
+    const s = document.createElement("div");
+    s.className = "star"; s.textContent = "⭐"; s.id = `star-${i}`;
+    D.starRow.appendChild(s);
+  }
+}
+
+/* ================================================================
+   TRIAL
+   ================================================================ */
+function loadTrial() {
+  if (S.trialIndex >= S.order.length) { showDoneScreen(); return; }
+  S.locked = false;
+  S.droppedCount = 0;
+  S.errors = 0;
+  S.startMs = Date.now();
+
+  const { target, emojiSet } = S.order[S.trialIndex];
+  S.target   = target;
+  S.emojiSet = emojiSet;
+
+  // Update header
+  D.trialBadge.textContent  = `${S.trialIndex + 1} / ${S.settings.sessionLen}`;
+  D.progressBar.style.width = `${(S.trialIndex / S.settings.sessionLen) * 100}%`;
+
+  // Update target card
+  const word = NUMBER_WORDS[target];
+  D.targetWord.textContent = word;
+  D.numeralText.textContent = target;
+  D.numeralDisplay.classList.remove("pop");
+  void D.numeralDisplay.offsetWidth;
+  D.numeralDisplay.classList.add("pop");
+
+  // Clear zones
+  D.tray.innerHTML = "";
+  D.dropPieces.innerHTML = "";
+  D.dropZone.classList.remove("has-items","correct-flash","error-flash","drag-over");
+  D.dropIcon.style.display = "";
+  updateCounter(0);
+  D.checkBtn.disabled = true;
+  setFeedback(null);
+
+  // Render tray items — always 10 items to drag from
+  const trayCount = Math.max(10, target + 3);
+  for (let i = 0; i < trayCount; i++) {
+    const p = makePiece(emojiSet.emoji, "tray");
+    D.tray.appendChild(p.el);
+  }
+
+  // Speech
+  if (S.settings.speech) {
+    setTimeout(() => speak(`Give me ${word}`), 350);
+  }
+}
+
+/* ================================================================
+   PIECE FACTORY
+   ================================================================ */
+let pieceIdCounter = 0;
+function makePiece(emoji, location) {
+  const el = document.createElement("div");
+  el.className = "piece";
+  const pid = "p" + (++pieceIdCounter);
+  el.dataset.pid = pid;
+  el.dataset.loc = location; // "tray" or "drop"
+
+  const em = document.createElement("div");
+  em.className = "piece-emoji";
+  em.textContent = emoji;
+  el.appendChild(em);
+
+  const p = { id: pid, el, loc: location };
+  attachDrag(p);
+  return p;
+}
+
+/* ================================================================
+   DRAG & DROP
+   ================================================================ */
+function attachDrag(piece) {
+  piece.el.addEventListener("mousedown",  e => startDrag(piece, e.clientX, e.clientY, e));
+  piece.el.addEventListener("touchstart", e => {
+    const t = e.touches[0];
+    startDrag(piece, t.clientX, t.clientY, e);
+  }, { passive: false });
+}
+
+function startDrag(piece, cx, cy, e) {
+  if (S.locked) return;
+  e.preventDefault();
+
+  const ghost = piece.el.cloneNode(true);
+  ghost.style.cssText = `width:${piece.el.offsetWidth}px;height:${piece.el.offsetHeight}px;animation:none;opacity:1;`;
+  D.ghost.innerHTML = "";
+  D.ghost.appendChild(ghost);
+  D.ghost.style.display = "block";
+  moveGhost(cx, cy);
+  piece.el.classList.add("dragging");
+
+  const onMove = (ex, ey) => {
+    moveGhost(ex, ey);
+    highlightZones(ex, ey);
+  };
+  const onEnd = (ex, ey) => {
+    D.ghost.style.display = "none";
+    clearHighlights();
+    piece.el.classList.remove("dragging");
+
+    const overDrop = isOver(D.dropZone, ex, ey);
+    const overTray = isOver(D.tray, ex, ey);
+
+    if (piece.el.dataset.loc === "tray" && overDrop) {
+      moveToDrop(piece);
+    } else if (piece.el.dataset.loc === "drop" && overTray) {
+      moveToTray(piece);
+    }
+    // else: stays in place
+
+    document.removeEventListener("mousemove", mm);
+    document.removeEventListener("mouseup",   mu);
+    document.removeEventListener("touchmove", tm);
+    document.removeEventListener("touchend",  te);
+  };
+
+  const mm = e => onMove(e.clientX, e.clientY);
+  const mu = e => onEnd(e.clientX, e.clientY);
+  const tm = e => { e.preventDefault(); const t=e.touches[0]; onMove(t.clientX,t.clientY); };
+  const te = e => { const t=e.changedTouches[0]; onEnd(t.clientX,t.clientY); };
+
+  document.addEventListener("mousemove", mm);
+  document.addEventListener("mouseup",   mu);
+  document.addEventListener("touchmove", tm, { passive:false });
+  document.addEventListener("touchend",  te);
+}
+
+function moveToDrop(piece) {
+  piece.el.dataset.loc = "drop";
+  piece.el.classList.add("placed");
+  D.dropPieces.appendChild(piece.el);
+  D.dropZone.classList.add("has-items");
+  S.droppedCount++;
+  updateCounter(S.droppedCount);
+  beep(700 + S.droppedCount * 30, 70);
+  D.checkBtn.disabled = false;
+  setFeedback(null);
+
+  // Re-attach drag so they can drag back
+  piece.el.removeEventListener("mousedown",  piece._mm);
+  piece.el.removeEventListener("touchstart", piece._tm);
+  attachDrag(piece);
+}
+
+function moveToTray(piece) {
+  piece.el.dataset.loc = "tray";
+  piece.el.classList.remove("placed");
+  D.tray.appendChild(piece.el);
+  S.droppedCount--;
+  updateCounter(S.droppedCount);
+  beep(500, 60);
+  if (S.droppedCount === 0) {
+    D.dropZone.classList.remove("has-items");
+    D.checkBtn.disabled = true;
+  }
+  setFeedback(null);
+  attachDrag(piece);
+}
+
+function moveGhost(cx, cy) {
+  D.ghost.style.left = cx + "px";
+  D.ghost.style.top  = cy + "px";
+}
+function isOver(el, cx, cy) {
+  const r = el.getBoundingClientRect();
+  return cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+}
+function highlightZones(cx, cy) {
+  D.dropZone.classList.toggle("drag-over", isOver(D.dropZone, cx, cy));
+  D.tray.classList.toggle("drag-over", isOver(D.tray, cx, cy));
+}
+function clearHighlights() {
+  D.dropZone.classList.remove("drag-over");
+  D.tray.classList.remove("drag-over");
+}
+
+/* ================================================================
+   COUNTER
+   ================================================================ */
+function updateCounter(n) {
+  if (!S.settings.counter) {
+    D.counterBubble.classList.add("hidden");
+    return;
+  }
+  D.counterBubble.classList.remove("hidden", "over", "match", "pulse");
+  D.counterBubble.textContent = n;
+  void D.counterBubble.offsetWidth;
+  D.counterBubble.classList.add("pulse");
+  if (n > S.target)        D.counterBubble.classList.add("over");
+  else if (n === S.target) D.counterBubble.classList.add("match");
+}
+
+/* ================================================================
+   CHECK ANSWER
+   ================================================================ */
+D.checkBtn.addEventListener("click", checkAnswer);
+
+function checkAnswer() {
+  if (S.locked || S.droppedCount === 0) return;
+  const given   = S.droppedCount;
+  const correct = given === S.target;
+  const latency = Date.now() - S.startMs;
+
+  // Record
+  S.data.push({
+    time:    new Date().toLocaleTimeString(),
+    target:  S.target,
+    given,
+    correct,
+    errors:  S.errors,
+    latency,
+  });
+  addDataRow(S.data[S.data.length - 1]);
+
+  if (correct) {
+    handleCorrect(latency);
+  } else {
+    handleError(given);
+  }
+}
+
+function handleCorrect(latency) {
+  S.locked = true;
+  S.correctCount++;
+
+  D.dropZone.classList.add("correct-flash");
+  beep(880, 90); setTimeout(() => beep(1100, 80), 110); setTimeout(() => beep(1320, 120), 230);
+
+  if (S.settings.anim) launchConfetti(D.dropZone);
+
+  const praises = ["Perfect! 🌟","Yes! 🎉","Awesome! ✨","Great counting! 🥳","You got it! 💯","Superstar! ⭐"];
+  setFeedback("ok", praises[Math.floor(Math.random() * praises.length)]);
+
+  earnStar(S.trialIndex);
+  S.trialIndex++;
+
+  setTimeout(() => {
+    if (S.trialIndex >= S.settings.sessionLen) { showDoneScreen(); return; }
+    showReward();
+  }, 700);
+}
+
+function handleError(given) {
+  S.errors++;
+  beep(260, 160);
+  D.dropZone.classList.add("error-flash");
+  setTimeout(() => D.dropZone.classList.remove("error-flash"), 500);
+
+  if (given > S.target) {
+    setFeedback("no", `Too many! Try ${S.target}. 👀`);
+    speak(`Too many. Give me ${NUMBER_WORDS[S.target]}.`);
+  } else {
+    setFeedback("no", `Almost! Need ${S.target - given} more. 👀`);
+    speak(`Keep going. Give me ${NUMBER_WORDS[S.target]}.`);
+  }
+}
+
+/* ================================================================
+   STARS
+   ================================================================ */
+function earnStar(idx) {
+  const s = document.getElementById(`star-${idx}`);
+  if (!s) return;
+  s.classList.add("earned");
+  setTimeout(() => { s.classList.add("pop"); setTimeout(() => s.classList.remove("pop"), 550); }, 80);
+}
+
+/* ================================================================
+   REWARD SCREEN
+   ================================================================ */
+const REWARDS = [
+  { emoji:"🌟", title:"Superstar!",    sub:"Perfect counting!" },
+  { emoji:"🎉", title:"Yes!",          sub:"You're a counting champion!" },
+  { emoji:"🦁", title:"Roar!",         sub:"That was amazing!" },
+  { emoji:"🏆", title:"Gold Star!",    sub:"Keep up the great work!" },
+  { emoji:"🚀", title:"Blast Off!",    sub:"To the next number!" },
+  { emoji:"🌈", title:"Brilliant!",    sub:"You really can count!" },
+  { emoji:"🐸", title:"Ribbit!",       sub:"Jumping to the next one!" },
+  { emoji:"🍪", title:"Sweet!",        sub:"Cookie-worthy counting!" },
+  { emoji:"🦋", title:"Beautiful!",    sub:"You make counting look easy!" },
+  { emoji:"⭐", title:"Shining Star!", sub:"Bright as can be!" },
+];
+
+function showReward() {
+  const r = REWARDS[Math.floor(Math.random() * REWARDS.length)];
+  D.rewardEmoji.textContent = r.emoji;
+  D.rewardTitle.textContent = r.title;
+  D.rewardSub.textContent   = r.sub;
+  D.rewardScreen.classList.add("show");
+  if (S.settings.anim) bigConfetti();
+  beep(660,80); setTimeout(()=>beep(880,80),110); setTimeout(()=>beep(1100,130),230);
+}
+
+D.rewardBtn.addEventListener("click", () => {
+  D.rewardScreen.classList.remove("show");
+  setTimeout(loadTrial, 150);
+});
+
+/* ================================================================
+   DONE SCREEN
+   ================================================================ */
+function showDoneScreen() {
+  const total = S.data.length;
+  const acc   = total > 0 ? Math.round((S.correctCount / total) * 100) : 100;
+  D.doneScore.textContent = `${acc}%`;
+  D.doneStats.textContent = `${S.correctCount} of ${total} correct`;
+  D.doneScreen.classList.add("show");
+  D.progressBar.style.width = "100%";
+  setTimeout(() => { D.doneAccFill.style.width = acc + "%"; }, 400);
+  if (S.settings.anim) bigConfetti();
+}
+
+function restartSession() {
+  D.doneScreen.classList.remove("show");
+  buildSession();
+  buildStarRow();
+  loadTrial();
+}
+
+/* ================================================================
+   CONFETTI
+   ================================================================ */
+const CC = ["#FF6B35","#FFD166","#06D6A0","#EF476F","#9B5DE5","#00C9A7","#FBBF24","#3B82F6"];
+function launchConfetti(anchor) {
+  if (!S.settings.anim) return;
+  const r = anchor.getBoundingClientRect();
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement("div"); p.className = "cp";
+    p.style.left = (r.left + r.width/2 + (Math.random()-.5)*90) + "px";
+    p.style.top  = r.top + "px";
+    p.style.background = CC[i % CC.length];
+    p.style.width  = (7 + Math.random()*8) + "px";
+    p.style.height = (7 + Math.random()*8) + "px";
+    p.style.borderRadius = Math.random() > .5 ? "50%" : "2px";
+    p.style.animationDuration = (.5 + Math.random()*.6) + "s";
+    p.style.animationDelay   = (Math.random()*.2) + "s";
+    D.confetti.appendChild(p);
+    p.addEventListener("animationend", () => p.remove());
+  }
+}
+function bigConfetti() {
+  for (let i = 0; i < 70; i++) {
+    const p = document.createElement("div"); p.className = "cp";
+    p.style.left = Math.random()*100 + "vw"; p.style.top = "-10px";
+    p.style.background = CC[i % CC.length];
+    p.style.width  = (8 + Math.random()*10) + "px";
+    p.style.height = (8 + Math.random()*10) + "px";
+    p.style.borderRadius = Math.random() > .5 ? "50%" : "3px";
+    p.style.animationDuration = (1.2 + Math.random()*1.2) + "s";
+    p.style.animationDelay   = (Math.random()*.8) + "s";
+    D.confetti.appendChild(p);
+    p.addEventListener("animationend", () => p.remove());
+  }
+}
+
+/* ================================================================
+   DATA TABLE
+   ================================================================ */
+function addDataRow(d) {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${d.time}</td>
+    <td>${d.target} (${NUMBER_WORDS[d.target]})</td>
+    <td>${d.given}</td>
+    <td class="${d.correct ? "td-ok" : "td-err"}">${d.correct ? "✓ Yes" : "✗ No"}</td>
+    <td>${d.errors}</td>
+    <td>${d.latency}</td>
+  `;
+  D.dataBody.appendChild(tr);
+}
+
+/* ================================================================
+   SUPERVISOR
+   ================================================================ */
+function bindUI() {
+  document.getElementById("hotCorner").addEventListener("click", () => D.dialog.showModal());
+  document.getElementById("closeSup").addEventListener("click", () => D.dialog.close());
+
+  document.getElementById("optSpeech").addEventListener("change",  e => S.settings.speech  = e.target.checked);
+  document.getElementById("optCounter").addEventListener("change", e => {
+    S.settings.counter = e.target.checked;
+    updateCounter(S.droppedCount);
+  });
+  document.getElementById("optSounds").addEventListener("change",  e => S.settings.sounds  = e.target.checked);
+  document.getElementById("optAnim").addEventListener("change",    e => S.settings.anim    = e.target.checked);
+  document.getElementById("optSession").addEventListener("change", e => { S.settings.sessionLen = +e.target.value; });
+  document.getElementById("optRange").addEventListener("change",   e => { S.settings.maxQty    = +e.target.value; });
+
+  document.getElementById("btnRestart").addEventListener("click", () => {
+    D.dialog.close();
+    restartSession();
+  });
+  document.getElementById("btnClear").addEventListener("click", () => {
+    S.data = []; D.dataBody.innerHTML = "";
+  });
+  document.getElementById("btnExport").addEventListener("click", () => {
+    const hdr  = "Time,Target,Given,Correct,Errors,Latency(ms)";
+    const rows = S.data.map(d =>
+      `${d.time},${d.target} (${NUMBER_WORDS[d.target]}),${d.given},${d.correct},${d.errors},${d.latency}`
+    );
+    const blob = new Blob([[hdr, ...rows].join("\n")], { type:"text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `vbmapp_quantity_${Date.now()}.csv`;
+    a.click();
+  });
+
+  D.speakBtn.addEventListener("click", () => {
+    speak(`Give me ${NUMBER_WORDS[S.target]}`);
+  });
+
+  document.addEventListener("keydown", e => { if (e.key === "Escape") D.dialog.close(); });
+}
+
+/* ================================================================
+   AUDIO / SPEECH / UTILS
+   ================================================================ */
+function setFeedback(type, text) {
+  D.fbPill.className = "fb-pill";
+  D.fbPill.textContent = text || "";
+  if (text) { void D.fbPill.offsetWidth; D.fbPill.classList.add("show", type || "ok"); }
+}
+
+let _ctx = null;
+function getCtx() { if (!_ctx) _ctx = new (window.AudioContext||window.webkitAudioContext)(); return _ctx; }
+function beep(freq=880, ms=110) {
+  if (!S.settings.sounds) return;
+  try {
+    const c=getCtx(), o=c.createOscillator(), g=c.createGain();
+    o.type="sine"; o.frequency.value=freq; g.gain.value=0.07;
+    o.connect(g); g.connect(c.destination); o.start();
+    setTimeout(()=>{ try{o.stop();}catch(e){} }, ms);
+  } catch(e) {}
+}
+function speak(text) {
+  if (!S.settings.speech || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate=0.88; u.pitch=1.1;
+  window.speechSynthesis.speak(u);
+}
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i=a.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
