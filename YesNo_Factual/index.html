@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Yes or No?</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --yes:        #00c853;
+    --yes-dark:   #007a33;
+    --yes-light:  #d6ffe8;
+    --no:         #ff3b3b;
+    --no-dark:    #b00000;
+    --no-light:   #ffd6d6;
+    --bg:         #fff9f0;
+    --surface:    #ffffff;
+    --surface2:   #fff3e0;
+    --border:     rgba(0,0,0,0.09);
+    --text:       #1a1a2e;
+    --muted:      #7b7b9a;
+    --accent:     #ff6f00;
+    --accent2:    #7c3aed;
+    --accent3:    #0288d1;
+    --radius:     26px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 16px 48px;
+    /* fun dotted confetti background */
+    background-image:
+      radial-gradient(circle, #ffcc02 2px, transparent 2px),
+      radial-gradient(circle, #ff6f00 2px, transparent 2px),
+      radial-gradient(circle, #00c853 2px, transparent 2px),
+      radial-gradient(circle, #7c3aed 2px, transparent 2px),
+      radial-gradient(circle, #0288d1 2px, transparent 2px),
+      radial-gradient(circle, #ff3b3b 2px, transparent 2px);
+    background-size: 110px 110px, 130px 130px, 90px 90px, 150px 150px, 100px 100px, 120px 120px;
+    background-position: 10px 10px, 55px 30px, 20px 70px, 75px 55px, 40px 40px, 95px 80px;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0 24px;
+  }
+  .app-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.08);
+  }
+  .app-title .word-yes { color: #00c853; }
+  .app-title .word-or  { color: var(--accent); }
+  .app-title .word-no  { color: #ff3b3b; }
+
+  .set-badge {
+    background: #fff;
+    border: 2.5px solid var(--border);
+    border-radius: 99px;
+    padding: 6px 18px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--muted);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .set-badge strong { color: var(--accent2); }
+
+  /* ── MAIN CONTAINER ── */
+  .container {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ── SCORE ROW ── */
+  .score-row { display: flex; gap: 12px; }
+  .score-pill {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-weight: 800;
+    font-size: 15px;
+    border: 3px solid transparent;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+  }
+  .score-pill-correct {
+    background: var(--yes-light);
+    border-color: #00c853;
+    color: var(--yes-dark);
+  }
+  .score-pill-incorrect {
+    background: var(--no-light);
+    border-color: #ff3b3b;
+    color: var(--no-dark);
+  }
+  .score-num {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap { display: flex; align-items: center; gap: 12px; }
+  .progress-track {
+    flex: 1;
+    height: 14px;
+    background: #e8e8f0;
+    border-radius: 99px;
+    overflow: hidden;
+    border: 2px solid rgba(0,0,0,0.07);
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffcc02, #ff6f00, #ff3b3b);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+  .progress-text {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--muted);
+    white-space: nowrap;
+    min-width: 52px;
+    text-align: right;
+  }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    background: var(--surface);
+    border: 3px solid rgba(0,0,0,0.08);
+    border-radius: var(--radius);
+    padding: 36px 32px 28px;
+    text-align: center;
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, background 0.3s;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06);
+  }
+  .question-card.correct-card {
+    border-color: #00c853;
+    background: #f0fff6;
+    box-shadow: 0 6px 0 #007a33, 0 12px 32px rgba(0,200,83,0.15);
+  }
+  .question-card.wrong-card {
+    border-color: #ff3b3b;
+    background: #fff5f5;
+    box-shadow: 0 6px 0 #b00000, 0 12px 32px rgba(255,59,59,0.15);
+  }
+
+  .card-glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+    border-radius: var(--radius);
+  }
+  .question-card.correct-card .card-glow { background: radial-gradient(circle at 50% 40%, rgba(0,200,83,0.12), transparent 70%); opacity: 1; }
+  .question-card.wrong-card   .card-glow { background: radial-gradient(circle at 50% 40%, rgba(255,59,59,0.1), transparent 70%); opacity: 1; }
+
+  .question-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: #fff3e0;
+    padding: 4px 14px;
+    border-radius: 99px;
+    border: 1.5px solid #ffe0b2;
+  }
+  .question-text {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(1.35rem, 4vw, 1.9rem);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.35;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* speaker button */
+  .speak-btn {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border: 2px solid #90caf9;
+    border-radius: 99px;
+    padding: 8px 20px;
+    color: #0277bd;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: transform 0.12s, box-shadow 0.12s;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 3px 0 #64b5f6;
+  }
+  .speak-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 0 #64b5f6; }
+  .speak-btn:active { transform: translateY(1px); box-shadow: 0 2px 0 #64b5f6; }
+  .speak-btn.speaking {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border-color: #81c784;
+    color: #2e7d32;
+    box-shadow: 0 3px 0 #a5d6a7;
+  }
+
+  /* ── FEEDBACK ── */
+  .feedback-row {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border-radius: 16px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    position: relative;
+    z-index: 1;
+    border: 2.5px solid transparent;
+  }
+  .feedback-row.show { display: flex; }
+  .feedback-correct { background: var(--yes-light); border-color: #00c853; color: var(--yes-dark); }
+  .feedback-wrong   { background: var(--no-light);  border-color: #ff3b3b; color: var(--no-dark); }
+  .feedback-icon { font-size: 1.5rem; }
+
+  /* ── BIG ANSWER BUTTONS ── */
+  .answer-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .ans-btn {
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(2.2rem, 8vw, 3.4rem);
+    font-weight: 800;
+    cursor: pointer;
+    padding: 32px 16px;
+    transition: transform 0.12s cubic-bezier(.4,0,.2,1), box-shadow 0.12s;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    letter-spacing: 1px;
+  }
+  .ans-btn:focus-visible { outline: 4px solid var(--accent2); outline-offset: 4px; }
+  .ans-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+  .btn-yes {
+    background: linear-gradient(160deg, #00e676, #00c853);
+    color: #fff;
+    box-shadow: 0 9px 0 var(--yes-dark), 0 14px 28px rgba(0,200,83,0.3);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+  .btn-yes:hover:not(:disabled) { transform: translateY(-4px); box-shadow: 0 13px 0 var(--yes-dark), 0 18px 32px rgba(0,200,83,0.35); }
+  .btn-yes:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 4px 0 var(--yes-dark); }
+
+  .btn-no {
+    background: linear-gradient(160deg, #ff6b6b, #ff3b3b);
+    color: #fff;
+    box-shadow: 0 9px 0 var(--no-dark), 0 14px 28px rgba(255,59,59,0.3);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+  .btn-no:hover:not(:disabled) { transform: translateY(-4px); box-shadow: 0 13px 0 var(--no-dark), 0 18px 32px rgba(255,59,59,0.35); }
+  .btn-no:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 4px 0 var(--no-dark); }
+
+  /* ── BOTTOM ACTIONS ── */
+  .action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .action-btn {
+    padding: 15px;
+    border-radius: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    border: 2.5px solid rgba(0,0,0,0.1);
+    background: #fff;
+    color: var(--muted);
+    transition: background 0.15s, color 0.15s, transform 0.1s, box-shadow 0.1s;
+    text-align: center;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.08);
+  }
+  .action-btn:hover:not(:disabled) { background: #f3f3ff; color: var(--accent2); transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0,0,0,0.08); }
+  .action-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.08); }
+  .action-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .next-btn {
+    background: linear-gradient(135deg, #ffcc02, #ff9800);
+    color: #fff;
+    border-color: #e65100;
+    font-weight: 800;
+    display: none;
+    box-shadow: 0 4px 0 #e65100;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .next-btn:hover:not(:disabled) { background: linear-gradient(135deg, #ffd740, #ffab00); }
+  .next-btn.show { display: block; }
+
+  /* ── SET END ── */
+  .set-end {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    padding: 44px 28px;
+    background: #fff;
+    border: 3px solid rgba(0,0,0,0.08);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.08);
+  }
+  .set-end.show { display: flex; }
+  .set-end-emoji { font-size: 80px; }
+  .set-end-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .set-end-stats { font-size: 1rem; color: var(--muted); font-weight: 700; }
+  .set-end-score {
+    font-family: 'Baloo 2', cursive;
+    font-size: 3.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff6f00, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .set-end-buttons { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .big-btn {
+    padding: 16px 32px;
+    border-radius: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+  }
+  .big-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 0 rgba(0,0,0,0.15); }
+  .big-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 rgba(0,0,0,0.15); }
+  .big-btn-primary { background: linear-gradient(135deg, #7c3aed, #9f67fa); color: #fff; border-color: #5b21b6; }
+  .big-btn-secondary { background: #f3f3ff; color: var(--accent2); border-color: #ddd8fe; }
+
+  /* ── SET SELECTOR ── */
+  .set-selector { display: none; flex-direction: column; gap: 16px; }
+  .set-selector.show { display: flex; }
+  .set-selector-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+  }
+  .set-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 500px) { .set-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  /* Each set tile gets a fun color from a rotating palette */
+  .set-tile {
+    aspect-ratio: 1;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 1.3rem;
+    border: 3px solid transparent;
+    color: #fff;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.18);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .set-tile:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 9px 0 rgba(0,0,0,0.18); }
+  .set-tile:active { transform: translateY(2px); box-shadow: 0 3px 0 rgba(0,0,0,0.18); }
+  .set-tile.done::after {
+    content: '✓';
+    position: absolute;
+    top: 5px; right: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.9);
+    background: rgba(0,0,0,0.2);
+    border-radius: 99px;
+    padding: 1px 5px;
+    font-weight: 900;
+  }
+  .set-tile-label { font-size: 10px; font-weight: 700; opacity: 0.85; margin-top: 1px; }
+
+  /* tile colors */
+  .set-tile:nth-child(10n+1)  { background: #ff6f00; border-color: #e65100; }
+  .set-tile:nth-child(10n+2)  { background: #00c853; border-color: #007a33; }
+  .set-tile:nth-child(10n+3)  { background: #7c3aed; border-color: #5b21b6; }
+  .set-tile:nth-child(10n+4)  { background: #0288d1; border-color: #01579b; }
+  .set-tile:nth-child(10n+5)  { background: #ff3b3b; border-color: #b00000; }
+  .set-tile:nth-child(10n+6)  { background: #f59e0b; border-color: #b45309; }
+  .set-tile:nth-child(10n+7)  { background: #06b6d4; border-color: #0e7490; }
+  .set-tile:nth-child(10n+8)  { background: #ec4899; border-color: #9d174d; }
+  .set-tile:nth-child(10n+9)  { background: #10b981; border-color: #065f46; }
+  .set-tile:nth-child(10n+10) { background: #8b5cf6; border-color: #6d28d9; }
+
+  .back-btn {
+    align-self: center;
+    padding: 10px 24px;
+    border-radius: 12px;
+    background: #fff;
+    border: 2px solid rgba(0,0,0,0.1);
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .back-btn:hover { color: var(--accent2); }
+
+  /* ── THERAPIST PANEL ── */
+  details {
+    background: #fff;
+    border: 2.5px solid rgba(0,0,0,0.08);
+    border-radius: 20px;
+    padding: 14px 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  .panel-inner { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .panel-note { font-size: 13px; color: var(--muted); font-weight: 700; }
+  .q-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
+  .q-row { display: flex; gap: 8px; align-items: center; }
+  .q-row input[type="text"] {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 2px solid #e8e8f0;
+    background: #fafafa;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .q-row input[type="text"]:focus { outline: none; border-color: var(--accent2); }
+  .q-row select {
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 2px solid #e8e8f0;
+    background: #fafafa;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .q-row select:focus { outline: none; border-color: var(--accent2); }
+  .panel-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .p-btn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 2px solid #e8e8f0;
+    background: #fafafa;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    color: var(--text);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .p-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .p-btn-save {
+    background: linear-gradient(135deg, #7c3aed, #9f67fa);
+    color: #fff;
+    border-color: #5b21b6;
+  }
+  .p-btn-save:hover { filter: brightness(1.1); color: #fff; border-color: #5b21b6; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-7px); }
+    80% { transform: translateX(7px); }
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes bounceIn {
+    0%   { transform: scale(0.85); opacity: 0; }
+    60%  { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .shake    { animation: shake 0.35s ease; }
+  .pop      { animation: pop 0.28s ease; }
+  .fade-in  { animation: fadeSlideIn 0.3s ease forwards; }
+  .bounce-in { animation: bounceIn 0.4s cubic-bezier(.4,0,.2,1) forwards; }
+</style>
+</head>
+<body>
+
+<div class="app-header" id="appHeader">
+  <div class="app-title"><span class="word-yes">Yes</span> <span class="word-or">or</span> <span class="word-no">No?</span></div>
+  <div class="set-badge" id="setBadge">Set <strong id="setBadgeNum">—</strong> of 10</div>
+</div>
+
+<div class="container" id="mainContainer">
+
+  <!-- SET SELECTOR VIEW -->
+  <div class="set-selector show" id="setSelectorView">
+    <div class="set-selector-title">Choose a Set to Play</div>
+    <div class="set-grid" id="setGrid"></div>
+  </div>
+
+  <!-- GAME VIEW (hidden initially) -->
+  <div id="gameView" style="display:none; flex-direction:column; gap:16px;">
+
+    <div class="score-row">
+      <div class="score-pill score-pill-correct">
+        <span>✅</span>
+        <span class="score-num" id="scoreCorrect">0</span>
+        <span style="font-size:13px;">Correct</span>
+      </div>
+      <div class="score-pill score-pill-incorrect">
+        <span>❌</span>
+        <span class="score-num" id="scoreIncorrect">0</span>
+        <span style="font-size:13px;">Incorrect</span>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">0 / 10</div>
+    </div>
+
+    <div class="question-card" id="questionCard">
+      <div class="card-glow"></div>
+      <div class="question-label">Is this true?</div>
+      <div class="question-text" id="questionText">Loading…</div>
+      <button class="speak-btn" id="speakBtn" onclick="speakCurrent()">
+        <span id="speakIcon">🔊</span> <span id="speakLabel">Read Aloud</span>
+      </button>
+      <div class="feedback-row" id="feedbackRow">
+        <span class="feedback-icon" id="feedbackIcon"></span>
+        <span id="feedbackText"></span>
+      </div>
+    </div>
+
+    <div class="answer-buttons">
+      <button class="ans-btn btn-yes" id="yesBtn" onclick="answer(true)">YES ✅</button>
+      <button class="ans-btn btn-no"  id="noBtn"  onclick="answer(false)">NO ❌</button>
+    </div>
+
+    <div class="action-row">
+      <button class="action-btn" id="skipBtn" onclick="skipQuestion()">⏭ Skip</button>
+      <button class="action-btn next-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+    </div>
+
+  </div>
+
+  <!-- SET END VIEW -->
+  <div class="set-end" id="setEndView">
+    <div class="set-end-emoji" id="setEndEmoji">🎉</div>
+    <div class="set-end-title" id="setEndTitle">Set Complete!</div>
+    <div class="set-end-score" id="setEndScore"></div>
+    <div class="set-end-stats" id="setEndStats"></div>
+    <div class="set-end-buttons">
+      <button class="big-btn big-btn-primary" onclick="goToSetSelector()">← Choose Another Set</button>
+      <button class="big-btn big-btn-secondary" onclick="replayCurrentSet()">↺ Replay This Set</button>
+    </div>
+  </div>
+
+  <!-- THERAPIST PANEL -->
+  <details id="therapistPanel">
+    <summary>⚙ Therapist Panel</summary>
+    <div class="panel-inner">
+      <div class="panel-note">Edit questions below. Each set = 10 questions. Changes apply after Save & Reload.</div>
+      <div id="panelSetTabs" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:4px;"></div>
+      <div class="q-list" id="panelQList"></div>
+      <div class="panel-btns">
+        <button class="p-btn" onclick="panelAddRow()">+ Add</button>
+        <button class="p-btn p-btn-save" onclick="panelSave()">💾 Save & Reload</button>
+      </div>
+    </div>
+  </details>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// 100 YES / NO STATEMENTS (10 sets × 10 questions)
+// ════════════════════════════════════════════════════════
+const ALL_QUESTIONS = [
+  // SET 1 — Animals & Nature
+  { q: "Dogs are animals.",                              a: true  },
+  { q: "Fish can breathe on land.",                      a: false },
+  { q: "The sun rises in the east.",                     a: true  },
+  { q: "Cats have feathers.",                            a: false },
+  { q: "Birds have wings.",                              a: true  },
+  { q: "Elephants are smaller than mice.",               a: false },
+  { q: "Bees make honey.",                               a: true  },
+  { q: "Snakes have four legs.",                         a: false },
+  { q: "Trees are living things.",                       a: true  },
+  { q: "The ocean is made of juice.",                    a: false },
+
+  // SET 2 — Food & Drink
+  { q: "Pizza is a food you can eat.",                   a: true  },
+  { q: "Ice cream is cold.",                             a: true  },
+  { q: "Carrots grow underground.",                      a: true  },
+  { q: "You drink soup with a fork.",                    a: false },
+  { q: "Apples are a type of fruit.",                    a: true  },
+  { q: "Lemons taste sweet.",                            a: false },
+  { q: "Water is a liquid.",                             a: true  },
+  { q: "Bread is baked in an oven.",                     a: true  },
+  { q: "You use a spoon to cut steak.",                  a: false },
+  { q: "Milk comes from cows.",                          a: true  },
+
+  // SET 3 — Body & Health
+  { q: "Humans have two eyes.",                          a: true  },
+  { q: "Your heart pumps blood.",                        a: true  },
+  { q: "Bones are soft like pillows.",                   a: false },
+  { q: "You use your ears to hear.",                     a: true  },
+  { q: "People breathe through their feet.",             a: false },
+  { q: "Brushing your teeth is good for you.",           a: true  },
+  { q: "You sleep with your eyes wide open.",            a: false },
+  { q: "Exercise is good for your body.",                a: true  },
+  { q: "Your nose helps you smell things.",              a: true  },
+  { q: "Humans have three arms.",                        a: false },
+
+  // SET 4 — Everyday Objects
+  { q: "A clock tells you the time.",                    a: true  },
+  { q: "Scissors are used for cutting.",                 a: true  },
+  { q: "A chair is used for sitting.",                   a: true  },
+  { q: "You write with an eraser.",                      a: false },
+  { q: "A refrigerator keeps food cold.",                a: true  },
+  { q: "Windows are usually made of wood.",              a: false },
+  { q: "A toothbrush is used in the bathroom.",          a: true  },
+  { q: "You wear shoes on your hands.",                  a: false },
+  { q: "A phone can make calls.",                        a: true  },
+  { q: "Pillows are used in the kitchen.",               a: false },
+
+  // SET 5 — Colors & Numbers
+  { q: "The sky is usually blue during the day.",        a: true  },
+  { q: "Red and blue make green.",                       a: false },
+  { q: "The number five comes after four.",              a: true  },
+  { q: "Ten is more than twenty.",                       a: false },
+  { q: "A stop sign is red.",                            a: true  },
+  { q: "Grass is usually orange.",                       a: false },
+  { q: "Two plus two equals four.",                      a: true  },
+  { q: "Yellow is a color.",                             a: true  },
+  { q: "The number three is even.",                      a: false },
+  { q: "White and black are both colors.",               a: true  },
+
+  // SET 6 — Weather & Seasons
+  { q: "It snows when it is very cold.",                 a: true  },
+  { q: "Summer is usually hot.",                         a: true  },
+  { q: "You need an umbrella when it's sunny.",          a: false },
+  { q: "Rain comes from clouds.",                        a: true  },
+  { q: "Winter comes before summer.",                    a: true  },
+  { q: "Lightning happens during thunderstorms.",        a: true  },
+  { q: "The moon comes out during the day.",             a: false },
+  { q: "Wind can blow leaves off trees.",                a: true  },
+  { q: "Snow is hot.",                                   a: false },
+  { q: "A rainbow has many colors.",                     a: true  },
+
+  // SET 7 — Places & Travel
+  { q: "A hospital is a place where sick people go.",    a: true  },
+  { q: "You buy groceries at a school.",                 a: false },
+  { q: "Airplanes fly in the sky.",                      a: true  },
+  { q: "A library is a place to borrow books.",         a: true  },
+  { q: "Cars drive on roads.",                           a: true  },
+  { q: "You swim in a library.",                         a: false },
+  { q: "A park is an outdoor place.",                    a: true  },
+  { q: "Trains ride on tracks.",                         a: true  },
+  { q: "A restaurant is a place to eat food.",          a: true  },
+  { q: "Boats travel on land.",                          a: false },
+
+  // SET 8 — School & Learning
+  { q: "A pencil is used for writing.",                  a: true  },
+  { q: "A teacher works at a school.",                   a: true  },
+  { q: "Books have pages.",                              a: true  },
+  { q: "You add numbers in math class.",                 a: true  },
+  { q: "A crayon is used to color pictures.",            a: true  },
+  { q: "Students sit on the ceiling in class.",          a: false },
+  { q: "A backpack carries your school supplies.",       a: true  },
+  { q: "You use glue to stick things together.",         a: true  },
+  { q: "Homework is done at home.",                      a: true  },
+  { q: "A ruler is used to measure length.",             a: true  },
+
+  // SET 9 — Safety & Community
+  { q: "A seatbelt keeps you safe in a car.",           a: true  },
+  { q: "Firefighters help put out fires.",               a: true  },
+  { q: "You should cross the street on a red light.",   a: false },
+  { q: "Police officers help keep people safe.",         a: true  },
+  { q: "It is safe to touch a hot stove.",               a: false },
+  { q: "A doctor helps people when they are sick.",      a: true  },
+  { q: "You should wash your hands before eating.",      a: true  },
+  { q: "It is safe to run with scissors.",               a: false },
+  { q: "A helmet protects your head.",                   a: true  },
+  { q: "You can drink bleach safely.",                   a: false },
+
+  // SET 10 — Fun & Silly
+  { q: "A bicycle has two wheels.",                      a: true  },
+  { q: "The moon is bigger than the sun.",               a: false },
+  { q: "Ice melts when it gets warm.",                   a: true  },
+  { q: "Penguins live in hot deserts.",                  a: false },
+  { q: "Music can be loud or quiet.",                    a: true  },
+  { q: "You can jump higher on the moon.",               a: true  },
+  { q: "Spiders have eight legs.",                       a: true  },
+  { q: "A ball is shaped like a cube.",                  a: false },
+  { q: "Laughing is something people do.",               a: true  },
+  { q: "Rocks are softer than cotton.",                  a: false },
+];
+
+const SET_SIZE = 10;
+const NUM_SETS = ALL_QUESTIONS.length / SET_SIZE; // = 10
+
+// ── State ─────────────────────────────────────────────
+let currentSetIndex = -1;   // 0–9
+let setQueue = [];           // questions for this set
+let currentQ = null;
+let qIndex = 0;
+let correct = 0;
+let incorrect = 0;
+let skipped = 0;
+let answered = false;
+let completedSets = new Set(); // sets that have been finished
+let speakTimeout = null;
+let isSpeaking = false;
+
+// ── TTS ───────────────────────────────────────────────
+function speak(text, onEnd) {
+  if (!('speechSynthesis' in window)) { onEnd && onEnd(); return; }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+
+  // Pick the best available voice: prefer natural/neural voices
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v =>
+    /google|natural|premium|enhanced|neural|samantha|karen|daniel|moira|susan/i.test(v.name)
+    && v.lang.startsWith('en')
+  ) || voices.find(v => v.lang.startsWith('en-US') && !v.localService)
+    || voices.find(v => v.lang.startsWith('en'));
+
+  if (preferred) utter.voice = preferred;
+  utter.rate = 0.92;
+  utter.pitch = 1.05;
+  utter.volume = 1.0;
+
+  utter.onstart = () => {
+    isSpeaking = true;
+    document.getElementById('speakIcon').textContent = '🔈';
+    document.getElementById('speakLabel').textContent = 'Speaking…';
+    document.getElementById('speakBtn').classList.add('speaking');
+  };
+  utter.onend = utter.onerror = () => {
+    isSpeaking = false;
+    document.getElementById('speakIcon').textContent = '🔊';
+    document.getElementById('speakLabel').textContent = 'Read Aloud';
+    document.getElementById('speakBtn').classList.remove('speaking');
+    onEnd && onEnd();
+  };
+  window.speechSynthesis.speak(utter);
+}
+
+function speakCurrent() {
+  if (!currentQ) return;
+  speak(currentQ.q);
+}
+
+// ── Set Selector ──────────────────────────────────────
+function buildSetGrid() {
+  const grid = document.getElementById('setGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < NUM_SETS; i++) {
+    const tile = document.createElement('div');
+    tile.className = 'set-tile' + (completedSets.has(i) ? ' done' : '');
+    tile.innerHTML = `<div>${i + 1}</div><div class="set-tile-label">Set ${i + 1}</div>`;
+    tile.onclick = () => startSet(i);
+    grid.appendChild(tile);
+  }
+}
+
+function goToSetSelector() {
+  window.speechSynthesis?.cancel();
+  document.getElementById('setSelectorView').classList.add('show');
+  document.getElementById('gameView').style.display = 'none';
+  document.getElementById('setEndView').classList.remove('show');
+  buildSetGrid();
+  document.getElementById('setBadgeNum').textContent = '—';
+}
+
+// ── Start a Set ───────────────────────────────────────
+function startSet(setIdx) {
+  currentSetIndex = setIdx;
+  const start = setIdx * SET_SIZE;
+  setQueue = ALL_QUESTIONS.slice(start, start + SET_SIZE).map((q, i) => ({ ...q, _origIdx: start + i }));
+  qIndex = 0;
+  correct = 0;
+  incorrect = 0;
+  skipped = 0;
+  answered = false;
+
+  document.getElementById('setSelectorView').classList.remove('show');
+  document.getElementById('setEndView').classList.remove('show');
+  document.getElementById('gameView').style.display = 'flex';
+  document.getElementById('setBadgeNum').textContent = setIdx + 1;
+
+  document.getElementById('scoreCorrect').textContent = '0';
+  document.getElementById('scoreIncorrect').textContent = '0';
+
+  loadQuestion();
+}
+
+function replayCurrentSet() {
+  if (currentSetIndex >= 0) startSet(currentSetIndex);
+}
+
+// ── Question Logic ────────────────────────────────────
+function loadQuestion() {
+  if (qIndex >= setQueue.length) { showSetEnd(); return; }
+
+  currentQ = setQueue[qIndex];
+  answered = false;
+
+  const card = document.getElementById('questionCard');
+  card.className = 'question-card fade-in';
+  card.querySelector('.card-glow').style.opacity = '0';
+
+  document.getElementById('questionText').textContent = currentQ.q;
+
+  // Reset feedback
+  const fb = document.getElementById('feedbackRow');
+  fb.className = 'feedback-row';
+
+  // Reset buttons
+  document.getElementById('yesBtn').disabled = false;
+  document.getElementById('noBtn').disabled = false;
+  document.getElementById('skipBtn').disabled = false;
+
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.classList.remove('show');
+
+  // Progress
+  const done = qIndex;
+  const total = setQueue.length;
+  document.getElementById('progressFill').style.width = `${(done / total) * 100}%`;
+  document.getElementById('progressText').textContent = `${done} / ${total}`;
+
+  // Reset speak button
+  document.getElementById('speakIcon').textContent = '🔊';
+  document.getElementById('speakLabel').textContent = 'Read Aloud';
+  document.getElementById('speakBtn').classList.remove('speaking');
+
+  // Auto-speak after brief delay
+  clearTimeout(speakTimeout);
+  speakTimeout = setTimeout(() => speak(currentQ.q), 400);
+}
+
+function nextQuestion() {
+  qIndex++;
+  loadQuestion();
+}
+
+function skipQuestion() {
+  if (answered) return;
+  window.speechSynthesis?.cancel();
+  skipped++;
+  qIndex++;
+  loadQuestion();
+}
+
+function answer(userAnswer) {
+  if (answered || !currentQ) return;
+  answered = true;
+  window.speechSynthesis?.cancel();
+
+  const isCorrect = (userAnswer === currentQ.a);
+  const card = document.getElementById('questionCard');
+  const fb = document.getElementById('feedbackRow');
+
+  document.getElementById('yesBtn').disabled = true;
+  document.getElementById('noBtn').disabled = true;
+  document.getElementById('skipBtn').disabled = true;
+
+  if (isCorrect) {
+    correct++;
+    document.getElementById('scoreCorrect').textContent = correct;
+    card.className = 'question-card correct-card pop';
+    fb.className = 'feedback-row show feedback-correct';
+    document.getElementById('feedbackIcon').textContent = '🌟';
+    document.getElementById('feedbackText').textContent = 'That\'s right!';
+    speak('Correct! Great job!');
+  } else {
+    incorrect++;
+    document.getElementById('scoreIncorrect').textContent = incorrect;
+    card.className = 'question-card wrong-card shake';
+    fb.className = 'feedback-row show feedback-wrong';
+    document.getElementById('feedbackIcon').textContent = '💭';
+    const correctWord = currentQ.a ? 'YES' : 'NO';
+    document.getElementById('feedbackText').textContent = `The answer is ${correctWord}.`;
+    speak(`Not quite. The answer is ${correctWord}.`);
+  }
+
+  // Progress: count this question as done
+  const done = qIndex + 1;
+  const total = setQueue.length;
+  document.getElementById('progressFill').style.width = `${(done / total) * 100}%`;
+  document.getElementById('progressText').textContent = `${done} / ${total}`;
+
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+// ── Set End ───────────────────────────────────────────
+function showSetEnd() {
+  window.speechSynthesis?.cancel();
+  completedSets.add(currentSetIndex);
+  buildSetGrid(); // update tick marks
+
+  document.getElementById('gameView').style.display = 'none';
+  const end = document.getElementById('setEndView');
+  end.classList.add('show');
+
+  const total = correct + incorrect;
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const emoji = pct === 100 ? '🏆' : pct >= 80 ? '🎉' : pct >= 60 ? '😊' : '💪';
+  const praise = pct === 100 ? 'Perfect Score!' : pct >= 80 ? 'Great Work!' : pct >= 60 ? 'Good Try!' : 'Keep Practicing!';
+
+  document.getElementById('setEndEmoji').textContent = emoji;
+  document.getElementById('setEndTitle').textContent = praise;
+  document.getElementById('setEndScore').textContent = `${correct} / ${total}`;
+  document.getElementById('setEndStats').textContent =
+    `${pct}% correct · ${skipped} skipped · Set ${currentSetIndex + 1} of 10`;
+
+  speak(`Set complete! You got ${correct} out of ${total} correct.`);
+}
+
+// ════════════════════════════════════════════════════════
+// THERAPIST PANEL
+// ════════════════════════════════════════════════════════
+let panelActiveSet = 0;
+
+function buildPanelTabs() {
+  const tabs = document.getElementById('panelSetTabs');
+  tabs.innerHTML = '';
+  for (let i = 0; i < NUM_SETS; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'p-btn' + (i === panelActiveSet ? ' p-btn-save' : '');
+    btn.textContent = `Set ${i + 1}`;
+    btn.style.padding = '5px 12px';
+    btn.onclick = () => { panelActiveSet = i; buildPanelTabs(); buildPanelList(); };
+    tabs.appendChild(btn);
+  }
+}
+
+function buildPanelList() {
+  const list = document.getElementById('panelQList');
+  list.innerHTML = '';
+  const start = panelActiveSet * SET_SIZE;
+  for (let i = start; i < start + SET_SIZE; i++) {
+    const item = ALL_QUESTIONS[i];
+    const row = document.createElement('div');
+    row.className = 'q-row';
+    row.innerHTML = `
+      <input type="text" value="${item.q.replace(/"/g,'&quot;')}" data-idx="${i}" onchange="ALL_QUESTIONS[${i}].q = this.value"/>
+      <select data-idx="${i}" onchange="ALL_QUESTIONS[${i}].a = this.value === 'true'">
+        <option value="true"  ${item.a === true  ? 'selected':''}>✅ Yes</option>
+        <option value="false" ${item.a === false ? 'selected':''}>❌ No</option>
+      </select>
+    `;
+    list.appendChild(row);
+  }
+}
+
+function panelAddRow() {
+  // Add to the active set's region (appends, may exceed 10 — therapist's discretion)
+  const insertAt = (panelActiveSet + 1) * SET_SIZE;
+  ALL_QUESTIONS.splice(insertAt, 0, { q: '', a: true });
+  buildPanelList();
+}
+
+function panelSave() {
+  // Flush any pending input changes
+  document.querySelectorAll('#panelQList input[type="text"]').forEach(inp => {
+    const idx = parseInt(inp.dataset.idx);
+    if (!isNaN(idx)) ALL_QUESTIONS[idx].q = inp.value;
+  });
+  document.getElementById('therapistPanel').open = false;
+  goToSetSelector();
+}
+
+// ── Voice loading workaround (Chrome loads voices async) ──
+function initVoices() {
+  window.speechSynthesis.getVoices();
+}
+window.speechSynthesis?.addEventListener('voiceschanged', initVoices);
+
+// ── Boot ──────────────────────────────────────────────
+buildPanelTabs();
+buildPanelList();
+buildSetGrid();
+// Start at set selector
+goToSetSelector();
+</script>
+</body>
+</html>
