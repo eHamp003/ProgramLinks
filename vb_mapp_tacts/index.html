@@ -1,1 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VB-MAPP Tacts (Simple)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <div class="title">VB-MAPP Tacts</div>
+        <div class="subtitle">Slideshow + ✅/❌ + CSV export</div>
+      </div>
+    </div>
+    <div class="right">
+      <button id="btnResetAll" class="btn btn-ghost" title="Clears saved missed set">Clear Saved Set</button>
+    </div>
+  </header>
 
+  <main class="wrap">
+    <!-- START SCREEN -->
+    <section id="screenStart" class="card">
+      <h1>Start a session</h1>
+
+      <div class="grid">
+        <div>
+          <label class="label">Client (optional)</label>
+          <input id="clientName" class="input" placeholder="e.g., AJ" />
+        </div>
+
+        <div>
+          <label class="label">Set size (concepts)</label>
+          <select id="setSize" class="input">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="40">40</option>
+            <option value="60">60</option>
+          </select>
+          <div class="hint">If generalization is ON, trials = concepts × exemplars (e.g., 10×3 = 30).</div>
+        </div>
+
+        <div class="row">
+          <label class="check">
+            <input id="toggleGen" type="checkbox" />
+            <span>Generalization mode (show all exemplars)</span>
+          </label>
+          <div class="hint">ON = shows every exemplar for each concept (recommended for generalization probes).</div>
+        </div>
+
+        <div class="row">
+          <label class="check">
+            <input id="toggleShuffleExemplars" type="checkbox" checked />
+            <span>Shuffle exemplars within a concept</span>
+          </label>
+          <div class="hint">Keeps 3 apple pics from appearing back-to-back in the same order every time.</div>
+        </div>
+      </div>
+
+      <hr class="hr" />
+
+      <div>
+        <div class="label">Decks</div>
+        <div class="deckGrid">
+          <label class="deck">
+            <input type="checkbox" class="deckCheck" value="nouns" checked />
+            <div class="deckTitle">Nouns</div>
+            <div class="deckSD">SD: “What is it?”</div>
+          </label>
+
+          <label class="deck">
+            <input type="checkbox" class="deckCheck" value="actions" checked />
+            <div class="deckTitle">Actions</div>
+            <div class="deckSD">SD: “What are they doing?”</div>
+          </label>
+
+          <label class="deck">
+            <input type="checkbox" class="deckCheck" value="prepositions" />
+            <div class="deckTitle">Prepositions</div>
+            <div class="deckSD">SD: “Where is the (X)?”</div>
+          </label>
+
+          <label class="deck">
+            <input type="checkbox" class="deckCheck" value="pronouns" />
+            <div class="deckTitle">Pronouns</div>
+            <div class="deckSD">SD: “Who is it?”</div>
+          </label>
+
+          <label class="deck">
+            <input type="checkbox" class="deckCheck" value="combos" />
+            <div class="deckTitle">Noun–Verb Combos</div>
+            <div class="deckSD">SD: “Tell me what’s happening?”</div>
+          </label>
+        </div>
+      </div>
+
+      <hr class="hr" />
+
+      <div class="actions">
+        <button id="btnStartFresh" class="btn btn-primary">Start (Fresh Set)</button>
+        <button id="btnStartMissed" class="btn" disabled>Start (Saved Missed Set)</button>
+      </div>
+
+      <div id="startMsg" class="msg"></div>
+    </section>
+
+    <!-- RUN SCREEN -->
+    <section id="screenRun" class="card hidden">
+      <div class="runTop">
+        <div>
+          <div id="sdText" class="sd"></div>
+          <div id="progressText" class="progress"></div>
+        </div>
+
+        <div class="runTopRight">
+          <button id="btnBack" class="btn">Back</button>
+          <button id="btnNext" class="btn">Next</button>
+          <button id="btnEnd" class="btn btn-ghost">End Session</button>
+        </div>
+      </div>
+
+      <div class="mediaBox">
+        <img id="mediaImg" class="media hidden" alt="" />
+      </div>
+
+      <div class="markRow">
+        <button id="btnCorrect" class="btn btn-good">✅ Correct</button>
+        <button id="btnIncorrect" class="btn btn-bad">❌ Incorrect</button>
+      </div>
+
+      <div id="runMsg" class="msg"></div>
+    </section>
+
+    <!-- SUMMARY SCREEN -->
+    <section id="screenSummary" class="card hidden">
+      <h1>Session summary</h1>
+
+      <div class="summaryGrid">
+        <div class="summaryCard">
+          <div class="summaryLabel">Overall</div>
+          <div id="overallStats" class="summaryValue">—</div>
+          <div id="byDeckStats" class="summarySmall"></div>
+        </div>
+
+        <div class="summaryCard">
+          <div class="summaryLabel">Missed concepts</div>
+          <div id="missedCount" class="summaryValue">—</div>
+          <div id="missedList" class="summarySmall mono"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnDownloadCsv" class="btn btn-primary">Download CSV</button>
+        <button id="btnSaveMissed" class="btn">Save Missed Set</button>
+        <button id="btnRestart" class="btn btn-ghost">Back to Start</button>
+      </div>
+
+      <div id="summaryMsg" class="msg"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
