@@ -1,1 +1,64 @@
+[
+  {
+    "id": "noun_apple",
+    "deck": "nouns",
+    "label": "apple",
+    "exemplars": [
+      "assets/nouns/apple_1.png",
+      "assets/nouns/apple_2.png",
+      "assets/nouns/apple_3.png"
+    ]
+  },
+  {
+    "id": "noun_car",
+    "deck": "nouns",
+    "label": "car",
+    "exemplars": [
+      "assets/nouns/car_1.png",
+      "assets/nouns/car_2.png",
+      "assets/nouns/car_3.png"
+    ]
+  },
+  {
+    "id": "verb_jumping",
+    "deck": "actions",
+    "label": "jumping",
+    "exemplars": [
+      "assets/actions/jumping_1.gif",
+      "assets/actions/jumping_2.gif",
+      "assets/actions/jumping_3.gif"
+    ]
+  },
+  {
+    "id": "prep_under_ball",
+    "deck": "prepositions",
+    "label": "under",
+    "prompt_object": "ball",
+    "exemplars": [
+      "assets/prepositions/ball_under_table_1.png",
+      "assets/prepositions/ball_under_chair_2.png",
+      "assets/prepositions/ball_under_bed_3.png"
+    ]
+  },
+  {
+    "id": "pro_he",
+    "deck": "pronouns",
+    "label": "he",
+    "exemplars": [
+      "assets/pronouns/he_1.png",
+      "assets/pronouns/he_2.png",
+      "assets/pronouns/he_3.png"
+    ]
+  },
+  {
+    "id": "combo_dog_eating",
+    "deck": "combos",
+    "label": "dog eating",
+    "exemplars": [
+      "assets/combos/dog_eating_1.gif",
+      "assets/combos/dog_eating_2.gif",
+      "assets/combos/dog_eating_3.gif"
+    ]
+  }
+]
 
