@@ -72,7 +72,9 @@
     }
 
     .title{
-      display:flex; align-items:center; gap:12px;
+      display:flex;
+      align-items:center;
+      gap:12px;
       padding: 10px 14px;
       background: #ffffffb8;
       border: 2px solid #ffffffcc;
@@ -132,8 +134,8 @@
     .card{
       background: var(--card);
       border: 2px solid #ffffffcc;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      border-radius: 22px;
+      box-shadow: 0 18px 40px rgba(2,6,23,.18);
       padding: 18px;
       backdrop-filter: blur(10px);
     }
@@ -158,7 +160,7 @@
       border: 2px dashed #c7d2fe;
     }
 
-    .bigEmoji{
+    .qBadge{
       width:84px; height:84px;
       border-radius: 22px;
       background: linear-gradient(135deg, #c4b5fd, #fde68a);
@@ -255,12 +257,27 @@
       .grid{grid-template-columns: 1fr;}
     }
 
+    /* Answer option visual badge */
+    .optBadge{
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display:grid;
+      place-items:center;
+      font-size: 24px;
+      flex: 0 0 auto;
+      background: linear-gradient(135deg, #e0e7ff, #fff7ed);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 18px rgba(2,6,23,.10);
+      transform: rotate(-3deg);
+    }
+
     .choice{
       border: 0;
       cursor:pointer;
       text-align:left;
-      border-radius: var(--btnRadius);
-      padding: 14px 14px;
+      border-radius: 18px;
+      padding: 12px 14px;
       background: linear-gradient(135deg, #ffffff, #f8fafc);
       border: 2px solid #e2e8f0;
       box-shadow: 0 10px 18px rgba(2,6,23,.10);
@@ -269,14 +286,29 @@
       justify-content:space-between;
       gap: 12px;
       font-size: 18px;
-      font-weight: 800;
+      font-weight: 900;
       user-select:none;
       transition: transform .08s ease, border-color .08s ease, filter .08s ease;
     }
     .choice:hover{filter:saturate(1.05)}
     .choice:active{transform: translateY(1px) scale(.995);}
+    .choice[disabled]{cursor:not-allowed; opacity:.72}
+
+    .choiceLeft{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width:0;
+    }
+    .choiceText{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
     .choice small{
-      font-weight: 800;
+      font-weight: 900;
       font-size: 13px;
       color: var(--muted);
       background:#f1f5f9;
@@ -284,8 +316,8 @@
       padding: 4px 8px;
       border-radius: 999px;
       white-space:nowrap;
+      flex:0 0 auto;
     }
-    .choice[disabled]{cursor:not-allowed; opacity:.72}
     .choice.correct{
       border-color: #86efac;
       box-shadow: 0 14px 22px rgba(34,197,94,.18);
@@ -385,7 +417,7 @@
       color:white;
       padding:2px 6px;
       border-radius: 6px;
-      font-weight:800;
+      font-weight:900;
       font-size: 11px;
     }
   </style>
@@ -423,7 +455,7 @@
     <main class="card">
       <div class="topRow">
         <section class="questionBox" aria-live="polite">
-          <div class="bigEmoji" id="bigEmoji">🧠</div>
+          <div class="qBadge">❓</div>
           <div class="qText">
             <div class="qMeta">
               <span id="qCount">Question 1 of 30</span>
@@ -476,47 +508,133 @@
       </div>
 
       <footer>
-        Made for quick practice. You can edit questions inside the <code>QUESTIONS</code> list.
+        Want picture icons instead of emojis? Tell me what image folder/names you use and I’ll wire it in.
       </footer>
     </main>
   </div>
 
   <script>
-    // 30 "what" questions for ages 5–7 (simple, concrete, daily-life topics).
-    // Each item: prompt, emoji, choices[4], answerIndex (0-3), explanation
+    // Each question now includes choiceEmojis (4 visuals that match the options).
     const QUESTIONS = [
-      { emoji:"✏️", prompt:"What do you use to write?", choices:["Pencil","Shoe","Spoon","Ball"], answer:0, why:"A pencil is used to write." },
-      { emoji:"🥣", prompt:"What do you use to eat cereal?", choices:["Bowl","Hat","Sock","Book"], answer:0, why:"Cereal goes in a bowl." },
-      { emoji:"🚗", prompt:"What do you ride in to go places?", choices:["Car","Pillow","Crayon","Banana"], answer:0, why:"A car helps you travel." },
-      { emoji:"📞", prompt:"What do you use to call someone?", choices:["Phone","Fork","Blanket","Balloon"], answer:0, why:"A phone is for calling." },
-      { emoji:"🌧️", prompt:"What do you use when it is raining?", choices:["Umbrella","Sunglasses","Helmet","Brush"], answer:0, why:"An umbrella helps keep you dry." },
-      { emoji:"🧼", prompt:"What do you use to wash your hands?", choices:["Soap","Sand","Paper","Juice"], answer:0, why:"Soap helps clean your hands." },
-      { emoji:"🦷", prompt:"What do you use to brush your teeth?", choices:["Toothbrush","Paintbrush","Fork","Marker"], answer:0, why:"A toothbrush is for teeth." },
-      { emoji:"🥛", prompt:"What do you drink milk from?", choices:["Cup","Plate","Shoe","Box"], answer:0, why:"Milk goes in a cup." },
-      { emoji:"🍽️", prompt:"What do you eat dinner on?", choices:["Plate","Pillow","Rock","Ball"], answer:0, why:"Food goes on a plate." },
-      { emoji:"🛏️", prompt:"What do you sleep on?", choices:["Bed","Table","Sink","Bike"], answer:0, why:"You sleep on a bed." },
+      { prompt:"What do you use to write?",
+        choices:["Pencil","Shoe","Spoon","Ball"], answer:0,
+        choiceEmojis:["✏️","👟","🥄","⚽"], why:"A pencil is used to write." },
 
-      { emoji:"🧥", prompt:"What do you wear when it is cold?", choices:["Jacket","Swimsuit","Sandals","Towel"], answer:0, why:"A jacket keeps you warm." },
-      { emoji:"🍦", prompt:"What is a cold sweet treat?", choices:["Ice cream","Broccoli","Soup","Rice"], answer:0, why:"Ice cream is sweet and cold." },
-      { emoji:"🐶", prompt:"What animal barks?", choices:["Dog","Fish","Bird","Snake"], answer:0, why:"Dogs bark." },
-      { emoji:"🐱", prompt:"What animal says “meow”?", choices:["Cat","Cow","Duck","Horse"], answer:0, why:"Cats say meow." },
-      { emoji:"🐮", prompt:"What animal gives milk?", choices:["Cow","Lion","Frog","Bear"], answer:0, why:"Cows give milk." },
-      { emoji:"🍌", prompt:"What fruit is yellow?", choices:["Banana","Blueberry","Apple","Grape"], answer:0, why:"Bananas are yellow." },
-      { emoji:"🍓", prompt:"What fruit is red and has seeds on the outside?", choices:["Strawberry","Orange","Pear","Kiwi"], answer:0, why:"Strawberries have seeds outside." },
-      { emoji:"🥕", prompt:"What vegetable is orange and crunchy?", choices:["Carrot","Lettuce","Potato","Peas"], answer:0, why:"Carrots are orange and crunchy." },
-      { emoji:"🍞", prompt:"What do you put butter on?", choices:["Bread","Soap","Toy","Leaf"], answer:0, why:"Butter goes on bread/toast." },
-      { emoji:"🧃", prompt:"What do you drink when you are thirsty?", choices:["Water","Dirt","Glue","Rock"], answer:0, why:"Water helps when you're thirsty." },
+      { prompt:"What do you use to eat cereal?",
+        choices:["Bowl","Hat","Sock","Book"], answer:0,
+        choiceEmojis:["🥣","🧢","🧦","📖"], why:"Cereal goes in a bowl." },
 
-      { emoji:"🕰️", prompt:"What tells time?", choices:["Clock","Shoe","Cup","Pillow"], answer:0, why:"A clock shows the time." },
-      { emoji:"📚", prompt:"What do you read?", choices:["Book","Fork","Ball","Sock"], answer:0, why:"You read a book." },
-      { emoji:"🎨", prompt:"What do you use to color a picture?", choices:["Crayon","Spoon","Key","Soap"], answer:0, why:"Crayons are for coloring." },
-      { emoji:"🧩", prompt:"What do you put together to make a picture?", choices:["Puzzle","Banana","Blanket","Bottle"], answer:0, why:"A puzzle is put together." },
-      { emoji:"🎒", prompt:"What do you carry school supplies in?", choices:["Backpack","Pot","Helmet","Plate"], answer:0, why:"A backpack holds supplies." },
-      { emoji:"🧢", prompt:"What do you wear on your head?", choices:["Hat","Sock","Glove","Shoe"], answer:0, why:"A hat goes on your head." },
-      { emoji:"🧤", prompt:"What do you wear on your hands when it is cold?", choices:["Gloves","Sandals","Scarf","Shorts"], answer:0, why:"Gloves keep hands warm." },
-      { emoji:"🧦", prompt:"What do you wear on your feet inside your shoes?", choices:["Socks","Shirt","Hat","Belt"], answer:0, why:"Socks go on feet." },
-      { emoji:"🚦", prompt:"What color means STOP at a traffic light?", choices:["Red","Blue","Purple","Orange"], answer:0, why:"Red means stop." },
-      { emoji:"🟢", prompt:"What color means GO at a traffic light?", choices:["Green","Pink","Brown","Gray"], answer:0, why:"Green means go." }
+      { prompt:"What do you ride in to go places?",
+        choices:["Car","Pillow","Crayon","Banana"], answer:0,
+        choiceEmojis:["🚗","🛏️","🖍️","🍌"], why:"A car helps you travel." },
+
+      { prompt:"What do you use to call someone?",
+        choices:["Phone","Fork","Blanket","Balloon"], answer:0,
+        choiceEmojis:["📱","🍴","🧣","🎈"], why:"A phone is for calling." },
+
+      { prompt:"What do you use when it is raining?",
+        choices:["Umbrella","Sunglasses","Helmet","Brush"], answer:0,
+        choiceEmojis:["☂️","🕶️","⛑️","🪥"], why:"An umbrella helps keep you dry." },
+
+      { prompt:"What do you use to wash your hands?",
+        choices:["Soap","Sand","Paper","Juice"], answer:0,
+        choiceEmojis:["🧼","🏖️","📄","🧃"], why:"Soap helps clean your hands." },
+
+      { prompt:"What do you use to brush your teeth?",
+        choices:["Toothbrush","Paintbrush","Fork","Marker"], answer:0,
+        choiceEmojis:["🪥","🖌️","🍴","🖊️"], why:"A toothbrush is for teeth." },
+
+      { prompt:"What do you drink milk from?",
+        choices:["Cup","Plate","Shoe","Box"], answer:0,
+        choiceEmojis:["🥛","🍽️","👟","📦"], why:"Milk goes in a cup." },
+
+      { prompt:"What do you eat dinner on?",
+        choices:["Plate","Pillow","Rock","Ball"], answer:0,
+        choiceEmojis:["🍽️","🛏️","🪨","⚽"], why:"Food goes on a plate." },
+
+      { prompt:"What do you sleep on?",
+        choices:["Bed","Table","Sink","Bike"], answer:0,
+        choiceEmojis:["🛏️","🪑","🚰","🚲"], why:"You sleep on a bed." },
+
+      { prompt:"What do you wear when it is cold?",
+        choices:["Jacket","Swimsuit","Sandals","Towel"], answer:0,
+        choiceEmojis:["🧥","🩱","🩴","🧻"], why:"A jacket keeps you warm." },
+
+      { prompt:"What is a cold sweet treat?",
+        choices:["Ice cream","Broccoli","Soup","Rice"], answer:0,
+        choiceEmojis:["🍦","🥦","🍲","🍚"], why:"Ice cream is sweet and cold." },
+
+      { prompt:"What animal barks?",
+        choices:["Dog","Fish","Bird","Snake"], answer:0,
+        choiceEmojis:["🐶","🐟","🐦","🐍"], why:"Dogs bark." },
+
+      { prompt:"What animal says “meow”?",
+        choices:["Cat","Cow","Duck","Horse"], answer:0,
+        choiceEmojis:["🐱","🐮","🦆","🐴"], why:"Cats say meow." },
+
+      { prompt:"What animal gives milk?",
+        choices:["Cow","Lion","Frog","Bear"], answer:0,
+        choiceEmojis:["🐮","🦁","🐸","🐻"], why:"Cows give milk." },
+
+      { prompt:"What fruit is yellow?",
+        choices:["Banana","Blueberry","Apple","Grape"], answer:0,
+        choiceEmojis:["🍌","🫐","🍎","🍇"], why:"Bananas are yellow." },
+
+      { prompt:"What fruit is red and has seeds on the outside?",
+        choices:["Strawberry","Orange","Pear","Kiwi"], answer:0,
+        choiceEmojis:["🍓","🍊","🍐","🥝"], why:"Strawberries have seeds outside." },
+
+      { prompt:"What vegetable is orange and crunchy?",
+        choices:["Carrot","Lettuce","Potato","Peas"], answer:0,
+        choiceEmojis:["🥕","🥬","🥔","🫛"], why:"Carrots are orange and crunchy." },
+
+      { prompt:"What do you put butter on?",
+        choices:["Bread","Soap","Toy","Leaf"], answer:0,
+        choiceEmojis:["🍞","🧼","🧸","🍃"], why:"Butter goes on bread/toast." },
+
+      { prompt:"What do you drink when you are thirsty?",
+        choices:["Water","Dirt","Glue","Rock"], answer:0,
+        choiceEmojis:["💧","🟤","🧴","🪨"], why:"Water helps when you're thirsty." },
+
+      { prompt:"What tells time?",
+        choices:["Clock","Shoe","Cup","Pillow"], answer:0,
+        choiceEmojis:["🕰️","👟","🥤","🛏️"], why:"A clock shows the time." },
+
+      { prompt:"What do you read?",
+        choices:["Book","Fork","Ball","Sock"], answer:0,
+        choiceEmojis:["📚","🍴","⚽","🧦"], why:"You read a book." },
+
+      { prompt:"What do you use to color a picture?",
+        choices:["Crayon","Spoon","Key","Soap"], answer:0,
+        choiceEmojis:["🖍️","🥄","🗝️","🧼"], why:"Crayons are for coloring." },
+
+      { prompt:"What do you put together to make a picture?",
+        choices:["Puzzle","Banana","Blanket","Bottle"], answer:0,
+        choiceEmojis:["🧩","🍌","🧣","🍼"], why:"A puzzle is put together." },
+
+      { prompt:"What do you carry school supplies in?",
+        choices:["Backpack","Pot","Helmet","Plate"], answer:0,
+        choiceEmojis:["🎒","🍲","⛑️","🍽️"], why:"A backpack holds supplies." },
+
+      { prompt:"What do you wear on your head?",
+        choices:["Hat","Sock","Glove","Shoe"], answer:0,
+        choiceEmojis:["🧢","🧦","🧤","👟"], why:"A hat goes on your head." },
+
+      { prompt:"What do you wear on your hands when it is cold?",
+        choices:["Gloves","Sandals","Scarf","Shorts"], answer:0,
+        choiceEmojis:["🧤","🩴","🧣","🩳"], why:"Gloves keep hands warm." },
+
+      { prompt:"What do you wear on your feet inside your shoes?",
+        choices:["Socks","Shirt","Hat","Belt"], answer:0,
+        choiceEmojis:["🧦","👕","🧢","🧷"], why:"Socks go on feet." },
+
+      { prompt:"What color means STOP at a traffic light?",
+        choices:["Red","Blue","Purple","Orange"], answer:0,
+        choiceEmojis:["🔴","🔵","🟣","🟠"], why:"Red means stop." },
+
+      { prompt:"What color means GO at a traffic light?",
+        choices:["Green","Pink","Brown","Gray"], answer:0,
+        choiceEmojis:["🟢","🩷","🟤","⚪"], why:"Green means go." }
     ];
 
     // --- Game state ---
@@ -528,10 +646,9 @@
     let streak = 0;
     let locked = false;
     let soundOn = true;
-    let missedList = []; // store question indices (in order array) that were missed
+    let missedList = [];
 
     // --- Elements ---
-    const bigEmoji = document.getElementById("bigEmoji");
     const qPrompt = document.getElementById("qPrompt");
     const qCount = document.getElementById("qCount");
     const streakEl = document.getElementById("streak");
@@ -577,7 +694,6 @@
     }
 
     function sparkle(){
-      // quick confetti burst
       confetti.classList.add("show");
       confetti.innerHTML = "";
       const pieces = 36;
@@ -591,7 +707,6 @@
         p.style.width = sizeW + "px";
         p.style.height = sizeH + "px";
         p.style.animationDelay = delay + "ms";
-        // random-ish bright gradient using hsl
         const h = Math.floor(Math.random()*360);
         p.style.background = `hsl(${h} 90% 65%)`;
         confetti.appendChild(p);
@@ -635,7 +750,7 @@
 
       const qIndex = order[index];
       const q = QUESTIONS[qIndex];
-      bigEmoji.textContent = q.emoji;
+
       qPrompt.textContent = q.prompt;
       qCount.textContent = `Question ${index+1} of ${QUESTIONS.length}`;
       setFeedback("neutral", "Pick an answer!", "Choose the best choice.");
@@ -646,7 +761,17 @@
         btn.className = "choice";
         btn.type = "button";
         btn.setAttribute("data-i", String(i));
-        btn.innerHTML = `<span>${text}</span><small>${i+1}</small>`;
+
+        const icon = (q.choiceEmojis && q.choiceEmojis[i]) ? q.choiceEmojis[i] : "✨";
+
+        btn.innerHTML = `
+          <span class="choiceLeft">
+            <span class="optBadge" aria-hidden="true">${icon}</span>
+            <span class="choiceText">${text}</span>
+          </span>
+          <small>${i+1}</small>
+        `;
+
         btn.addEventListener("click", ()=> choose(i));
         choicesEl.appendChild(btn);
       });
@@ -676,7 +801,6 @@
       if(choiceIndex === q.answer){
         correct++;
         streak++;
-        // points: base 10 + small streak bonus (cap)
         const bonus = Math.min(6, streak);
         score += (10 + bonus);
         setFeedback("good", "✅ Nice job!", q.why);
@@ -686,7 +810,6 @@
       }else{
         misses++;
         streak = 0;
-        // track missed to allow review
         if(!missedList.includes(qIndex)) missedList.push(qIndex);
         setFeedback("bad", "❌ Not quite.", `The best answer is “${q.choices[q.answer]}”. ${q.why}`);
         beep(220, 0.12, "sawtooth");
@@ -701,7 +824,6 @@
         index++;
         renderQuestion();
       }else{
-        // finish
         index++;
         barFill.style.width = "100%";
         showEnd();
@@ -709,14 +831,12 @@
     }
 
     function skip(){
-      if(locked) return; // don't allow skip after answering (keeps it simple)
+      if(locked) return;
       streak = 0;
       setFeedback("neutral", "⏭️ Skipped!", "No worries — let’s try the next one.");
       beep(440, 0.06, "square");
       nextBtn.disabled = false;
-      // Treat skip as moving on without points
       locked = true;
-      // mark buttons disabled to prevent answering after skip
       [...choicesEl.querySelectorAll(".choice")].forEach(b=>b.disabled = true);
       updateStats();
     }
@@ -726,10 +846,9 @@
       finalCorrect.textContent = correct;
       finalMisses.textContent = misses;
 
-      // star rating (0-5)
       const pct = correct / QUESTIONS.length;
       const stars = pct >= .9 ? 5 : pct >= .8 ? 4 : pct >= .65 ? 3 : pct >= .5 ? 2 : pct >= .35 ? 1 : 0;
-      starsEl.innerHTML = "";
+      starsEl.textContent = "";
       for(let i=0;i<5;i++){
         starsEl.textContent += (i < stars) ? "⭐" : "✩";
       }
@@ -763,16 +882,13 @@
         sparkle();
         return;
       }
-      // Make a new order consisting only of missed question indices
       order = missedList.slice();
       shuffle(order);
       index = 0;
-      // Keep score/counters as-is or reset? We'll keep score but show as a review round.
       setFeedback("neutral", "📝 Review Round!", "Let’s practice the ones you missed.");
       renderQuestion();
     }
 
-    // keyboard shortcuts 1-4
     window.addEventListener("keydown", (e)=>{
       if(endScreen.classList.contains("show")) return;
       const k = e.key;
@@ -784,7 +900,6 @@
       if(k === "Enter" && !nextBtn.disabled) nextBtn.click();
     });
 
-    // button wiring
     nextBtn.addEventListener("click", next);
     skipBtn.addEventListener("click", skip);
     resetBtn.addEventListener("click", ()=>resetGame({doShuffle:false}));
