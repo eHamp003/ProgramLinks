@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VB-MAPP Block Designs (20 Designs • 8+ Pieces)</title>
+  <style>
+    :root{
+      --bg1:#7dd3fc;
+      --bg2:#a7f3d0;
+      --card:#ffffffee;
+      --ink:#0f172a;
+      --muted:#475569;
+      --good:#16a34a;
+      --bad:#ef4444;
+      --accent:#7c3aed;
+      --accent2:#f97316;
+      --shadow: 0 18px 40px rgba(2,6,23,.18);
+      --radius: 22px;
+      --btnRadius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      min-height:100vh;
+      background: radial-gradient(1200px 800px at 10% 10%, #fff8, transparent 60%),
+                  radial-gradient(900px 700px at 90% 20%, #fff7, transparent 55%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+    .floaters{ position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.85;}
+    .floater{
+      position:absolute;
+      width: 110px; height:110px;
+      border-radius: 30px;
+      filter: blur(.2px);
+      animation: drift 14s ease-in-out infinite;
+      box-shadow: 0 18px 35px rgba(2,6,23,.12);
+    }
+    .floater:nth-child(1){left:6%; top:12%; background:linear-gradient(135deg,#fda4af,#fef08a); transform: rotate(12deg); animation-duration: 16s;}
+    .floater:nth-child(2){left:76%; top:10%; background:linear-gradient(135deg,#c4b5fd,#93c5fd); transform: rotate(-8deg); animation-duration: 18s;}
+    .floater:nth-child(3){left:82%; top:68%; background:linear-gradient(135deg,#86efac,#fca5a5); transform: rotate(9deg); animation-duration: 15s;}
+    .floater:nth-child(4){left:10%; top:72%; background:linear-gradient(135deg,#fde68a,#60a5fa); transform: rotate(-6deg); animation-duration: 20s;}
+    @keyframes drift{
+      0%,100%{ transform: translateY(0) translateX(0) rotate(var(--r, 0deg)); }
+      50%{ transform: translateY(-18px) translateX(14px) rotate(calc(var(--r, 0deg) + 6deg)); }
+    }
+
+    .wrap{ position:relative; z-index:1; max-width: 1100px; margin: 0 auto; padding: 22px 16px 36px; }
+
+    header{
+      display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:14px;
+    }
+    .title{
+      display:flex; align-items:center; gap:12px;
+      padding: 10px 14px;
+      background:#ffffffb8;
+      border:2px solid #ffffffcc;
+      border-radius:999px;
+      box-shadow: 0 10px 25px rgba(2,6,23,.12);
+      backdrop-filter: blur(8px);
+    }
+    .logo{
+      width:44px; height:44px; border-radius:14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display:grid; place-items:center; color:white;
+      font-size:22px; box-shadow: 0 10px 20px rgba(124,58,237,.25);
+      transform: rotate(-6deg);
+    }
+    h1{ font-size:18px; margin:0 }
+    .sub{ font-size:12px; color:var(--muted); margin-top:2px }
+
+    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 12px; border-radius:999px;
+      background:#ffffffb8; border:2px solid #ffffffcc;
+      box-shadow: 0 10px 25px rgba(2,6,23,.12);
+      backdrop-filter: blur(8px); font-size:13px;
+    }
+    .miniBtn{
+      border:0;
+      background: linear-gradient(135deg, #111827, #334155);
+      color:white;
+      padding: 9px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-weight:800;
+      letter-spacing:.2px;
+      box-shadow: 0 10px 20px rgba(2,6,23,.18);
+      transition: transform .08s ease, filter .08s ease;
+      user-select:none;
+    }
+    .miniBtn:active{transform: translateY(1px) scale(.99); filter:saturate(1.1);}
+
+    .card{
+      background: var(--card);
+      border: 2px solid #ffffffcc;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+      align-items:start;
+    }
+    @media (max-width: 960px){
+      .layout{ grid-template-columns: 1fr; }
+    }
+
+    /* Board */
+    .boardWrap{
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ffffff, #f8fafc);
+      border: 2px dashed #c7d2fe;
+    }
+    .boardTop{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .badge{
+      display:flex; align-items:center; gap:10px;
+      font-size: 13px;
+      color: var(--muted);
+      flex-wrap:wrap;
+    }
+    .badge span{
+      padding: 5px 9px;
+      background:#eef2ff;
+      border-radius: 999px;
+      border: 1px solid #c7d2fe;
+      font-weight:900;
+      color: var(--ink);
+    }
+
+    #board{
+      width: 100%;
+      max-width: 720px;
+      aspect-ratio: 16/10;
+      border-radius: 18px;
+      background: radial-gradient(600px 320px at 20% 20%, #e0f2fe, #ffffff 60%),
+                  linear-gradient(135deg, #f1f5f9, #ffffff);
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 14px 24px rgba(2,6,23,.10);
+      position:relative;
+      overflow:hidden;
+      margin: 0 auto;
+      touch-action:none;
+      user-select:none;
+    }
+
+    .target{
+      position:absolute;
+      width: var(--w);
+      height: var(--h);
+      left: var(--x);
+      top: var(--y);
+      transform: rotate(var(--rot));
+      border-radius: 14px;
+      opacity: .75;
+      pointer-events:none;
+      filter: drop-shadow(0 10px 16px rgba(2,6,23,.08));
+    }
+    /* Outline via mask-like trick: background gradient + inset border */
+    .target::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: inherit;
+      border: 3px dashed rgba(124,58,237,.35);
+      background: linear-gradient(135deg, rgba(124,58,237,.10), rgba(249,115,22,.08));
+    }
+
+    /* Pieces (draggable) */
+    .piece{
+      position:absolute;
+      width: var(--w);
+      height: var(--h);
+      left: var(--x);
+      top: var(--y);
+      transform: translate(0,0) rotate(var(--rot));
+      border-radius: 14px;
+      box-shadow: 0 14px 22px rgba(2,6,23,.16);
+      cursor: grab;
+      touch-action:none;
+      display:grid;
+      place-items:center;
+      font-weight: 950;
+      color: rgba(15,23,42,.82);
+      letter-spacing:.2px;
+    }
+    .piece:active{ cursor:grabbing; }
+    .piece.locked{
+      cursor:default;
+      box-shadow: 0 14px 22px rgba(34,197,94,.16);
+      outline: 3px solid rgba(34,197,94,.35);
+    }
+    .piece .lbl{
+      font-size: 14px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(226,232,240,.9);
+      padding: 4px 8px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
+
+    /* Shape clip-paths */
+    .shape-square{ clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); }
+    .shape-tri{ clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+    .shape-rhombus{ clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+    .shape-trapezoid{ clip-path: polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%); }
+    .shape-parallelogram{ clip-path: polygon(22% 0%, 100% 0%, 78% 100%, 0% 100%); }
+    .shape-hex{ clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+    .shape-semi{ clip-path: polygon(0% 50%, 0% 100%, 100% 100%, 100% 50%, 50% 0%); border-radius: 999px 999px 18px 18px; }
+    .shape-circle{ clip-path: none; border-radius: 999px; }
+
+    /* Tray */
+    .side{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .panel{
+      padding: 14px;
+      border-radius: 18px;
+      background:#ffffff;
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 10px 20px rgba(2,6,23,.10);
+    }
+
+    .panel h2{
+      margin:0 0 8px 0;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .muted{ color:var(--muted); font-size: 12px; margin:0; }
+
+    .statRow{
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      font-size: 13px; color: var(--muted);
+      margin-top: 10px;
+    }
+    .statRow strong{ color: var(--ink); }
+
+    .bar{
+      height: 14px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow:hidden;
+      border: 1px solid #cbd5e1;
+      margin-top: 10px;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), #22c55e, var(--accent2));
+      border-radius: 999px;
+      transition: width .35s ease;
+    }
+
+    .feedback{
+      padding: 14px;
+      border-radius: 18px;
+      border: 2px solid #e2e8f0;
+      background: #ffffff;
+      min-height: 92px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      justify-content:center;
+    }
+    .feedback strong{font-size: 16px;}
+    .feedback p{margin:0; color: var(--muted); font-size: 13px;}
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .primaryBtn{
+      border:0;
+      cursor:pointer;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:white;
+      font-weight: 950;
+      letter-spacing:.2px;
+      box-shadow: 0 14px 24px rgba(124,58,237,.22);
+      transition: transform .08s ease, filter .08s ease;
+      user-select:none;
+      flex: 1 1 auto;
+      min-width: 140px;
+    }
+    .primaryBtn:active{transform: translateY(1px) scale(.99); filter:saturate(1.08);}
+    .ghostBtn{
+      border:2px solid #cbd5e1;
+      cursor:pointer;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 950;
+      box-shadow: 0 12px 18px rgba(2,6,23,.10);
+      transition: transform .08s ease;
+      user-select:none;
+      flex: 1 1 auto;
+      min-width: 140px;
+    }
+    .ghostBtn:active{transform: translateY(1px) scale(.99);}
+
+    .hint{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      line-height: 1.3;
+    }
+    kbd{
+      background:#0f172a;
+      color:white;
+      padding:2px 6px;
+      border-radius: 6px;
+      font-weight:900;
+      font-size: 11px;
+    }
+
+    /* Confetti */
+    .confetti{
+      position:fixed; inset:0; pointer-events:none; z-index: 9; overflow:hidden; display:none;
+    }
+    .confetti.show{display:block;}
+    .confetti i{
+      position:absolute; top:-10px; width:10px; height:18px; border-radius:3px; opacity:.95;
+      animation: fall 900ms linear forwards;
+    }
+    @keyframes fall{
+      to{ transform: translateY(calc(100vh + 40px)) rotate(260deg); opacity: 1;}
+    }
+  </style>
+</head>
+<body>
+  <div class="floaters" aria-hidden="true">
+    <div class="floater" style="--r:12deg"></div>
+    <div class="floater" style="--r:-8deg"></div>
+    <div class="floater" style="--r:9deg"></div>
+    <div class="floater" style="--r:-6deg"></div>
+  </div>
+
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo">🧩</div>
+        <div>
+          <h1>Block Design Builder</h1>
+          <div class="sub">VB-MAPP: complete 20 different designs (8 pieces each)</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="pill" title="Sound effects are simple beeps (no external audio).">
+          <span style="font-weight:950;">🔊 Sound</span>
+          <button class="miniBtn" id="soundBtn" type="button">ON</button>
+        </div>
+        <button class="miniBtn" id="hintBtn" type="button">💡 Hint</button>
+        <button class="miniBtn" id="resetBtn" type="button">🔁 Reset Pieces</button>
+      </div>
+    </header>
+
+    <main class="card">
+      <div class="layout">
+        <section class="boardWrap">
+          <div class="boardTop">
+            <div class="badge">
+              <span id="levelLabel">Design 1 / 20</span>
+              <span id="placedLabel">Placed: 0 / 8</span>
+              <span id="rotateLabel">Rotate: ON</span>
+            </div>
+            <div class="badge">
+              <span>Drag pieces to match the outline</span>
+            </div>
+          </div>
+
+          <div id="board" aria-label="Design board"></div>
+
+          <div class="hint">
+            Controls: Drag pieces. Rotate selected piece with <kbd>R</kbd> (or double-click/tap piece). Next design unlocks when all 8 snap in.
+          </div>
+        </section>
+
+        <aside class="side">
+          <div class="panel">
+            <h2>Progress</h2>
+            <p class="muted">Complete all 20 designs. Each design uses the same 8-piece set arranged differently.</p>
+            <div class="bar" aria-label="progress bar"><div id="barFill"></div></div>
+            <div class="statRow">
+              <div>✅ Designs completed: <strong id="doneCount">0</strong></div>
+              <div>⭐ Score: <strong id="score">0</strong></div>
+            </div>
+          </div>
+
+          <div class="feedback" id="feedback">
+            <strong>Let’s build!</strong>
+            <p>Drag each piece to the matching outline. Pieces will “snap” when correct.</p>
+          </div>
+
+          <div class="panel">
+            <h2>Actions</h2>
+            <div class="btnRow">
+              <button class="primaryBtn" id="nextBtn" type="button" disabled>Next Design ➜</button>
+              <button class="ghostBtn" id="showBtn" type="button">👀 Show Solution</button>
+            </div>
+            <p class="hint">
+              Teacher tip: Use “Show Solution” for a quick model, then “Reset Pieces” and try again.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+<script>
+/**
+ * VB-MAPP Block Designs Game
+ * - 20 designs (levels)
+ * - 8 pieces each (same set, new arrangement each level)
+ * - Drag + snap
+ * - Rotation supported (90° steps) via R key or double-click/tap
+ */
+
+// --- pieces: 8 distinct shapes + colors ---
+const PIECES = [
+  { id:"A", name:"Square",        shape:"shape-square",        w:84, h:84,  color:"linear-gradient(135deg,#c4b5fd,#93c5fd)" },
+  { id:"B", name:"Triangle",      shape:"shape-tri",           w:92, h:92,  color:"linear-gradient(135deg,#fda4af,#fef08a)" },
+  { id:"C", name:"Rhombus",       shape:"shape-rhombus",       w:100,h:80,  color:"linear-gradient(135deg,#86efac,#a7f3d0)" },
+  { id:"D", name:"Trapezoid",     shape:"shape-trapezoid",     w:112,h:78,  color:"linear-gradient(135deg,#fde68a,#fdba74)" },
+  { id:"E", name:"Parallelogram", shape:"shape-parallelogram", w:120,h:76,  color:"linear-gradient(135deg,#93c5fd,#67e8f9)" },
+  { id:"F", name:"Hexagon",       shape:"shape-hex",           w:104,h:92,  color:"linear-gradient(135deg,#fbcfe8,#c4b5fd)" },
+  { id:"G", name:"Half-moon",     shape:"shape-semi",          w:110,h:80,  color:"linear-gradient(135deg,#bbf7d0,#60a5fa)" },
+  { id:"H", name:"Circle",        shape:"shape-circle",        w:86, h:86,  color:"linear-gradient(135deg,#fed7aa,#fca5a5)" }
+];
+
+// --- 20 designs (targets for A-H) ---
+// Board coordinate system: 720w x 450h (scaled responsively). We'll place in percentages for responsiveness.
+const LEVELS = [
+  // 1: simple ring
+  level([
+    t("A", 12, 14, 0), t("B", 40, 10, 0), t("C", 65, 16, 0), t("D", 28, 38, 0),
+    t("E", 52, 40, 90), t("F", 70, 40, 0), t("G", 18, 62, 0), t("H", 62, 64, 0)
+  ]),
+  // 2: diagonal sweep
+  level([
+    t("A", 10, 16, 0), t("B", 28, 30, 90), t("C", 44, 44, 0), t("D", 58, 56, 180),
+    t("E", 18, 58, 0), t("F", 64, 26, 0), t("G", 46, 18, 180), t("H", 74, 68, 0)
+  ]),
+  // 3: two clusters
+  level([
+    t("A", 12, 18, 0), t("B", 26, 16, 180), t("C", 16, 40, 90), t("D", 30, 44, 0),
+    t("E", 62, 18, 0), t("F", 72, 34, 0), t("G", 58, 54, 90), t("H", 74, 62, 0)
+  ]),
+  // 4: stacked
+  level([
+    t("A", 14, 10, 0), t("B", 40, 12, 0), t("C", 64, 10, 0), t("D", 20, 34, 180),
+    t("E", 52, 34, 0), t("F", 72, 34, 0), t("G", 20, 62, 0), t("H", 60, 62, 0)
+  ]),
+  // 5: center burst
+  level([
+    t("F", 44, 22, 0), t("A", 14, 30, 0), t("B", 28, 18, 270), t("C", 60, 18, 0),
+    t("D", 18, 56, 0), t("E", 46, 56, 90), t("G", 68, 52, 180), t("H", 68, 70, 0)
+  ]),
+  // 6: “S” path
+  level([
+    t("B", 18, 16, 0), t("C", 36, 30, 0), t("D", 54, 20, 180), t("E", 62, 40, 90),
+    t("F", 46, 54, 0), t("G", 26, 58, 90), t("A", 12, 72, 0), t("H", 74, 72, 0)
+  ]),
+  // 7: corners + center
+  level([
+    t("A", 10, 10, 0), t("H", 76, 10, 0), t("F", 42, 14, 0), t("G", 10, 64, 180),
+    t("C", 72, 34, 90), t("D", 40, 40, 0), t("E", 56, 62, 0), t("B", 28, 62, 180)
+  ]),
+  // 8: “bridge”
+  level([
+    t("D", 16, 18, 0), t("E", 34, 18, 0), t("E", 52, 18, 0, "E2"), t("D", 70, 18, 180, "D2"),
+    t("A", 22, 48, 0), t("C", 46, 46, 90), t("F", 66, 46, 0), t("H", 40, 72, 0)
+  ], { useAltSet:true }), // uses alternate IDs for duplicates; see below
+  // 9: zig-zag
+  level([
+    t("A", 12, 20, 0), t("B", 28, 34, 0), t("C", 46, 22, 0), t("D", 58, 38, 180),
+    t("E", 70, 24, 0), t("F", 54, 58, 0), t("G", 30, 58, 90), t("H", 72, 70, 0)
+  ]),
+  // 10: two rows
+  level([
+    t("A", 12, 16, 0), t("B", 30, 16, 90), t("C", 50, 16, 0), t("D", 70, 16, 0),
+    t("E", 14, 56, 0), t("F", 38, 54, 0), t("G", 58, 54, 180), t("H", 76, 56, 0)
+  ]),
+  // 11: “house-ish”
+  level([
+    t("B", 40, 10, 0), t("D", 40, 28, 0), t("A", 26, 48, 0), t("A", 54, 48, 0, "A2"),
+    t("E", 40, 56, 0), t("C", 18, 62, 90), t("F", 64, 62, 0), t("H", 40, 74, 0)
+  ], { useAltSet:true }),
+  // 12: “pinwheel”
+  level([
+    t("B", 42, 18, 0), t("B", 42, 18, 90, "B2"), t("B", 42, 18, 180, "B3"), t("B", 42, 18, 270, "B4"),
+    t("F", 18, 52, 0), t("G", 66, 52, 0), t("A", 18, 74, 0), t("H", 66, 74, 0)
+  ], { useAltSet:true }),
+  // 13: spread
+  level([
+    t("C", 12, 16, 0), t("D", 34, 14, 180), t("E", 58, 14, 0), t("F", 76, 18, 0),
+    t("A", 18, 48, 0), t("B", 44, 48, 180), t("G", 68, 50, 90), t("H", 40, 74, 0)
+  ]),
+  // 14: left tower
+  level([
+    t("A", 12, 10, 0), t("C", 12, 30, 90), t("D", 12, 48, 0), t("G", 12, 66, 180),
+    t("B", 46, 18, 90), t("E", 60, 36, 90), t("F", 70, 58, 0), t("H", 48, 70, 0)
+  ]),
+  // 15: “steps”
+  level([
+    t("A", 12, 62, 0), t("B", 26, 50, 0), t("C", 40, 40, 0), t("D", 54, 30, 0),
+    t("E", 68, 20, 0), t("F", 54, 62, 0), t("G", 70, 54, 90), t("H", 32, 70, 0)
+  ]),
+  // 16: center line
+  level([
+    t("E", 18, 22, 0), t("D", 36, 22, 0), t("C", 54, 22, 0), t("F", 70, 22, 0),
+    t("B", 30, 52, 180), t("A", 46, 52, 0), t("G", 62, 52, 180), t("H", 46, 74, 0)
+  ]),
+  // 17: three columns
+  level([
+    t("A", 14, 16, 0), t("D", 14, 40, 180), t("G", 14, 64, 0),
+    t("B", 42, 16, 0), t("E", 42, 40, 90), t("H", 42, 70, 0),
+    t("C", 70, 18, 0), t("F", 70, 54, 0)
+  ]),
+  // 18: frame + center
+  level([
+    t("H", 12, 12, 0), t("H", 76, 12, 0, "H2"), t("H", 12, 72, 0, "H3"), t("H", 76, 72, 0, "H4"),
+    t("F", 44, 40, 0), t("A", 44, 16, 0), t("B", 30, 56, 0), t("G", 58, 56, 180)
+  ], { useAltSet:true }),
+  // 19: “X-ish”
+  level([
+    t("B", 18, 18, 0), t("E", 34, 30, 90), t("F", 44, 44, 0), t("E", 54, 30, 270, "E2"),
+    t("B", 70, 18, 180, "B2"), t("C", 18, 62, 90), t("C", 70, 62, 90, "C2"), t("H", 44, 72, 0)
+  ], { useAltSet:true }),
+  // 20: “final mix”
+  level([
+    t("D", 18, 14, 0), t("A", 40, 12, 0), t("G", 66, 14, 180),
+    t("C", 24, 40, 0), t("F", 46, 38, 0), t("E", 66, 40, 90),
+    t("B", 30, 66, 270), t("H", 62, 66, 0)
+  ])
+];
+
+// Helpers to build targets
+function t(pieceId, xPct, yPct, rotDeg, aliasId=null){
+  return { pieceId, aliasId: aliasId || pieceId, xPct, yPct, rotDeg };
+}
+function level(targets, opts={}){
+  return { targets, opts };
+}
+
+/**
+ * NOTE on "useAltSet":
+ * A few designs use duplicates (e.g., 2 circles) to create variety.
+ * For VB-MAPP you may prefer strictly 8 unique pieces every time.
+ * If you want STRICT unique pieces only, tell me and I’ll regenerate 20 designs with A–H only.
+ *
+ * Right now: when duplicates appear, we still keep 8+ pieces by temporarily “cloning” that piece type.
+ */
+
+// --- DOM elements ---
+const board = document.getElementById("board");
+const levelLabel = document.getElementById("levelLabel");
+const placedLabel = document.getElementById("placedLabel");
+const rotateLabel = document.getElementById("rotateLabel");
+const doneCountEl = document.getElementById("doneCount");
+const scoreEl = document.getElementById("score");
+const barFill = document.getElementById("barFill");
+const feedback = document.getElementById("feedback");
+const nextBtn = document.getElementById("nextBtn");
+const resetBtn = document.getElementById("resetBtn");
+const showBtn = document.getElementById("showBtn");
+const hintBtn = document.getElementById("hintBtn");
+const soundBtn = document.getElementById("soundBtn");
+const confetti = document.getElementById("confetti");
+
+// --- audio (beeps) ---
+let soundOn = true;
+let audioCtx = null;
+function beep(freq=440, duration=0.08, type="sine"){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    o.start();
+    o.stop(audioCtx.currentTime + duration);
+  }catch(e){}
+}
+function sparkle(){
+  confetti.classList.add("show");
+  confetti.innerHTML = "";
+  const pieces = 36;
+  for(let i=0;i<pieces;i++){
+    const p = document.createElement("i");
+    p.style.left = (Math.random()*100) + "vw";
+    p.style.animationDelay = (Math.random()*120) + "ms";
+    p.style.width = (8 + Math.random()*8) + "px";
+    p.style.height = (12 + Math.random()*12) + "px";
+    p.style.background = `hsl(${Math.floor(Math.random()*360)} 90% 65%)`;
+    confetti.appendChild(p);
+  }
+  setTimeout(()=>confetti.classList.remove("show"), 900);
+}
+
+// --- state ---
+let levelIndex = 0;
+let completed = 0;
+let score = 0;
+let placedCount = 0;
+let rotateOn = true;
+
+let targets = []; // active targets with pixel bounds
+let pieces = [];  // active pieces (incl duplicates when needed)
+let selectedPieceEl = null;
+
+// --- building pieces for a level ---
+function buildPieceSet(levelObj){
+  const useAltSet = !!levelObj.opts.useAltSet;
+
+  // base: unique A–H
+  const base = PIECES.map(p => ({...p, aliasId:p.id}));
+
+  if(!useAltSet){
+    return base;
+  }
+
+  // If the level uses alias IDs (A2, H3, etc.), clone the underlying piece type
+  const neededAlias = new Set(levelObj.targets.map(t => t.aliasId));
+  const result = [];
+
+  for(const t of levelObj.targets){
+    // Find base piece by pieceId
+    const basePiece = PIECES.find(p => p.id === t.pieceId);
+    // Create a clone for the aliasId
+    result.push({
+      ...basePiece,
+      id: t.pieceId,
+      aliasId: t.aliasId,
+      name: basePiece.name + " (" + t.aliasId + ")"
+    });
+  }
+
+  // Ensure exactly 8 pieces (targets are 8), already true
+  return result;
+}
+
+// --- rendering ---
+function clearBoard(){
+  board.innerHTML = "";
+  targets = [];
+  pieces = [];
+  selectedPieceEl = null;
+  placedCount = 0;
+  nextBtn.disabled = true;
+}
+
+function setFeedback(kind, title, msg){
+  feedback.style.borderColor = kind==="good" ? "#86efac" : kind==="bad" ? "#fecaca" : "#e2e8f0";
+  feedback.style.background = kind==="good" ? "linear-gradient(135deg,#f0fdf4,#ffffff)" :
+                              kind==="bad"  ? "linear-gradient(135deg,#fff1f2,#ffffff)" :
+                                             "#ffffff";
+  feedback.innerHTML = `<strong>${title}</strong><p>${msg}</p>`;
+}
+
+function updateHUD(){
+  levelLabel.textContent = `Design ${levelIndex+1} / ${LEVELS.length}`;
+  placedLabel.textContent = `Placed: ${placedCount} / 8`;
+  rotateLabel.textContent = `Rotate: ${rotateOn ? "ON" : "OFF"}`;
+  doneCountEl.textContent = completed;
+  scoreEl.textContent = score;
+
+  const pct = Math.round((completed / LEVELS.length)*100);
+  barFill.style.width = pct + "%";
+}
+
+function pctToPxX(pct){ return (pct/100) * board.clientWidth; }
+function pctToPxY(pct){ return (pct/100) * board.clientHeight; }
+
+// Create targets (outlines) for current level
+function renderTargets(levelObj){
+  targets = levelObj.targets.map(tg => {
+    const pieceModel = PIECES.find(p => p.id === tg.pieceId);
+    const w = (pieceModel.w / 720) * 100;  // based on "design" width
+    const h = (pieceModel.h / 450) * 100;
+    const el = document.createElement("div");
+    el.className = "target " + pieceModel.shape;
+    el.style.setProperty("--w", w + "%");
+    el.style.setProperty("--h", h + "%");
+    el.style.setProperty("--x", tg.xPct + "%");
+    el.style.setProperty("--y", tg.yPct + "%");
+    el.style.setProperty("--rot", tg.rotDeg + "deg");
+    board.appendChild(el);
+
+    return {
+      aliasId: tg.aliasId,
+      pieceId: tg.pieceId,
+      xPct: tg.xPct,
+      yPct: tg.yPct,
+      rotDeg: normRot(tg.rotDeg),
+      wPct: w,
+      hPct: h
+    };
+  });
+}
+
+// Create draggable pieces in a tray area on the left side of the board
+function renderPieces(levelObj){
+  pieces = buildPieceSet(levelObj);
+
+  // tray region (bottom area of board)
+  const trayY = 74; // percentage
+  const cols = 4;
+  const gapX = 2.2;
+  const startX = 6;
+
+  pieces.forEach((p, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+
+    const wPct = (p.w / 720) * 100;
+    const hPct = (p.h / 450) * 100;
+
+    const x = startX + col*(22 + gapX);
+    const y = trayY + row*(10.5); // stacked
+
+    const el = document.createElement("div");
+    el.className = `piece ${p.shape}`;
+    el.dataset.aliasId = p.aliasId;
+    el.dataset.rot = "0";
+    el.dataset.locked = "0";
+    el.style.background = p.color;
+
+    el.style.setProperty("--w", wPct + "%");
+    el.style.setProperty("--h", hPct + "%");
+    el.style.setProperty("--x", x + "%");
+    el.style.setProperty("--y", y + "%");
+    el.style.setProperty("--rot", "0deg");
+
+    el.innerHTML = `<div class="lbl">${p.aliasId}</div>`;
+
+    // drag handlers
+    enableDrag(el);
+
+    // rotate on dblclick/tap
+    el.addEventListener("dblclick", () => rotatePiece(el, 90));
+    el.addEventListener("pointerdown", () => { selectedPieceEl = el; });
+
+    board.appendChild(el);
+  });
+}
+
+// --- drag + snap ---
+function enableDrag(el){
+  let start = null;
+  let origin = null;
+
+  el.addEventListener("pointerdown", (e)=>{
+    if(el.dataset.locked === "1") return;
+
+    selectedPieceEl = el;
+    el.setPointerCapture(e.pointerId);
+
+    const rect = el.getBoundingClientRect();
+    start = { x: e.clientX, y: e.clientY };
+    origin = { left: rect.left, top: rect.top };
+    el.style.zIndex = 50;
+    beep(420, 0.04, "square");
+  });
+
+  el.addEventListener("pointermove", (e)=>{
+    if(!start || el.dataset.locked === "1") return;
+
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+
+    // move via translate
+    el.style.transform = `translate(${dx}px, ${dy}px) rotate(${Number(el.dataset.rot)}deg)`;
+  });
+
+  el.addEventListener("pointerup", (e)=>{
+    if(!start) return;
+    el.style.zIndex = "";
+
+    // compute final position relative to board
+    const boardRect = board.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+
+    const centerX = (elRect.left - boardRect.left) + elRect.width/2;
+    const centerY = (elRect.top - boardRect.top) + elRect.height/2;
+
+    const snapped = trySnap(el, centerX, centerY);
+
+    if(!snapped){
+      // drop without snapping: commit the translate into left/top percentages
+      commitTranslateToAbsolute(el);
+      beep(240, 0.05, "sine");
+    }
+
+    // reset drag vars
+    start = null;
+    origin = null;
+    el.releasePointerCapture(e.pointerId);
+  });
+}
+
+function commitTranslateToAbsolute(el){
+  // Convert current visual position (with translate) into new left/top in %
+  const boardRect = board.getBoundingClientRect();
+  const elRect = el.getBoundingClientRect();
+
+  const leftPx = elRect.left - boardRect.left;
+  const topPx  = elRect.top  - boardRect.top;
+
+  const leftPct = (leftPx / boardRect.width) * 100;
+  const topPct  = (topPx / boardRect.height) * 100;
+
+  el.style.transform = `translate(0px, 0px) rotate(${Number(el.dataset.rot)}deg)`;
+  el.style.setProperty("--x", leftPct + "%");
+  el.style.setProperty("--y", topPct + "%");
+}
+
+function normRot(d){
+  let r = d % 360;
+  if(r < 0) r += 360;
+  // clamp to nearest 90 for targets
+  r = Math.round(r/90)*90;
+  r = r % 360;
+  return r;
+}
+
+function rotMatches(pieceRot, targetRot){
+  if(!rotateOn) return true;
+  return normRot(pieceRot) === normRot(targetRot);
+}
+
+function trySnap(el, centerX, centerY){
+  const aliasId = el.dataset.aliasId;
+  const pieceRot = Number(el.dataset.rot);
+
+  // find matching target by aliasId (supports duplicates)
+  const target = targets.find(t => t.aliasId === aliasId);
+  if(!target) return false;
+
+  const tx = pctToPxX(target.xPct) + pctToPxX(target.wPct)/2;
+  const ty = pctToPxY(target.yPct) + pctToPxY(target.hPct)/2;
+
+  const dist = Math.hypot(centerX - tx, centerY - ty);
+
+  // snap radius: ~7% of board width
+  const snapRadius = board.clientWidth * 0.07;
+
+  if(dist <= snapRadius && rotMatches(pieceRot, target.rotDeg)){
+    // snap: place exactly on target
+    el.style.transform = `translate(0px,0px) rotate(${target.rotDeg}deg)`;
+    el.style.setProperty("--x", target.xPct + "%");
+    el.style.setProperty("--y", target.yPct + "%");
+    el.style.setProperty("--rot", target.rotDeg + "deg");
+    el.dataset.rot = String(target.rotDeg);
+    lockPiece(el);
+
+    setFeedback("good", "✅ Snapped!", `Nice! ${aliasId} is in the right spot.`);
+    beep(660, 0.06, "triangle");
+    setTimeout(()=>beep(880, 0.07, "triangle"), 70);
+
+    return true;
+  }
+
+  // rotation mismatch hint
+  if(dist <= snapRadius && rotateOn && !rotMatches(pieceRot, target.rotDeg)){
+    setFeedback("bad", "🔄 Almost!", `That spot is right, but try rotating ${aliasId}. (Press R or double-click the piece.)`);
+    beep(220, 0.10, "sawtooth");
+  }
+
+  return false;
+}
+
+function lockPiece(el){
+  if(el.dataset.locked === "1") return;
+  el.dataset.locked = "1";
+  el.classList.add("locked");
+  placedCount++;
+  updateHUD();
+
+  if(placedCount >= 8){
+    // design complete
+    completed = Math.max(completed, levelIndex + 1);
+    score += 50; // completion bonus
+    updateHUD();
+    setFeedback("good", "🎉 Design completed!", "Awesome building! Click Next Design.");
+    sparkle();
+    nextBtn.disabled = false;
+    beep(523, 0.08, "triangle");
+    setTimeout(()=>beep(659, 0.08, "triangle"), 90);
+    setTimeout(()=>beep(784, 0.09, "triangle"), 180);
+  }else{
+    score += 5;
+    updateHUD();
+  }
+}
+
+// rotation
+function rotatePiece(el, delta){
+  if(el.dataset.locked === "1") return;
+  if(!rotateOn) return;
+  let r = Number(el.dataset.rot);
+  r = normRot(r + delta);
+  el.dataset.rot = String(r);
+  // Keep translate (if any) while rotating
+  const transform = el.style.transform || "";
+  const hasTranslate = transform.includes("translate(");
+  if(hasTranslate){
+    // replace rotate(...) portion
+    el.style.transform = transform.replace(/rotate\([^)]+\)/, `rotate(${r}deg)`);
+  }else{
+    el.style.transform = `translate(0px,0px) rotate(${r}deg)`;
+  }
+  beep(520, 0.04, "square");
+}
+
+// --- hint / solution ---
+function showHint(){
+  // highlight one not-placed target by briefly flashing feedback
+  const remaining = [...board.querySelectorAll(".piece")].filter(p => p.dataset.locked !== "1");
+  if(remaining.length === 0) return;
+
+  const pick = remaining[Math.floor(Math.random()*remaining.length)];
+  const id = pick.dataset.aliasId;
+  setFeedback("neutral", "💡 Hint", `Try placing piece ${id} next. Look for its outline on the board.`);
+  beep(440, 0.06, "sine");
+}
+
+function showSolution(){
+  // Move all pieces to their targets (locks them)
+  const piecesEls = [...board.querySelectorAll(".piece")];
+  for(const el of piecesEls){
+    if(el.dataset.locked === "1") continue;
+    const aliasId = el.dataset.aliasId;
+    const target = targets.find(t => t.aliasId === aliasId);
+    if(!target) continue;
+    el.style.transform = `translate(0px,0px) rotate(${target.rotDeg}deg)`;
+    el.style.setProperty("--x", target.xPct + "%");
+    el.style.setProperty("--y", target.yPct + "%");
+    el.style.setProperty("--rot", target.rotDeg + "deg");
+    el.dataset.rot = String(target.rotDeg);
+    lockPiece(el);
+  }
+  setFeedback("neutral", "👀 Modeled", "Solution shown. Press Reset Pieces to try independently.");
+  beep(600, 0.06, "triangle");
+}
+
+// --- level control ---
+function loadLevel(i){
+  levelIndex = i;
+  clearBoard();
+
+  const lvl = LEVELS[levelIndex];
+
+  renderTargets(lvl);
+  renderPieces(lvl);
+
+  updateHUD();
+  setFeedback("neutral", "Let’s build!", "Drag each piece to the matching outline. Pieces snap when correct.");
+}
+
+function resetPiecesOnly(){
+  // Re-render pieces but keep targets
+  // easiest: reload same level
+  loadLevel(levelIndex);
+}
+
+function nextLevel(){
+  if(levelIndex < LEVELS.length - 1){
+    loadLevel(levelIndex + 1);
+    nextBtn.disabled = true;
+  }else{
+    setFeedback("good", "🏁 All designs complete!", "You finished all 20 designs. Great work!");
+    sparkle();
+    beep(784, 0.10, "triangle");
+  }
+}
+
+// --- keyboard shortcuts ---
+window.addEventListener("keydown", (e)=>{
+  if(e.key.toLowerCase() === "r"){
+    if(selectedPieceEl) rotatePiece(selectedPieceEl, 90);
+  }
+});
+
+// --- buttons ---
+resetBtn.addEventListener("click", resetPiecesOnly);
+nextBtn.addEventListener("click", nextLevel);
+showBtn.addEventListener("click", showSolution);
+hintBtn.addEventListener("click", showHint);
+
+soundBtn.addEventListener("click", ()=>{
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "ON" : "OFF";
+  if(soundOn) beep(660, 0.08, "triangle");
+});
+
+// Toggle rotation quickly if you want: long-press on Rotate label (simple)
+rotateLabel.addEventListener("click", ()=>{
+  rotateOn = !rotateOn;
+  updateHUD();
+  setFeedback("neutral", "Rotation toggled", `Rotate is now ${rotateOn ? "ON" : "OFF"}.`);
+});
+
+// --- start ---
+loadLevel(0);
+</script>
+</body>
+</html>
