@@ -1,0 +1,70 @@
+ <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Noun ID Game (Array)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">
+      <h1>Noun ID Game</h1>
+      <p class="subtitle">Select the correct picture.</p>
+    </div>
+
+    <div class="controls">
+      <label class="control">
+        Array size
+        <select id="arraySize">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="6">6</option>
+          <option value="8">8</option>
+        </select>
+      </label>
+
+      <label class="control">
+        Mode
+        <select id="mode">
+          <option value="receptive" selected>Receptive: "Find the ___"</option>
+          <option value="tact">Tact: "What is it?" (choose label)</option>
+        </select>
+      </label>
+
+      <button id="newRoundBtn">New Round</button>
+      <button id="resetBtn" class="secondary">Reset Data</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="promptCard">
+      <div id="promptText" class="promptText">Loading…</div>
+      <div id="targetPreview" class="targetPreview" aria-hidden="true"></div>
+      <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+    </section>
+
+    <section>
+      <div id="grid" class="grid" aria-label="Answer options"></div>
+    </section>
+
+    <section class="dataCard">
+      <h2>Session Data</h2>
+      <div class="dataRow">
+        <div><strong>Trials:</strong> <span id="trials">0</span></div>
+        <div><strong>Correct:</strong> <span id="correct">0</span></div>
+        <div><strong>Incorrect:</strong> <span id="incorrect">0</span></div>
+        <div><strong>Accuracy:</strong> <span id="accuracy">0%</span></div>
+      </div>
+
+      <details class="log">
+        <summary>Trial log</summary>
+        <ol id="logList"></ol>
+      </details>
+    </section>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
