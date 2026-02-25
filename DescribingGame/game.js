@@ -8,7 +8,7 @@ const NOUNS = [
   "chair","bed","door"
 ];
 
-const IMG_DIR = "img";
+const IMG_DIR = "assets";
 const EXEMPLARS_PER_NOUN = 3;
 
 const els = {
