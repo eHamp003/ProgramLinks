@@ -1,0 +1,769 @@
+<!-- FULL COPY/PASTE VERSION (adds a Visuals ON/OFF toggle for answer icons) -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Who Question Quest (25 Who Questions)</title>
+  <style>
+    :root{
+      --bg1:#7dd3fc;
+      --bg2:#a7f3d0;
+      --card:#ffffffee;
+      --ink:#0f172a;
+      --muted:#475569;
+      --good:#16a34a;
+      --bad:#ef4444;
+      --accent:#7c3aed;
+      --accent2:#f97316;
+      --shadow: 0 18px 40px rgba(2,6,23,.18);
+      --radius: 22px;
+      --btnRadius: 18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      min-height:100vh;
+      background: radial-gradient(1200px 800px at 10% 10%, #fff8, transparent 60%),
+                  radial-gradient(900px 700px at 90% 20%, #fff7, transparent 55%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    .floaters{ position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.85; }
+    .floater{
+      position:absolute; width:110px; height:110px; border-radius:30px; filter:blur(.2px);
+      animation: drift 14s ease-in-out infinite; box-shadow: 0 18px 35px rgba(2,6,23,.12);
+    }
+    .floater:nth-child(1){left:6%; top:12%; background:linear-gradient(135deg,#fda4af,#fef08a); transform: rotate(12deg); animation-duration:16s;}
+    .floater:nth-child(2){left:76%; top:10%; background:linear-gradient(135deg,#c4b5fd,#93c5fd); transform: rotate(-8deg); animation-duration:18s;}
+    .floater:nth-child(3){left:82%; top:68%; background:linear-gradient(135deg,#86efac,#fca5a5); transform: rotate(9deg); animation-duration:15s;}
+    .floater:nth-child(4){left:10%; top:72%; background:linear-gradient(135deg,#fde68a,#60a5fa); transform: rotate(-6deg); animation-duration:20s;}
+    @keyframes drift{
+      0%,100%{ transform: translateY(0) translateX(0) rotate(var(--r, 0deg)); }
+      50%{ transform: translateY(-18px) translateX(14px) rotate(calc(var(--r, 0deg) + 6deg)); }
+    }
+
+    .wrap{ position:relative; z-index:1; max-width:980px; margin:0 auto; padding:22px 16px 36px; }
+
+    header{
+      display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:14px;
+    }
+    .title{
+      display:flex; align-items:center; gap:12px; padding:10px 14px;
+      background:#ffffffb8; border:2px solid #ffffffcc; border-radius:999px;
+      box-shadow: 0 10px 25px rgba(2,6,23,.12); backdrop-filter: blur(8px);
+    }
+    .logo{
+      width:44px; height:44px; border-radius:14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display:grid; place-items:center; color:white; font-size:24px;
+      box-shadow: 0 10px 20px rgba(124,58,237,.25); transform: rotate(-6deg);
+    }
+    h1{font-size:18px; margin:0}
+    .sub{font-size:12px; color:var(--muted); margin-top:2px}
+
+    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border-radius:999px; background:#ffffffb8; border:2px solid #ffffffcc;
+      box-shadow: 0 10px 25px rgba(2,6,23,.12); backdrop-filter: blur(8px); font-size:13px;
+    }
+    .miniBtn{
+      border:0; background: linear-gradient(135deg,#111827,#334155); color:white;
+      padding:9px 12px; border-radius:999px; cursor:pointer; font-weight:700; letter-spacing:.2px;
+      box-shadow: 0 10px 20px rgba(2,6,23,.18);
+      transition: transform .08s ease, filter .08s ease; user-select:none;
+    }
+    .miniBtn:active{transform: translateY(1px) scale(.99); filter:saturate(1.1);}
+
+    .card{
+      background: var(--card);
+      border: 2px solid #ffffffcc;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .topRow{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+      align-items:stretch;
+    }
+    @media (max-width: 780px){ .topRow{grid-template-columns: 1fr;} }
+
+    .questionBox{
+      display:flex; gap:14px; align-items:center; padding:16px;
+      border-radius:18px; background: linear-gradient(135deg,#ffffff,#f8fafc);
+      border: 2px dashed #c7d2fe;
+    }
+    .qBadge{
+      width:84px; height:84px; border-radius:22px;
+      background: linear-gradient(135deg,#c4b5fd,#fde68a);
+      display:grid; place-items:center; font-size:44px;
+      box-shadow: 0 14px 24px rgba(2,6,23,.12); flex:0 0 auto;
+      transform: rotate(-4deg);
+    }
+    .qText{ flex:1; min-width:0; }
+    .qMeta{
+      font-size:12px; color:var(--muted); margin-bottom:6px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .qMeta span{ padding:5px 9px; background:#eef2ff; border-radius:999px; border:1px solid #c7d2fe; }
+    .qPrompt{ font-size:22px; line-height:1.15; margin:0; }
+
+    .sidePanel{ display:flex; flex-direction:column; gap:12px; height:100%; }
+
+    .progressWrap{
+      padding:14px 14px 12px; border-radius:18px;
+      background: linear-gradient(135deg,#ecfeff,#f0fdf4);
+      border: 2px solid #bbf7d0;
+      box-shadow: 0 10px 20px rgba(2,6,23,.10);
+    }
+    .bar{ height:14px; border-radius:999px; background:#e2e8f0; overflow:hidden; border:1px solid #cbd5e1; margin-top:10px; }
+    .bar > div{
+      height:100%; width:0%;
+      background: linear-gradient(90deg, var(--accent), #22c55e, var(--accent2));
+      border-radius:999px; transition: width .35s ease;
+    }
+    .stats{
+      display:flex; justify-content:space-between; gap:12px; margin-top:10px;
+      font-size:13px; color:var(--muted);
+    }
+    .statNum{font-weight:900; color:var(--ink);}
+
+    .feedback{
+      padding:14px; border-radius:18px; border:2px solid #e2e8f0; background:#ffffff;
+      min-height:90px; display:flex; flex-direction:column; gap:6px; justify-content:center;
+    }
+    .feedback strong{font-size:16px;}
+    .feedback p{margin:0; color:var(--muted); font-size:13px;}
+
+    .grid{
+      margin-top:16px;
+      display:grid; grid-template-columns: repeat(2, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 780px){ .grid{grid-template-columns: 1fr;} }
+
+    /* Answer icon badge */
+    .optBadge{
+      width:44px; height:44px; border-radius:16px;
+      display:grid; place-items:center; font-size:24px; flex:0 0 auto;
+      background: linear-gradient(135deg,#e0e7ff,#fff7ed);
+      border:1px solid #e2e8f0;
+      box-shadow: 0 10px 18px rgba(2,6,23,.10);
+      transform: rotate(-3deg);
+    }
+
+    /* Hide visuals when therapist toggles off */
+    body.visuals-off .optBadge{ display:none; }
+    body.visuals-off .choiceLeft{ gap: 0px; }
+    body.visuals-off .choice{ padding-left: 16px; } /* slight balance */
+
+    .choice{
+      border:0; cursor:pointer; text-align:left; border-radius:18px;
+      padding:12px 14px;
+      background: linear-gradient(135deg,#ffffff,#f8fafc);
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 10px 18px rgba(2,6,23,.10);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      font-size:18px; font-weight:900; user-select:none;
+      transition: transform .08s ease, border-color .08s ease, filter .08s ease;
+    }
+    .choice:hover{filter:saturate(1.05)}
+    .choice:active{transform: translateY(1px) scale(.995);}
+    .choice[disabled]{cursor:not-allowed; opacity:.72}
+
+    .choiceLeft{ display:flex; align-items:center; gap:12px; min-width:0; }
+    .choiceText{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    .choice small{
+      font-weight:900; font-size:13px; color:var(--muted);
+      background:#f1f5f9; border:1px solid #e2e8f0;
+      padding:4px 8px; border-radius:999px; white-space:nowrap; flex:0 0 auto;
+    }
+    .choice.correct{
+      border-color:#86efac;
+      box-shadow: 0 14px 22px rgba(34,197,94,.18);
+      background: linear-gradient(135deg,#f0fdf4,#ffffff);
+    }
+    .choice.wrong{
+      border-color:#fecaca;
+      box-shadow: 0 14px 22px rgba(239,68,68,.12);
+      background: linear-gradient(135deg,#fff1f2,#ffffff);
+    }
+
+    .bottomBar{
+      margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;
+      justify-content:space-between; align-items:center;
+    }
+    .primaryBtn{
+      border:0; cursor:pointer;
+      padding:12px 16px; border-radius:999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:white; font-weight:900; letter-spacing:.2px;
+      box-shadow: 0 14px 24px rgba(124,58,237,.22);
+      transition: transform .08s ease, filter .08s ease; user-select:none;
+    }
+    .primaryBtn:active{transform: translateY(1px) scale(.99); filter:saturate(1.08);}
+    .ghostBtn{
+      border:2px solid #cbd5e1; cursor:pointer;
+      padding:12px 16px; border-radius:999px;
+      background:#ffffff; color:#0f172a; font-weight:900;
+      box-shadow: 0 12px 18px rgba(2,6,23,.10);
+      transition: transform .08s ease; user-select:none;
+    }
+    .ghostBtn:active{transform: translateY(1px) scale(.99);}
+    .hint{ font-size:12px; color:var(--muted); }
+
+    /* confetti */
+    .confetti{ position:fixed; inset:0; pointer-events:none; z-index:9; overflow:hidden; display:none; }
+    .confetti.show{display:block;}
+    .confetti i{
+      position:absolute; top:-10px; width:10px; height:18px; border-radius:3px; opacity:.95;
+      animation: fall 900ms linear forwards;
+    }
+    @keyframes fall{ to{ transform: translateY(calc(100vh + 40px)) rotate(260deg); opacity: 1; } }
+
+    .endScreen{
+      margin-top:16px; padding:16px; border-radius:18px;
+      background: linear-gradient(135deg,#fff7ed,#f0f9ff);
+      border: 2px solid #fed7aa; display:none;
+    }
+    .endScreen.show{display:block;}
+    .endScreen h2{margin:0 0 8px 0;}
+    .stars{display:flex; gap:6px; font-size:22px; margin-top:6px;}
+
+    footer{ margin-top:18px; text-align:center; color: rgba(15,23,42,.7); font-size:12px; }
+    kbd{ background:#0f172a; color:white; padding:2px 6px; border-radius:6px; font-weight:900; font-size:11px; }
+  </style>
+</head>
+<body>
+  <div class="floaters" aria-hidden="true">
+    <div class="floater" style="--r:12deg"></div>
+    <div class="floater" style="--r:-8deg"></div>
+    <div class="floater" style="--r:9deg"></div>
+    <div class="floater" style="--r:-6deg"></div>
+  </div>
+
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo">🧑‍🤝‍🧑</div>
+        <div>
+          <h1>Who Question Quest</h1>
+          <div class="sub">25 fun “who” questions • ages 5–7</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="pill" title="Toggle visuals (icons) for answer options.">
+          <span style="font-weight:900;">🖼️ Visuals</span>
+          <button class="miniBtn" id="visualBtn" type="button">ON</button>
+        </div>
+        <div class="pill" title="Sound effects are simple beeps (no external audio).">
+          <span style="font-weight:900;">🔊 Sound</span>
+          <button class="miniBtn" id="soundBtn" type="button">ON</button>
+        </div>
+        <button class="miniBtn" id="shuffleBtn" type="button" title="Shuffle questions">🔀 Shuffle</button>
+        <button class="miniBtn" id="resetBtn" type="button" title="Start over">🔁 Reset</button>
+      </div>
+    </header>
+
+    <main class="card">
+      <div class="topRow">
+        <section class="questionBox" aria-live="polite">
+          <div class="qBadge">👤</div>
+          <div class="qText">
+            <div class="qMeta">
+              <span id="qCount">Question 1 of 25</span>
+              <span id="streak">Streak: 0 🔥</span>
+            </div>
+            <p class="qPrompt" id="qPrompt">Who helps you learn at school?</p>
+          </div>
+        </section>
+
+        <aside class="sidePanel">
+          <div class="progressWrap">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+              <div style="font-weight:900;">Progress</div>
+              <div style="font-size:12px; color:var(--muted);">Score: <span class="statNum" id="score">0</span></div>
+            </div>
+            <div class="bar" aria-label="progress bar"><div id="barFill"></div></div>
+            <div class="stats">
+              <div>✅ Correct: <span class="statNum" id="correct">0</span></div>
+              <div>❌ Misses: <span class="statNum" id="misses">0</span></div>
+            </div>
+          </div>
+
+          <div class="feedback" id="feedback">
+            <strong>Pick an answer!</strong>
+            <p>Choose who matches the question.</p>
+          </div>
+        </aside>
+      </div>
+
+      <section class="grid" id="choices" aria-label="answer choices"></section>
+
+      <div class="bottomBar">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="primaryBtn" id="nextBtn" type="button" disabled>Next ➜</button>
+          <button class="ghostBtn" id="skipBtn" type="button" title="Skip this question (no points)">Skip</button>
+        </div>
+        <div class="hint">Tip: use keys <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> to choose.</div>
+      </div>
+
+      <div class="endScreen" id="endScreen">
+        <h2>🏁 Finished!</h2>
+        <div style="font-size:14px; color:var(--muted);">
+          Final score: <strong id="finalScore">0</strong> • Correct: <strong id="finalCorrect">0</strong> • Misses: <strong id="finalMisses">0</strong>
+        </div>
+        <div class="stars" id="stars" aria-label="star rating"></div>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="primaryBtn" id="playAgainBtn" type="button">Play Again</button>
+          <button class="ghostBtn" id="reviewBtn" type="button">Review Missed</button>
+        </div>
+      </div>
+
+      <footer>
+        Therapist can toggle answer icons ON/OFF (🖼️ Visuals).
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      { prompt:"Who helps you learn at school?",
+        choices:["Teacher","Dentist","Chef","Mail carrier"],
+        choiceEmojis:["🧑‍🏫","🦷","👩‍🍳","📫"],
+        answer:0, why:"A teacher helps you learn at school." },
+
+      { prompt:"Who drives a school bus?",
+        choices:["Bus driver","Doctor","Librarian","Firefighter"],
+        choiceEmojis:["🚌","🩺","📚","🚒"],
+        answer:0, why:"A bus driver drives the school bus." },
+
+      { prompt:"Who helps when you are sick?",
+        choices:["Doctor","Baker","Painter","Pilot"],
+        choiceEmojis:["🩺","🧁","🎨","✈️"],
+        answer:0, why:"A doctor helps when you are sick." },
+
+      { prompt:"Who puts out fires?",
+        choices:["Firefighter","Teacher","Farmer","Cashier"],
+        choiceEmojis:["🚒","🧑‍🏫","🚜","🛒"],
+        answer:0, why:"A firefighter puts out fires." },
+
+      { prompt:"Who takes care of your teeth?",
+        choices:["Dentist","Coach","Chef","Mechanic"],
+        choiceEmojis:["🦷","🏀","👩‍🍳","🧰"],
+        answer:0, why:"A dentist takes care of your teeth." },
+
+      { prompt:"Who gives you a haircut?",
+        choices:["Hair stylist","Astronaut","Baker","Police officer"],
+        choiceEmojis:["💇‍♀️","🧑‍🚀","🧁","👮"],
+        answer:0, why:"A hair stylist cuts hair." },
+
+      { prompt:"Who helps you find a book in the library?",
+        choices:["Librarian","Pilot","Farmer","Singer"],
+        choiceEmojis:["📚","✈️","🚜","🎤"],
+        answer:0, why:"A librarian helps you find books." },
+
+      { prompt:"Who delivers letters and packages?",
+        choices:["Mail carrier","Chef","Doctor","Coach"],
+        choiceEmojis:["📫","👩‍🍳","🩺","🏀"],
+        answer:0, why:"A mail carrier delivers mail." },
+
+      { prompt:"Who cooks food in a restaurant?",
+        choices:["Chef","Dentist","Teacher","Pilot"],
+        choiceEmojis:["👩‍🍳","🦷","🧑‍🏫","✈️"],
+        answer:0, why:"A chef cooks food." },
+
+      { prompt:"Who flies an airplane?",
+        choices:["Pilot","Baker","Firefighter","Librarian"],
+        choiceEmojis:["✈️","🧁","🚒","📚"],
+        answer:0, why:"A pilot flies an airplane." },
+
+      { prompt:"Who helps keep people safe and follows laws?",
+        choices:["Police officer","Artist","Farmer","Cashier"],
+        choiceEmojis:["👮","🎨","🚜","🛒"],
+        answer:0, why:"Police officers help keep people safe." },
+
+      { prompt:"Who takes care of pets at an animal hospital?",
+        choices:["Veterinarian","Teacher","Pilot","Singer"],
+        choiceEmojis:["🐶","🧑‍🏫","✈️","🎤"],
+        answer:0, why:"A veterinarian takes care of animals." },
+
+      { prompt:"Who grows fruits and vegetables on a farm?",
+        choices:["Farmer","Doctor","Dentist","Librarian"],
+        choiceEmojis:["🚜","🩺","🦷","📚"],
+        answer:0, why:"A farmer grows food." },
+
+      { prompt:"Who fixes a broken car?",
+        choices:["Mechanic","Chef","Teacher","Mail carrier"],
+        choiceEmojis:["🧰","👩‍🍳","🧑‍🏫","📫"],
+        answer:0, why:"A mechanic fixes cars." },
+
+      { prompt:"Who helps you practice sports skills?",
+        choices:["Coach","Dentist","Baker","Pilot"],
+        choiceEmojis:["🏀","🦷","🧁","✈️"],
+        answer:0, why:"A coach helps you practice sports." },
+
+      { prompt:"Who helps babies and children in a hospital?",
+        choices:["Nurse","Farmer","Painter","Mail carrier"],
+        choiceEmojis:["🧑‍⚕️","🚜","🎨","📫"],
+        answer:0, why:"A nurse helps care for patients." },
+
+      { prompt:"Who works at a store and rings up items?",
+        choices:["Cashier","Firefighter","Librarian","Pilot"],
+        choiceEmojis:["🛒","🚒","📚","✈️"],
+        answer:0, why:"A cashier rings up your items." },
+
+      { prompt:"Who builds houses and fixes things with tools?",
+        choices:["Builder","Teacher","Dentist","Chef"],
+        choiceEmojis:["🧱","🧑‍🏫","🦷","👩‍🍳"],
+        answer:0, why:"A builder uses tools to build and fix." },
+
+      { prompt:"Who paints pictures or makes art?",
+        choices:["Artist","Doctor","Bus driver","Police officer"],
+        choiceEmojis:["🎨","🩺","🚌","👮"],
+        answer:0, why:"An artist makes art." },
+
+      { prompt:"Who bakes bread and cookies?",
+        choices:["Baker","Firefighter","Mechanic","Librarian"],
+        choiceEmojis:["🍞","🚒","🧰","📚"],
+        answer:0, why:"A baker bakes bread and treats." },
+
+      { prompt:"Who sings songs on a stage?",
+        choices:["Singer","Dentist","Farmer","Coach"],
+        choiceEmojis:["🎤","🦷","🚜","🏀"],
+        answer:0, why:"A singer sings songs." },
+
+      { prompt:"Who takes pictures with a camera?",
+        choices:["Photographer","Teacher","Chef","Police officer"],
+        choiceEmojis:["📷","🧑‍🏫","👩‍🍳","👮"],
+        answer:0, why:"A photographer takes pictures." },
+
+      { prompt:"Who helps you cross the street safely at school?",
+        choices:["Crossing guard","Baker","Pilot","Artist"],
+        choiceEmojis:["🛑","🧁","✈️","🎨"],
+        answer:0, why:"A crossing guard helps kids cross safely." },
+
+      { prompt:"Who helps you when you feel sad and need comfort at home?",
+        choices:["Caregiver","Pilot","Chef","Mail carrier"],
+        choiceEmojis:["❤️","✈️","👩‍🍳","📫"],
+        answer:0, why:"A caregiver can comfort and help you." },
+
+      { prompt:"Who teaches you rules and helps you learn in class?",
+        choices:["Teacher","Mechanic","Photographer","Farmer"],
+        choiceEmojis:["🧑‍🏫","🧰","📷","🚜"],
+        answer:0, why:"A teacher teaches rules and learning." }
+    ];
+
+    // --- Game state ---
+    let order = [];
+    let index = 0;
+    let score = 0;
+    let correct = 0;
+    let misses = 0;
+    let streak = 0;
+    let locked = false;
+    let missedList = [];
+    let soundOn = true;
+    let visualsOn = true;
+
+    // --- Elements ---
+    const qPrompt = document.getElementById("qPrompt");
+    const qCount = document.getElementById("qCount");
+    const streakEl = document.getElementById("streak");
+    const choicesEl = document.getElementById("choices");
+    const feedback = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const skipBtn = document.getElementById("skipBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const soundBtn = document.getElementById("soundBtn");
+    const visualBtn = document.getElementById("visualBtn");
+    const barFill = document.getElementById("barFill");
+    const scoreEl = document.getElementById("score");
+    const correctEl = document.getElementById("correct");
+    const missesEl = document.getElementById("misses");
+    const confetti = document.getElementById("confetti");
+
+    const endScreen = document.getElementById("endScreen");
+    const finalScore = document.getElementById("finalScore");
+    const finalCorrect = document.getElementById("finalCorrect");
+    const finalMisses = document.getElementById("finalMisses");
+    const starsEl = document.getElementById("stars");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const reviewBtn = document.getElementById("reviewBtn");
+
+    // --- Tiny beep sounds (WebAudio) ---
+    let audioCtx = null;
+    function beep(freq=440, duration=0.08, type="sine"){
+      if(!soundOn) return;
+      try{
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        o.start();
+        o.stop(audioCtx.currentTime + duration);
+      }catch(e){}
+    }
+
+    function sparkle(){
+      confetti.classList.add("show");
+      confetti.innerHTML = "";
+      const pieces = 36;
+      for(let i=0;i<pieces;i++){
+        const p = document.createElement("i");
+        const left = Math.random()*100;
+        const delay = Math.random()*120;
+        const sizeW = 8 + Math.random()*8;
+        const sizeH = 12 + Math.random()*12;
+        p.style.left = left + "vw";
+        p.style.width = sizeW + "px";
+        p.style.height = sizeH + "px";
+        p.style.animationDelay = delay + "ms";
+        const h = Math.floor(Math.random()*360);
+        p.style.background = `hsl(${h} 90% 65%)`;
+        confetti.appendChild(p);
+      }
+      setTimeout(()=>confetti.classList.remove("show"), 900);
+    }
+
+    function buildOrder(){
+      order = Array.from({length: QUESTIONS.length}, (_,i)=>i);
+    }
+
+    function shuffle(array){
+      for(let i=array.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function setFeedback(kind, title, msg){
+      feedback.style.borderColor = kind==="good" ? "#86efac" : kind==="bad" ? "#fecaca" : "#e2e8f0";
+      feedback.style.background = kind==="good" ? "linear-gradient(135deg,#f0fdf4,#ffffff)" :
+                                  kind==="bad"  ? "linear-gradient(135deg,#fff1f2,#ffffff)" :
+                                                 "#ffffff";
+      feedback.innerHTML = `<strong>${title}</strong><p>${msg}</p>`;
+    }
+
+    function updateStats(){
+      scoreEl.textContent = score;
+      correctEl.textContent = correct;
+      missesEl.textContent = misses;
+      streakEl.textContent = `Streak: ${streak} 🔥`;
+      const pct = Math.round(((index)/QUESTIONS.length)*100);
+      barFill.style.width = pct + "%";
+    }
+
+    function syncVisualsClass(){
+      document.body.classList.toggle("visuals-off", !visualsOn);
+      visualBtn.textContent = visualsOn ? "ON" : "OFF";
+    }
+
+    function renderQuestion(){
+      locked = false;
+      nextBtn.disabled = true;
+      endScreen.classList.remove("show");
+
+      const qIndex = order[index];
+      const q = QUESTIONS[qIndex];
+
+      qPrompt.textContent = q.prompt;
+      qCount.textContent = `Question ${index+1} of ${QUESTIONS.length}`;
+      setFeedback("neutral", "Pick an answer!", "Choose who matches the question.");
+
+      choicesEl.innerHTML = "";
+      q.choices.forEach((text, i) => {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.type = "button";
+        btn.setAttribute("data-i", String(i));
+
+        const icon = (q.choiceEmojis && q.choiceEmojis[i]) ? q.choiceEmojis[i] : "✨";
+
+        btn.innerHTML = `
+          <span class="choiceLeft">
+            <span class="optBadge" aria-hidden="true">${icon}</span>
+            <span class="choiceText">${text}</span>
+          </span>
+          <small>${i+1}</small>
+        `;
+
+        btn.addEventListener("click", ()=> choose(i));
+        choicesEl.appendChild(btn);
+      });
+
+      updateStats();
+      syncVisualsClass();
+    }
+
+    function markButtons(correctIndex, chosenIndex){
+      const buttons = [...choicesEl.querySelectorAll(".choice")];
+      buttons.forEach((b)=>{
+        b.disabled = true;
+        const i = Number(b.getAttribute("data-i"));
+        if(i === correctIndex) b.classList.add("correct");
+        if(i === chosenIndex && chosenIndex !== correctIndex) b.classList.add("wrong");
+      });
+    }
+
+    function choose(choiceIndex){
+      if(locked) return;
+      locked = true;
+
+      const qIndex = order[index];
+      const q = QUESTIONS[qIndex];
+
+      markButtons(q.answer, choiceIndex);
+
+      if(choiceIndex === q.answer){
+        correct++;
+        streak++;
+        const bonus = Math.min(6, streak);
+        score += (10 + bonus);
+        setFeedback("good", "✅ Nice job!", q.why);
+        beep(660, 0.08, "triangle");
+        setTimeout(()=>beep(880, 0.09, "triangle"), 80);
+        sparkle();
+      }else{
+        misses++;
+        streak = 0;
+        if(!missedList.includes(qIndex)) missedList.push(qIndex);
+        setFeedback("bad", "❌ Not quite.", `The best answer is “${q.choices[q.answer]}”. ${q.why}`);
+        beep(220, 0.12, "sawtooth");
+      }
+
+      nextBtn.disabled = false;
+      updateStats();
+    }
+
+    function next(){
+      if(index < QUESTIONS.length-1){
+        index++;
+        renderQuestion();
+      }else{
+        index++;
+        barFill.style.width = "100%";
+        showEnd();
+      }
+    }
+
+    function skip(){
+      if(locked) return;
+      streak = 0;
+      setFeedback("neutral", "⏭️ Skipped!", "No worries — let’s try the next one.");
+      beep(440, 0.06, "square");
+      nextBtn.disabled = false;
+      locked = true;
+      [...choicesEl.querySelectorAll(".choice")].forEach(b=>b.disabled = true);
+      updateStats();
+    }
+
+    function showEnd(){
+      finalScore.textContent = score;
+      finalCorrect.textContent = correct;
+      finalMisses.textContent = misses;
+
+      const pct = correct / QUESTIONS.length;
+      const stars = pct >= .9 ? 5 : pct >= .8 ? 4 : pct >= .65 ? 3 : pct >= .5 ? 2 : pct >= .35 ? 1 : 0;
+      starsEl.textContent = "";
+      for(let i=0;i<5;i++){
+        starsEl.textContent += (i < stars) ? "⭐" : "✩";
+      }
+
+      setFeedback("neutral", "🎉 Great work!", "Want to play again or review the ones you missed?");
+      endScreen.classList.add("show");
+      nextBtn.disabled = true;
+      sparkle();
+      beep(523, 0.09, "triangle");
+      setTimeout(()=>beep(659, 0.09, "triangle"), 90);
+      setTimeout(()=>beep(784, 0.10, "triangle"), 180);
+    }
+
+    function resetGame({doShuffle=false} = {}){
+      buildOrder();
+      if(doShuffle) shuffle(order);
+      index = 0;
+      score = 0;
+      correct = 0;
+      misses = 0;
+      streak = 0;
+      locked = false;
+      missedList = [];
+      barFill.style.width = "0%";
+      renderQuestion();
+    }
+
+    function reviewMissed(){
+      if(missedList.length === 0){
+        setFeedback("good", "✅ Nothing to review!", "You didn’t miss any questions. Awesome!");
+        sparkle();
+        return;
+      }
+      order = missedList.slice();
+      shuffle(order);
+      index = 0;
+      setFeedback("neutral", "📝 Review Round!", "Let’s practice the ones you missed.");
+      renderQuestion();
+    }
+
+    window.addEventListener("keydown", (e)=>{
+      if(endScreen.classList.contains("show")) return;
+      const k = e.key;
+      if(["1","2","3","4"].includes(k)){
+        const i = Number(k) - 1;
+        const btn = choicesEl.querySelector(`.choice[data-i="${i}"]`);
+        if(btn && !btn.disabled) btn.click();
+      }
+      if(k === "Enter" && !nextBtn.disabled) nextBtn.click();
+      if(k.toLowerCase() === "v"){
+        visualsOn = !visualsOn;
+        syncVisualsClass();
+        beep(520, 0.05, "square");
+      }
+    });
+
+    nextBtn.addEventListener("click", next);
+    skipBtn.addEventListener("click", skip);
+    resetBtn.addEventListener("click", ()=>resetGame({doShuffle:false}));
+    shuffleBtn.addEventListener("click", ()=>resetGame({doShuffle:true}));
+    playAgainBtn.addEventListener("click", ()=>resetGame({doShuffle:true}));
+    reviewBtn.addEventListener("click", reviewMissed);
+
+    soundBtn.addEventListener("click", ()=>{
+      soundOn = !soundOn;
+      soundBtn.textContent = soundOn ? "ON" : "OFF";
+      if(soundOn) beep(660, 0.08, "triangle");
+    });
+
+    visualBtn.addEventListener("click", ()=>{
+      visualsOn = !visualsOn;
+      syncVisualsClass();
+      beep(520, 0.05, "square");
+    });
+
+    // start
+    resetGame({doShuffle:true});
+  </script>
+</body>
+</html>
