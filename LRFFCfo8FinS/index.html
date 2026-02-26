@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LRFFC Array of 8 (25 Targets)</title>
+  <style>
+    :root{
+      --bg1:#7dd3fc;
+      --bg2:#a7f3d0;
+      --card:#ffffffee;
+      --ink:#0f172a;
+      --muted:#475569;
+      --good:#16a34a;
+      --bad:#ef4444;
+      --accent:#7c3aed;
+      --accent2:#f97316;
+      --shadow: 0 18px 40px rgba(2,6,23,.18);
+      --radius: 22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      min-height:100vh;
+      background: radial-gradient(1200px 800px at 10% 10%, #fff8, transparent 60%),
+                  radial-gradient(900px 700px at 90% 20%, #fff7, transparent 55%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    .floaters{ position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.85; }
+    .floater{
+      position:absolute; width:110px; height:110px; border-radius:30px; filter:blur(.2px);
+      animation: drift 14s ease-in-out infinite; box-shadow: 0 18px 35px rgba(2,6,23,.12);
+    }
+    .floater:nth-child(1){left:6%; top:12%; background:linear-gradient(135deg,#fda4af,#fef08a); transform: rotate(12deg); animation-duration:16s;}
+    .floater:nth-child(2){left:76%; top:10%; background:linear-gradient(135deg,#c4b5fd,#93c5fd); transform: rotate(-8deg); animation-duration:18s;}
+    .floater:nth-child(3){left:82%; top:68%; background:linear-gradient(135deg,#86efac,#fca5a5); transform: rotate(9deg); animation-duration:15s;}
+    .floater:nth-child(4){left:10%; top:72%; background:linear-gradient(135deg,#fde68a,#60a5fa); transform: rotate(-6deg); animation-duration:20s;}
+    @keyframes drift{
+      0%,100%{ transform: translateY(0) translateX(0) rotate(var(--r, 0deg)); }
+      50%{ transform: translateY(-18px) translateX(14px) rotate(calc(var(--r, 0deg) + 6deg)); }
+    }
+
+    .wrap{ position:relative; z-index:1; max-width:1050px; margin:0 auto; padding:22px 16px 36px; }
+
+    header{
+      display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:14px;
+    }
+    .title{
+      display:flex; align-items:center; gap:12px; padding:10px 14px;
+      background:#ffffffb8; border:2px solid #ffffffcc; border-radius:999px;
+      box-shadow: 0 10px 25px rgba(2,6,23,.12); backdrop-filter: blur(8px);
+    }
+    .logo{
+      width:44px; height:44px; border-radius:14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display:grid; place-items:center; color:white; font-size:24px;
+      box-shadow: 0 10px 20px rgba(124,58,237,.25); transform: rotate(-6deg);
+    }
+    h1{font-size:18px; margin:0}
+    .sub{font-size:12px; color:var(--muted); margin-top:2px}
+
+    .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border-radius:999px; background:#ffffffb8; border:2px solid #ffffffcc;
+      box-shadow: 0 10px 25px rgba(2,6,23,.12); backdrop-filter: blur(8px); font-size:13px;
+    }
+    .miniBtn{
+      border:0; background: linear-gradient(135deg,#111827,#334155); color:white;
+      padding:9px 12px; border-radius:999px; cursor:pointer; font-weight:700; letter-spacing:.2px;
+      box-shadow: 0 10px 20px rgba(2,6,23,.18);
+      transition: transform .08s ease, filter .08s ease; user-select:none;
+    }
+    .miniBtn:active{transform: translateY(1px) scale(.99); filter:saturate(1.1);}
+
+    .card{
+      background: var(--card);
+      border: 2px solid #ffffffcc;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .topRow{
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 16px;
+      align-items:stretch;
+    }
+    @media (max-width: 860px){ .topRow{grid-template-columns: 1fr;} }
+
+    .questionBox{
+      display:flex; gap:14px; align-items:center; padding:16px;
+      border-radius:18px; background: linear-gradient(135deg,#ffffff,#f8fafc);
+      border: 2px dashed #c7d2fe;
+    }
+    .qBadge{
+      width:84px; height:84px; border-radius:22px;
+      background: linear-gradient(135deg,#c4b5fd,#fde68a);
+      display:grid; place-items:center; font-size:44px;
+      box-shadow: 0 14px 24px rgba(2,6,23,.12); flex:0 0 auto;
+      transform: rotate(-4deg);
+    }
+    .qText{ flex:1; min-width:0; }
+    .qMeta{
+      font-size:12px; color:var(--muted); margin-bottom:6px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .qMeta span{ padding:5px 9px; background:#eef2ff; border-radius:999px; border:1px solid #c7d2fe; }
+    .qPrompt{
+      font-size:22px; line-height:1.2; margin:0;
+    }
+    .qPrompt em{
+      font-style:normal;
+      color: var(--accent);
+      font-weight: 900;
+    }
+
+    .sidePanel{ display:flex; flex-direction:column; gap:12px; height:100%; }
+
+    .progressWrap{
+      padding:14px 14px 12px; border-radius:18px;
+      background: linear-gradient(135deg,#ecfeff,#f0fdf4);
+      border: 2px solid #bbf7d0;
+      box-shadow: 0 10px 20px rgba(2,6,23,.10);
+    }
+    .bar{ height:14px; border-radius:999px; background:#e2e8f0; overflow:hidden; border:1px solid #cbd5e1; margin-top:10px; }
+    .bar > div{
+      height:100%; width:0%;
+      background: linear-gradient(90deg, var(--accent), #22c55e, var(--accent2));
+      border-radius:999px; transition: width .35s ease;
+    }
+    .stats{
+      display:flex; justify-content:space-between; gap:12px; margin-top:10px;
+      font-size:13px; color:var(--muted);
+    }
+    .statNum{font-weight:900; color:var(--ink);}
+
+    .feedback{
+      padding:14px; border-radius:18px; border:2px solid #e2e8f0; background:#ffffff;
+      min-height:92px; display:flex; flex-direction:column; gap:6px; justify-content:center;
+    }
+    .feedback strong{font-size:16px;}
+    .feedback p{margin:0; color:var(--muted); font-size:13px;}
+
+    /* ARRAY OF 8 */
+    .grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 900px){ .grid{grid-template-columns: repeat(3, 1fr);} }
+    @media (max-width: 640px){ .grid{grid-template-columns: repeat(2, 1fr);} }
+
+    .tile{
+      border:0; cursor:pointer;
+      border-radius:18px;
+      padding:10px;
+      background: linear-gradient(135deg,#ffffff,#f8fafc);
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 10px 18px rgba(2,6,23,.10);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+      transition: transform .08s ease, border-color .08s ease, filter .08s ease;
+      min-height: 150px;
+    }
+    .tile:hover{filter:saturate(1.05)}
+    .tile:active{transform: translateY(1px) scale(.995);}
+    .tile[disabled]{cursor:not-allowed; opacity:.72}
+
+    .imgWrap{
+      width:100%;
+      background:#fff;
+      border: 1px solid #e2e8f0;
+      border-radius:16px;
+      padding:8px;
+      display:grid;
+      place-items:center;
+      box-shadow: 0 8px 14px rgba(2,6,23,.06);
+    }
+    .imgWrap img{
+      width:100%;
+      height:90px;
+      object-fit:contain;
+      display:block;
+    }
+
+    .label{
+      font-weight:900;
+      font-size:13px;
+      color:#0f172a;
+      text-align:center;
+      padding:4px 8px;
+      background:#f1f5f9;
+      border:1px solid #e2e8f0;
+      border-radius:999px;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    /* Therapist toggle: labels on/off */
+    body.labels-off .label{ display:none; }
+
+    .tile.correct{
+      border-color:#86efac;
+      box-shadow: 0 14px 22px rgba(34,197,94,.18);
+      background: linear-gradient(135deg,#f0fdf4,#ffffff);
+    }
+    .tile.wrong{
+      border-color:#fecaca;
+      box-shadow: 0 14px 22px rgba(239,68,68,.12);
+      background: linear-gradient(135deg,#fff1f2,#ffffff);
+    }
+
+    .bottomBar{
+      margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;
+      justify-content:space-between; align-items:center;
+    }
+    .primaryBtn{
+      border:0; cursor:pointer;
+      padding:12px 16px; border-radius:999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:white; font-weight:900; letter-spacing:.2px;
+      box-shadow: 0 14px 24px rgba(124,58,237,.22);
+      transition: transform .08s ease, filter .08s ease; user-select:none;
+    }
+    .primaryBtn:active{transform: translateY(1px) scale(.99); filter:saturate(1.08);}
+    .ghostBtn{
+      border:2px solid #cbd5e1; cursor:pointer;
+      padding:12px 16px; border-radius:999px;
+      background:#ffffff; color:#0f172a; font-weight:900;
+      box-shadow: 0 12px 18px rgba(2,6,23,.10);
+      transition: transform .08s ease; user-select:none;
+    }
+    .ghostBtn:active{transform: translateY(1px) scale(.99);}
+    .hint{ font-size:12px; color:var(--muted); }
+
+    /* confetti */
+    .confetti{ position:fixed; inset:0; pointer-events:none; z-index:9; overflow:hidden; display:none; }
+    .confetti.show{display:block;}
+    .confetti i{
+      position:absolute; top:-10px; width:10px; height:18px; border-radius:3px; opacity:.95;
+      animation: fall 900ms linear forwards;
+    }
+    @keyframes fall{ to{ transform: translateY(calc(100vh + 40px)) rotate(260deg); opacity: 1; } }
+
+    .endScreen{
+      margin-top:16px; padding:16px; border-radius:18px;
+      background: linear-gradient(135deg,#fff7ed,#f0f9ff);
+      border: 2px solid #fed7aa; display:none;
+    }
+    .endScreen.show{display:block;}
+    .endScreen h2{margin:0 0 8px 0;}
+    .stars{display:flex; gap:6px; font-size:22px; margin-top:6px;}
+
+    footer{ margin-top:18px; text-align:center; color: rgba(15,23,42,.7); font-size:12px; }
+    kbd{ background:#0f172a; color:white; padding:2px 6px; border-radius:6px; font-weight:900; font-size:11px; }
+  </style>
+</head>
+<body class="labels-off">
+  <div class="floaters" aria-hidden="true">
+    <div class="floater" style="--r:12deg"></div>
+    <div class="floater" style="--r:-8deg"></div>
+    <div class="floater" style="--r:9deg"></div>
+    <div class="floater" style="--r:-6deg"></div>
+  </div>
+
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo">🧠</div>
+        <div>
+          <h1>LRFFC Array of 8</h1>
+          <div class="sub">25 fill-in statements • select 1 correct item</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="pill" title="Show/hide text labels under pictures.">
+          <span style="font-weight:900;">🏷️ Labels</span>
+          <button class="miniBtn" id="labelBtn" type="button">OFF</button>
+        </div>
+        <div class="pill" title="Sound effects are simple beeps (no external audio).">
+          <span style="font-weight:900;">🔊 Sound</span>
+          <button class="miniBtn" id="soundBtn" type="button">ON</button>
+        </div>
+        <button class="miniBtn" id="shuffleBtn" type="button" title="Shuffle targets">🔀 Shuffle</button>
+        <button class="miniBtn" id="resetBtn" type="button" title="Start over">🔁 Reset</button>
+      </div>
+    </header>
+
+    <main class="card">
+      <div class="topRow">
+        <section class="questionBox" aria-live="polite">
+          <div class="qBadge">🧩</div>
+          <div class="qText">
+            <div class="qMeta">
+              <span id="qCount">Target 1 of 25</span>
+              <span id="streak">Streak: 0 🔥</span>
+            </div>
+            <p class="qPrompt" id="qPrompt">Find the one you use to <em>brush your teeth</em>.</p>
+          </div>
+        </section>
+
+        <aside class="sidePanel">
+          <div class="progressWrap">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+              <div style="font-weight:900;">Progress</div>
+              <div style="font-size:12px; color:var(--muted);">Score: <span class="statNum" id="score">0</span></div>
+            </div>
+            <div class="bar" aria-label="progress bar"><div id="barFill"></div></div>
+            <div class="stats">
+              <div>✅ Correct: <span class="statNum" id="correct">0</span></div>
+              <div>❌ Misses: <span class="statNum" id="misses">0</span></div>
+            </div>
+          </div>
+
+          <div class="feedback" id="feedback">
+            <strong>Pick one picture.</strong>
+            <p>Select the item that matches the statement.</p>
+          </div>
+        </aside>
+      </div>
+
+      <section class="grid" id="grid" aria-label="array of 8"></section>
+
+      <div class="bottomBar">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="primaryBtn" id="nextBtn" type="button" disabled>Next ➜</button>
+          <button class="ghostBtn" id="skipBtn" type="button" title="Skip this target (no points)">Skip</button>
+        </div>
+        <div class="hint">
+          Keys: <kbd>1</kbd>–<kbd>8</kbd> choose • <kbd>Enter</kbd> next • <kbd>L</kbd> labels
+        </div>
+      </div>
+
+      <div class="endScreen" id="endScreen">
+        <h2>🏁 Finished!</h2>
+        <div style="font-size:14px; color:var(--muted);">
+          Final score: <strong id="finalScore">0</strong> • Correct: <strong id="finalCorrect">0</strong> • Misses: <strong id="finalMisses">0</strong>
+        </div>
+        <div class="stars" id="stars" aria-label="star rating"></div>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="primaryBtn" id="playAgainBtn" type="button">Play Again</button>
+          <button class="ghostBtn" id="reviewBtn" type="button">Review Missed</button>
+        </div>
+        <p style="margin:10px 0 0; color:var(--muted); font-size:12px;">
+          If images don’t show, confirm your folder is next to this HTML file and paths look like <code>images/food/food_apple.jpg</code>.
+        </p>
+      </div>
+
+      <footer>
+        Uses your local images folder: <strong>images/food</strong>, <strong>images/drinks</strong>, <strong>images/other</strong>.
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    /*
+      IMPORTANT:
+      Put this HTML file in the same parent folder as your "images" folder.
+
+      Expected structure:
+      - your_game.html
+      - images/
+          - food/
+          - drinks/
+          - other/
+    */
+
+    const ITEMS = {
+      // Drinks
+      drink_apple_cider:  { name:"Apple cider", img:"images/drinks/drink_apple_cider.jpg" },
+      drink_baby_bottle:  { name:"Baby bottle", img:"images/drinks/drink_baby_bottle.jpg" },
+      drink_capri_sun:    { name:"Capri Sun", img:"images/drinks/drink_capri_sun.jpg" },
+      drink_coffee_mug:   { name:"Coffee", img:"images/drinks/drink_coffee_mug.jpg" },
+      drink_energy_drink: { name:"Energy drink", img:"images/drinks/drink_energy_drink.jpg" },
+      drink_fruit_punch:  { name:"Fruit punch", img:"images/drinks/drink_fruit_punch.jpg" },
+      drink_hot_chocolate:{ name:"Hot chocolate", img:"images/drinks/drink_hot_chocolate.jpg" },
+      drink_hot_tea:      { name:"Hot tea", img:"images/drinks/drink_hot_tea.jpg" },
+      drink_iced_tea:     { name:"Iced tea", img:"images/drinks/drink_iced_tea.jpg" },
+      drink_juice_apple:  { name:"Apple juice", img:"images/drinks/drink_juice_apple.jpg" },
+      drink_juice_box:    { name:"Juice box", img:"images/drinks/drink_juice_box.jpg" },
+      drink_juice_orange: { name:"Orange juice", img:"images/drinks/drink_juice_orange.jpg" },
+      drink_lemonade:     { name:"Lemonade", img:"images/drinks/drink_lemonade.jpg" },
+      drink_milk_glass:   { name:"Milk", img:"images/drinks/drink_milk_glass.jpg" },
+      drink_milkshake:    { name:"Milkshake", img:"images/drinks/drink_milkshake.jpg" },
+      drink_open_cup:     { name:"Open cup", img:"images/drinks/drink_open_cup.jpg" },
+      drink_smoothie:     { name:"Smoothie", img:"images/drinks/drink_smoothie.jpg" },
+      drink_soda_bottle:  { name:"Soda bottle", img:"images/drinks/drink_soda_bottle.jpg" },
+      drink_soda_can:     { name:"Soda can", img:"images/drinks/drink_soda_can.jpg" },
+      drink_sports_drink: { name:"Sports drink", img:"images/drinks/drink_sports_drink.jpg" },
+      drink_straw_cup:    { name:"Straw cup", img:"images/drinks/drink_straw_cup.jpg" },
+      drink_takeout_cup:  { name:"Takeout cup", img:"images/drinks/drink_takeout_cup.jpg" },
+      drink_water_bottle: { name:"Water bottle", img:"images/drinks/drink_water_bottle.jpg" },
+      drink_water_glass:  { name:"Water glass", img:"images/drinks/drink_water_glass.jpg" },
+      drink_water_pitcher:{ name:"Water pitcher", img:"images/drinks/drink_water_pitcher.jpg" },
+
+      // Food
+      food_apple:         { name:"Apple", img:"images/food/food_apple.jpg" },
+      food_banana:        { name:"Banana", img:"images/food/food_banana.jpg" },
+      food_bread:         { name:"Bread", img:"images/food/food_bread.jpg" },
+      food_cereal_bowl:   { name:"Cereal", img:"images/food/food_cereal_bowl.jpg" },
+      food_cheese_slice:  { name:"Cheese", img:"images/food/food_cheese_slice.jpg" },
+      food_chicken_nuggets:{ name:"Chicken nuggets", img:"images/food/food_chicken_nuggets.jpg" },
+      food_chip_bag:      { name:"Chips", img:"images/food/food_chip_bag.jpg" },
+      food_chocolate_bar: { name:"Chocolate bar", img:"images/food/food_chocolate_bar.jpg" },
+      food_cookie:        { name:"Cookie", img:"images/food/food_cookie.jpg" },
+      food_french_fries:  { name:"French fries", img:"images/food/food_french_fries.jpg" },
+      food_grape:         { name:"Grapes", img:"images/food/food_grape.jpg" },
+      food_hamburger:     { name:"Hamburger", img:"images/food/food_hamburger.jpg" },
+      food_hot_dog:       { name:"Hot dog", img:"images/food/food_hot_dog.jpg" },
+      food_ice_cream_scoop:{ name:"Ice cream", img:"images/food/food_ice_cream_scoop.jpg" },
+      food_muffin:        { name:"Muffin", img:"images/food/food_muffin.jpg" },
+      food_orange:        { name:"Orange", img:"images/food/food_orange.jpg" },
+      food_pancakes:      { name:"Pancakes", img:"images/food/food_pancakes.jpg" },
+      food_pasta:         { name:"Pasta", img:"images/food/food_pasta.jpg" },
+      food_pizza_slice:   { name:"Pizza", img:"images/food/food_pizza_slice.jpg" },
+      food_popsicle:      { name:"Popsicle", img:"images/food/food_popsicle.jpg" },
+      food_rice_bowl:     { name:"Rice", img:"images/food/food_rice_bowl.jpg" },
+      food_salad_bowl:    { name:"Salad", img:"images/food/food_salad_bowl.jpg" },
+      food_sandwich:      { name:"Sandwich", img:"images/food/food_sandwich.jpg" },
+      food_strawberries:  { name:"Strawberries", img:"images/food/food_strawberries.jpg" },
+      food_taco:          { name:"Taco", img:"images/food/food_taco.jpg" },
+
+      // Other
+      other_backpack:     { name:"Backpack", img:"images/other/other_backpack.jpg" },
+      other_ball:         { name:"Ball", img:"images/other/other_ball.jpg" },
+      other_blocks:       { name:"Blocks", img:"images/other/other_blocks.jpg" },
+      other_book:         { name:"Book", img:"images/other/other_book.jpg" },
+      other_chair:        { name:"Chair", img:"images/other/other_chair.jpg" },
+      other_clock:        { name:"Clock", img:"images/other/other_clock.jpg" },
+      other_crayons:      { name:"Crayons", img:"images/other/other_crayons.jpg" },
+      other_cup_empty:    { name:"Empty cup", img:"images/other/other_cup_empty.jpg" },
+      other_doll:         { name:"Doll", img:"images/other/other_doll.jpg" },
+      other_hat:          { name:"Hat", img:"images/other/other_hat.jpg" },
+      other_jacket:       { name:"Jacket", img:"images/other/other_jacket.jpg" },
+      other_keys:         { name:"Keys", img:"images/other/other_keys.jpg" },
+      other_notebook:     { name:"Notebook", img:"images/other/other_notebook.jpg" },
+      other_pencil:       { name:"Pencil", img:"images/other/other_pencil.jpg" },
+      other_phone:        { name:"Phone", img:"images/other/other_phone.jpg" },
+      other_remote:       { name:"Remote", img:"images/other/other_remote.jpg" },
+      other_shirt:        { name:"Shirt", img:"images/other/other_shirt.jpg" },
+      other_shoe:         { name:"Shoe", img:"images/other/other_shoe.jpg" },
+      other_socks:        { name:"Socks", img:"images/other/other_socks.jpg" },
+      other_spoon:        { name:"Spoon", img:"images/other/other_spoon.jpg" },
+      other_table:        { name:"Table", img:"images/other/other_table.jpg" },
+      other_teddy_bear:   { name:"Teddy bear", img:"images/other/other_teddy_bear.jpg" },
+      other_toothbrush:   { name:"Toothbrush", img:"images/other/other_toothbrush.jpg" },
+      other_toy_car:      { name:"Toy car", img:"images/other/other_toy_car.jpg" },
+      other_wallet:       { name:"Wallet", img:"images/other/other_wallet.jpg" }
+    };
+
+    // 25 LRFFC fill-in statements, each with an array of 8 items (1 correct + 7 distractors).
+    const TARGETS = [
+      {
+        promptHTML: 'Find the one you use to <em>brush your teeth</em>.',
+        correctKey: 'other_toothbrush',
+        optionKeys: ['other_toothbrush','food_cookie','drink_water_bottle','other_hat','food_pizza_slice','other_remote','food_apple','other_ball'],
+        why: 'A toothbrush is used to brush teeth.'
+      },
+      {
+        promptHTML: 'Find the one that helps you <em>tell time</em>.',
+        correctKey: 'other_clock',
+        optionKeys: ['other_clock','food_taco','drink_lemonade','other_shoe','food_grape','other_crayons','drink_open_cup','other_backpack'],
+        why: 'A clock tells time.'
+      },
+      {
+        promptHTML: 'Find the one you use to <em>write</em>.',
+        correctKey: 'other_pencil',
+        optionKeys: ['other_pencil','food_hot_dog','drink_milk_glass','other_teddy_bear','food_banana','drink_water_glass','other_keys','food_chocolate_bar'],
+        why: 'A pencil is used to write.'
+      },
+      {
+        promptHTML: 'Find the one you <em>wear on your foot</em>.',
+        correctKey: 'other_shoe',
+        optionKeys: ['other_shoe','food_salad_bowl','drink_juice_orange','other_book','food_cookie','drink_takeout_cup','other_wallet','food_pancakes'],
+        why: 'A shoe is worn on your foot.'
+      },
+      {
+        promptHTML: 'Find the one you <em>wear on your feet under shoes</em>.',
+        correctKey: 'other_socks',
+        optionKeys: ['other_socks','food_rice_bowl','drink_soda_can','other_table','food_orange','drink_hot_chocolate','other_blocks','food_muffin'],
+        why: 'Socks go on your feet, usually under shoes.'
+      },
+      {
+        promptHTML: 'Find the one you <em>sit on</em>.',
+        correctKey: 'other_chair',
+        optionKeys: ['other_chair','food_french_fries','drink_capri_sun','other_jacket','food_strawberries','drink_water_pitcher','other_phone','food_bread'],
+        why: 'You sit on a chair.'
+      },
+      {
+        promptHTML: 'Find the one you eat <em>cereal from</em>.',
+        correctKey: 'food_cereal_bowl',
+        optionKeys: ['food_cereal_bowl','other_hat','drink_water_bottle','food_pizza_slice','other_keys','drink_lemonade','food_cookie','other_backpack'],
+        why: 'Cereal goes in a bowl.'
+      },
+      {
+        promptHTML: 'Find the one you can <em>drink from with a straw</em>.',
+        correctKey: 'drink_straw_cup',
+        optionKeys: ['drink_straw_cup','other_book','food_hamburger','other_shoe','food_apple','other_wallet','food_salad_bowl','other_remote'],
+        why: 'A straw cup is for drinking with a straw.'
+      },
+      {
+        promptHTML: 'Find something <em>cold and sweet</em> you might eat on a hot day.',
+        correctKey: 'food_popsicle',
+        optionKeys: ['food_popsicle','other_chair','drink_hot_tea','food_bread','other_keys','drink_water_glass','food_taco','other_notebook'],
+        why: 'A popsicle is cold and sweet.'
+      },
+      {
+        promptHTML: 'Find the fruit that is <em>red</em> and has <em>seeds on the outside</em>.',
+        correctKey: 'food_strawberries',
+        optionKeys: ['food_strawberries','food_grape','drink_juice_apple','other_shoe','food_cookie','drink_water_bottle','other_wallet','food_pancakes'],
+        why: 'Strawberries are red and have seeds on the outside.'
+      },
+      {
+        promptHTML: 'Find the fruit that is <em>yellow</em> and you <em>peel</em>.',
+        correctKey: 'food_banana',
+        optionKeys: ['food_banana','food_orange','drink_milkshake','other_hat','food_cookie','drink_lemonade','other_book','food_pizza_slice'],
+        why: 'Bananas are yellow and you peel them.'
+      },
+      {
+        promptHTML: 'Find the fruit that is <em>orange</em> and you <em>peel</em>.',
+        correctKey: 'food_orange',
+        optionKeys: ['food_orange','food_apple','drink_soda_can','other_shirt','food_grape','drink_water_glass','other_toy_car','food_cheese_slice'],
+        why: 'An orange is orange and you peel it.'
+      },
+      {
+        promptHTML: 'Find the drink that is <em>white</em> and comes from a <em>cow</em>.',
+        correctKey: 'drink_milk_glass',
+        optionKeys: ['drink_milk_glass','drink_lemonade','food_bread','other_backpack','food_chocolate_bar','other_clock','drink_water_bottle','food_salad_bowl'],
+        why: 'Milk is a white drink that comes from cows.'
+      },
+      {
+        promptHTML: 'Find the drink some people have in the morning to <em>wake up</em>.',
+        correctKey: 'drink_coffee_mug',
+        optionKeys: ['drink_coffee_mug','drink_water_bottle','food_pancakes','other_hat','food_strawberries','other_remote','drink_lemonade','other_blocks'],
+        why: 'Coffee is a common morning drink to help people wake up.'
+      },
+      {
+        promptHTML: 'Find a <em>crunchy, salty snack</em> that comes in a <em>bag</em>.',
+        correctKey: 'food_chip_bag',
+        optionKeys: ['food_chip_bag','food_cookie','drink_milk_glass','other_book','food_banana','drink_water_glass','other_ball','food_bread'],
+        why: 'Chips come in a bag and are crunchy.'
+      },
+      {
+        promptHTML: 'Find the food that is usually cut into <em>slices</em> and has <em>cheese</em>.',
+        correctKey: 'food_pizza_slice',
+        optionKeys: ['food_pizza_slice','food_taco','drink_juice_orange','other_shoe','food_salad_bowl','drink_water_bottle','other_wallet','food_muffin'],
+        why: 'Pizza is often sliced and has cheese.'
+      },
+      {
+        promptHTML: 'Find the food you eat that has <em>two pieces of bread</em> with food inside.',
+        correctKey: 'food_sandwich',
+        optionKeys: ['food_sandwich','food_hot_dog','drink_soda_bottle','other_keys','food_grape','drink_water_glass','other_notebook','food_cookie'],
+        why: 'A sandwich usually has bread with food inside.'
+      },
+      {
+        promptHTML: 'Find the food that often has a <em>shell</em> and can be filled with meat and cheese.',
+        correctKey: 'food_taco',
+        optionKeys: ['food_taco','food_pasta','drink_milkshake','other_hat','food_bread','drink_lemonade','other_chair','food_chocolate_bar'],
+        why: 'A taco often has a shell with fillings.'
+      },
+      {
+        promptHTML: 'Find the <em>sweet baked treat</em> that can have <em>chocolate chips</em>.',
+        correctKey: 'food_cookie',
+        optionKeys: ['food_cookie','food_cheese_slice','drink_water_bottle','other_wallet','food_salad_bowl','drink_juice_apple','other_phone','food_rice_bowl'],
+        why: 'Cookies can be sweet and have chocolate chips.'
+      },
+      {
+        promptHTML: 'Find the drink you might bring to practice to help you <em>stay hydrated</em>.',
+        correctKey: 'drink_sports_drink',
+        optionKeys: ['drink_sports_drink','food_cookie','other_shoe','food_pizza_slice','other_book','drink_hot_chocolate','food_orange','other_remote'],
+        why: 'Sports drinks are often used for hydration during sports.'
+      },
+      {
+        promptHTML: 'Find the item you can use to <em>carry books</em> to school.',
+        correctKey: 'other_backpack',
+        optionKeys: ['other_backpack','food_pancakes','drink_lemonade','other_hat','food_grape','drink_water_bottle','food_cookie','other_ball'],
+        why: 'A backpack carries books and supplies.'
+      },
+      {
+        promptHTML: 'Find the things you can use to <em>draw</em> in many <em>colors</em>.',
+        correctKey: 'other_crayons',
+        optionKeys: ['other_crayons','other_wallet','drink_milk_glass','food_bread','other_keys','drink_water_glass','food_hot_dog','other_teddy_bear'],
+        why: 'Crayons are used for drawing and coloring.'
+      },
+      {
+        promptHTML: 'Find the item you can use to <em>unlock a door</em>.',
+        correctKey: 'other_keys',
+        optionKeys: ['other_keys','food_cookie','drink_juice_orange','other_hat','food_pizza_slice','drink_water_bottle','other_book','food_banana'],
+        why: 'Keys unlock doors.'
+      },
+      {
+        promptHTML: 'Find the item you can use to <em>change the TV</em>.',
+        correctKey: 'other_remote',
+        optionKeys: ['other_remote','food_taco','drink_lemonade','other_shirt','food_grape','drink_water_glass','other_spoon','food_cookie'],
+        why: 'A remote changes the TV.'
+      },
+      {
+        promptHTML: 'Find the item you can use to <em>call someone</em>.',
+        correctKey: 'other_phone',
+        optionKeys: ['other_phone','food_bread','drink_milk_glass','other_hat','food_pizza_slice','drink_water_bottle','other_wallet','food_strawberries'],
+        why: 'A phone is used to call people.'
+      }
+    ];
+
+    // ---------- Game State ----------
+    let order = [];
+    let index = 0;
+    let score = 0;
+    let correct = 0;
+    let misses = 0;
+    let streak = 0;
+    let locked = false;
+    let missedList = [];
+    let soundOn = true;
+    let labelsOn = false;
+
+    // ---------- Elements ----------
+    const qPrompt = document.getElementById("qPrompt");
+    const qCount = document.getElementById("qCount");
+    const streakEl = document.getElementById("streak");
+    const grid = document.getElementById("grid");
+    const feedback = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const skipBtn = document.getElementById("skipBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const soundBtn = document.getElementById("soundBtn");
+    const labelBtn = document.getElementById("labelBtn");
+    const barFill = document.getElementById("barFill");
+    const scoreEl = document.getElementById("score");
+    const correctEl = document.getElementById("correct");
+    const missesEl = document.getElementById("misses");
+    const confetti = document.getElementById("confetti");
+
+    const endScreen = document.getElementById("endScreen");
+    const finalScore = document.getElementById("finalScore");
+    const finalCorrect = document.getElementById("finalCorrect");
+    const finalMisses = document.getElementById("finalMisses");
+    const starsEl = document.getElementById("stars");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const reviewBtn = document.getElementById("reviewBtn");
+
+    // ---------- Audio (simple beep) ----------
+    let audioCtx = null;
+    function beep(freq=440, duration=0.08, type="sine"){
+      if(!soundOn) return;
+      try{
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        o.start();
+        o.stop(audioCtx.currentTime + duration);
+      }catch(e){}
+    }
+
+    function sparkle(){
+      confetti.classList.add("show");
+      confetti.innerHTML = "";
+      const pieces = 40;
+      for(let i=0;i<pieces;i++){
+        const p = document.createElement("i");
+        p.style.left = (Math.random()*100) + "vw";
+        p.style.width = (8 + Math.random()*8) + "px";
+        p.style.height = (12 + Math.random()*12) + "px";
+        p.style.animationDelay = (Math.random()*140) + "ms";
+        const h = Math.floor(Math.random()*360);
+        p.style.background = `hsl(${h} 90% 65%)`;
+        confetti.appendChild(p);
+      }
+      setTimeout(()=>confetti.classList.remove("show"), 900);
+    }
+
+    // ---------- Helpers ----------
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function setFeedback(kind, title, msg){
+      feedback.style.borderColor = kind==="good" ? "#86efac" : kind==="bad" ? "#fecaca" : "#e2e8f0";
+      feedback.style.background = kind==="good" ? "linear-gradient(135deg,#f0fdf4,#ffffff)" :
+                                  kind==="bad"  ? "linear-gradient(135deg,#fff1f2,#ffffff)" :
+                                                 "#ffffff";
+      feedback.innerHTML = `<strong>${title}</strong><p>${msg}</p>`;
+    }
+
+    function updateStats(){
+      scoreEl.textContent = score;
+      correctEl.textContent = correct;
+      missesEl.textContent = misses;
+      streakEl.textContent = `Streak: ${streak} 🔥`;
+      const pct = Math.round(((index)/TARGETS.length)*100);
+      barFill.style.width = pct + "%";
+    }
+
+    function syncLabels(){
+      document.body.classList.toggle("labels-off", !labelsOn);
+      labelBtn.textContent = labelsOn ? "ON" : "OFF";
+    }
+
+    function buildOrder(){
+      order = Array.from({length: TARGETS.length}, (_,i)=>i);
+    }
+
+    function renderTarget(){
+      locked = false;
+      nextBtn.disabled = true;
+      endScreen.classList.remove("show");
+
+      const tIndex = order[index];
+      const t = TARGETS[tIndex];
+
+      qCount.textContent = `Target ${index+1} of ${TARGETS.length}`;
+      qPrompt.innerHTML = t.promptHTML;
+      setFeedback("neutral","Pick one picture.","Select the item that matches the statement.");
+
+      // Build the array of 8 (shuffle option positions each trial)
+      const optionKeys = shuffle(t.optionKeys.slice());
+
+      grid.innerHTML = "";
+      optionKeys.forEach((key, i) => {
+        const item = ITEMS[key];
+        const btn = document.createElement("button");
+        btn.className = "tile";
+        btn.type = "button";
+        btn.dataset.key = key;
+        btn.dataset.pos = String(i); // 0..7
+
+        btn.innerHTML = `
+          <div class="imgWrap">
+            <img src="${item.img}" alt="${item.name}">
+          </div>
+          <div class="label">${item.name}</div>
+        `;
+        btn.addEventListener("click", ()=> choose(key));
+        grid.appendChild(btn);
+      });
+
+      syncLabels();
+      updateStats();
+    }
+
+    function markTiles(correctKey, chosenKey){
+      const tiles = [...grid.querySelectorAll(".tile")];
+      tiles.forEach(tile=>{
+        tile.disabled = true;
+        const k = tile.dataset.key;
+        if(k === correctKey) tile.classList.add("correct");
+        if(k === chosenKey && chosenKey !== correctKey) tile.classList.add("wrong");
+      });
+    }
+
+    function choose(chosenKey){
+      if(locked) return;
+      locked = true;
+
+      const tIndex = order[index];
+      const t = TARGETS[tIndex];
+
+      markTiles(t.correctKey, chosenKey);
+
+      if(chosenKey === t.correctKey){
+        correct++;
+        streak++;
+        const bonus = Math.min(6, streak);
+        score += (10 + bonus);
+        setFeedback("good","✅ Correct!", t.why);
+        beep(660, 0.08, "triangle");
+        setTimeout(()=>beep(880, 0.09, "triangle"), 80);
+        sparkle();
+      } else {
+        misses++;
+        streak = 0;
+        if(!missedList.includes(tIndex)) missedList.push(tIndex);
+        const correctName = ITEMS[t.correctKey]?.name ?? "the correct item";
+        setFeedback("bad","❌ Not quite.", `The best answer is <strong>${correctName}</strong>. ${t.why}`);
+        beep(220, 0.12, "sawtooth");
+      }
+
+      nextBtn.disabled = false;
+      updateStats();
+    }
+
+    function next(){
+      if(index < TARGETS.length-1){
+        index++;
+        renderTarget();
+      } else {
+        index++;
+        barFill.style.width = "100%";
+        showEnd();
+      }
+    }
+
+    function skip(){
+      if(locked) return;
+      streak = 0;
+      setFeedback("neutral","⏭️ Skipped!","No worries — let’s try the next one.");
+      beep(440, 0.06, "square");
+      nextBtn.disabled = false;
+      locked = true;
+      [...grid.querySelectorAll(".tile")].forEach(t=>t.disabled = true);
+      updateStats();
+    }
+
+    function showEnd(){
+      finalScore.textContent = score;
+      finalCorrect.textContent = correct;
+      finalMisses.textContent = misses;
+
+      const pct = correct / TARGETS.length;
+      const stars = pct >= .9 ? 5 : pct >= .8 ? 4 : pct >= .65 ? 3 : pct >= .5 ? 2 : pct >= .35 ? 1 : 0;
+      starsEl.textContent = "";
+      for(let i=0;i<5;i++){
+        starsEl.textContent += (i < stars) ? "⭐" : "✩";
+      }
+
+      setFeedback("neutral","🎉 Nice work!","Play again or review missed targets.");
+      endScreen.classList.add("show");
+      nextBtn.disabled = true;
+      sparkle();
+      beep(523, 0.09, "triangle");
+      setTimeout(()=>beep(659, 0.09, "triangle"), 90);
+      setTimeout(()=>beep(784, 0.10, "triangle"), 180);
+    }
+
+    function resetGame({doShuffle=false} = {}){
+      buildOrder();
+      if(doShuffle) shuffle(order);
+      index = 0;
+      score = 0;
+      correct = 0;
+      misses = 0;
+      streak = 0;
+      locked = false;
+      missedList = [];
+      barFill.style.width = "0%";
+      renderTarget();
+    }
+
+    function reviewMissed(){
+      if(missedList.length === 0){
+        setFeedback("good","✅ Nothing to review!","You didn’t miss any targets. Awesome!");
+        sparkle();
+        return;
+      }
+      order = missedList.slice();
+      shuffle(order);
+      index = 0;
+      setFeedback("neutral","📝 Review Round!","Let’s practice the ones you missed.");
+      renderTarget();
+    }
+
+    // ---------- Controls ----------
+    nextBtn.addEventListener("click", next);
+    skipBtn.addEventListener("click", skip);
+    resetBtn.addEventListener("click", ()=>resetGame({doShuffle:false}));
+    shuffleBtn.addEventListener("click", ()=>resetGame({doShuffle:true}));
+
+    soundBtn.addEventListener("click", ()=>{
+      soundOn = !soundOn;
+      soundBtn.textContent = soundOn ? "ON" : "OFF";
+      if(soundOn) beep(660, 0.08, "triangle");
+    });
+
+    labelBtn.addEventListener("click", ()=>{
+      labelsOn = !labelsOn;
+      syncLabels();
+      beep(520, 0.05, "square");
+    });
+
+    playAgainBtn.addEventListener("click", ()=>resetGame({doShuffle:true}));
+    reviewBtn.addEventListener("click", reviewMissed);
+
+    // Keyboard: 1-8 choose tile in order shown; Enter = next; L = labels toggle
+    window.addEventListener("keydown", (e)=>{
+      if(endScreen.classList.contains("show")) return;
+
+      const k = e.key;
+      if(k >= "1" && k <= "8"){
+        const pos = Number(k) - 1;
+        const tile = grid.querySelector(`.tile[data-pos="${pos}"]`);
+        if(tile && !tile.disabled) tile.click();
+      }
+      if(k === "Enter" && !nextBtn.disabled) nextBtn.click();
+      if(k.toLowerCase() === "l"){
+        labelsOn = !labelsOn;
+        syncLabels();
+        beep(520, 0.05, "square");
+      }
+    });
+
+    // ---------- Start ----------
+    resetGame({doShuffle:true});
+  </script>
+</body>
+</html>
