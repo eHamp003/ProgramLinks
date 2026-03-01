@@ -234,7 +234,7 @@
   <div>
     <h1>BCBA Monthly Scheduler</h1>
     <div class="sub">
-      Greedy + repair scheduling • ensures every client gets tried first • max direct block cap • per-client drive buffers • days off • avoid Monday mornings (last resort)
+      On-hold rule: Sessions/Week = 0 → never schedule (direct/indirect) • coverage + repair scheduling • max direct block cap • per-client drive buffers • days off • avoid Monday mornings
     </div>
   </div>
   <div class="mono" id="statusTiny"></div>
@@ -504,8 +504,8 @@ function parseDaysTimesFallback(text){
    Model state
 ========================= */
 let RAW_CLIENTS=[];
-let EVENTS=[]; // {id,type,client,dateKey,startMins,endMins,label,mode,note,priority}
-let UNMET=[];  // {client,directUnmet,indirectUnmet}
+let EVENTS=[];
+let UNMET=[];
 let viewWeekStart=null;
 let activeMonth=null;
 
@@ -596,7 +596,7 @@ function dayLoadBillable(dateKey){
     if(ev.dateKey!==dateKey) continue;
     if(ev.type==="direct" || ev.type==="indirect") mins += (ev.endMins-ev.startMins);
   }
-  return mins; // minutes
+  return mins;
 }
 function clientScheduledDirectHours(name){
   let h=0;
@@ -633,11 +633,11 @@ function computePriorityTier(c){
   else bucket=0;
 
   const combo = (freq?2:0) + (sole?1:0);
-  return bucket*10 + combo; // higher is more priority
+  return bucket*10 + combo;
 }
 
 /* =========================
-   Client building
+   Client building (NEW: on-hold flag)
 ========================= */
 function buildClients(rows){
   const clients=[];
@@ -663,15 +663,18 @@ function buildClients(rows){
       wins = parseDaysTimesFallback(r["Session Days/Times"] || "");
     }
 
+    const onHold = (sessionsPerWeek === 0);
+
     const client = {
       name,
       directHours: roundToQuarterHours(direct),
       indirectHours: roundToQuarterHours(indirect),
       sessionsPerWeek,
+      onHold,                 // <-- IMPORTANT
       soleSupervisor,
       frequentCanceller,
       serviceType,
-      driveMins, // drive buffer uses THIS per client when in-person
+      driveMins,
       dueDate,
       reportType,
       notes,
@@ -693,18 +696,13 @@ function splitDirectHours(total, maxBlock=3.0){
 
   while(rem > 0){
     let b = 0;
-
-    // prefer 2hr blocks when possible
     if(rem >= 2.0 + 1.0){
       b = Math.min(2.0, maxBlock);
     } else {
       b = rem;
     }
-
-    // clamp to max
     b = Math.min(b, maxBlock);
 
-    // avoid leaving a <1hr remainder
     const after = roundToQuarterHours(rem - b);
     if(after > 0 && after < 1.0){
       const needed = 1.0 - after;
@@ -721,7 +719,6 @@ function splitDirectHours(total, maxBlock=3.0){
     if(blocks.length > 40) break;
   }
 
-  // cleanup: if last <1, try borrow 0.25
   if(blocks.length && blocks[blocks.length-1] < 1.0){
     let need = roundToQuarterHours(1.0 - blocks[blocks.length-1]);
     for(let i=blocks.length-2; i>=0 && need>0; i--){
@@ -741,13 +738,161 @@ function splitDirectHours(total, maxBlock=3.0){
 }
 
 /* =========================
-   Direct placement (single block)
+   Placement helpers (unchanged)
+========================= */
+function placeDirectWithBuffers(client, dateKey, directS, directE, buf, mode, blockHrs){
+  if(buf>0){
+    addEvent({
+      id: (crypto?.randomUUID?.() ?? String(Math.random())),
+      type:"buffer",
+      client:client.name,
+      dateKey,
+      startMins: directS-buf,
+      endMins: directS,
+      label:"Drive buffer",
+      mode,
+      note:`${buf} min`,
+      priority: client.priority
+    });
+  }
+
+  addEvent({
+    id: (crypto?.randomUUID?.() ?? String(Math.random())),
+    type:"direct",
+    client:client.name,
+    dateKey,
+    startMins: directS,
+    endMins: directE,
+    label:"Direct Supervision",
+    mode,
+    note:`${blockHrs.toFixed(2)}h`,
+    priority: client.priority
+  });
+
+  if(buf>0){
+    addEvent({
+      id: (crypto?.randomUUID?.() ?? String(Math.random())),
+      type:"buffer",
+      client:client.name,
+      dateKey,
+      startMins: directE,
+      endMins: directE+buf,
+      label:"Drive buffer",
+      mode,
+      note:`${buf} min`,
+      priority: client.priority
+    });
+  }
+}
+function tryPlaceIndirectAny(clientName, durMins, dates, dayStartHr, dayEndHr, indStartHr, indEndHr, hardAvoidMon, avoidMonBeforeHr, priority){
+  const candidateDates=[...dates].sort((a,b)=>dayLoadBillable(toDateKey(a)) - dayLoadBillable(toDateKey(b)));
+  for(const d of candidateDates){
+    const dateKey=toDateKey(d);
+    const startLimit = Math.max(indStartHr*60, dayStartHr*60);
+    const endLimit = Math.min(indEndHr*60, dayEndHr*60);
+
+    const isMon = (d.getDay()===1);
+    const avoidCut = avoidMonBeforeHr*60;
+
+    for(let s=startLimit; s<=endLimit-durMins; s+=15){
+      if(isMon && s < avoidCut){
+        if(hardAvoidMon===1) continue;
+        continue;
+      }
+      const e=s+durMins;
+      if(overlaps(dateKey, s, e)) continue;
+
+      addEvent({
+        id: (crypto?.randomUUID?.() ?? String(Math.random())),
+        type:"indirect",
+        client:clientName,
+        dateKey,
+        startMins:s,
+        endMins:e,
+        label:"Indirect (re-home)",
+        mode:"indirect",
+        note:`${minsToHours(durMins).toFixed(2)}h`,
+        priority
+      });
+      return true;
+    }
+  }
+
+  if(hardAvoidMon !== 1){
+    for(const d of candidateDates){
+      const dateKey=toDateKey(d);
+      const startLimit = Math.max(indStartHr*60, dayStartHr*60);
+      const endLimit = Math.min(indEndHr*60, dayEndHr*60);
+      for(let s=startLimit; s<=endLimit-durMins; s+=15){
+        const e=s+durMins;
+        if(overlaps(dateKey, s, e)) continue;
+        addEvent({
+          id: (crypto?.randomUUID?.() ?? String(Math.random())),
+          type:"indirect",
+          client:clientName,
+          dateKey,
+          startMins:s,
+          endMins:e,
+          label:"Indirect (re-home)",
+          mode:"indirect",
+          note:`${minsToHours(durMins).toFixed(2)}h`,
+          priority
+        });
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+function rehomeDisplacedEvents(removedEvents, dates, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, allClientsByName){
+  const directs = removedEvents.filter(e=>e.type==="direct");
+  const indirects = removedEvents.filter(e=>e.type==="indirect");
+  let ok = true;
+
+  for(const ev of directs){
+    const client = allClientsByName.get(ev.client);
+    if(!client || client.onHold) { ok=false; continue; } // NEW: don't rehome on-hold
+    if(!client.windows || !client.windows.length){ ok = false; continue; }
+    const durH = minsToHours(ev.endMins-ev.startMins);
+    const placed = tryPlaceDirectBlock({
+      client,
+      blockHrs: durH,
+      dates,
+      dayStartHr,
+      dayEndHr,
+      allowWeekStack: true,
+      allowMonMorning: true,
+      hardAvoidMon,
+      avoidMonBeforeHr,
+      allowRepair: false,
+      allClientsByName
+    });
+    if(!placed) ok = false;
+  }
+
+  const indStartHr = +document.getElementById("indStart").value;
+  const indEndHr = +document.getElementById("indEnd").value;
+
+  for(const ev of indirects){
+    const client = allClientsByName.get(ev.client);
+    if(client && client.onHold) { ok=false; continue; } // NEW: don't rehome on-hold
+    const durM = (ev.endMins-ev.startMins);
+    const placed = tryPlaceIndirectAny(ev.client, durM, dates, dayStartHr, dayEndHr, indStartHr, indEndHr, hardAvoidMon, avoidMonBeforeHr, ev.priority ?? -999);
+    if(!placed) ok = false;
+  }
+  return ok;
+}
+
+/* =========================
+   Direct placement (with optional repair)
 ========================= */
 function tryPlaceDirectBlock({
   client, blockHrs, dates, dayStartHr, dayEndHr,
   allowWeekStack, allowMonMorning, hardAvoidMon, avoidMonBeforeHr,
   allowRepair, allClientsByName
 }){
+  if(client.onHold) return false; // NEW: never schedule on-hold
   const blockMins = Math.round(blockHrs*60);
 
   const modeOrder = (client.serviceType === "telehealth") ? ["telehealth"] :
@@ -758,10 +903,6 @@ function tryPlaceDirectBlock({
     const buf = (mode==="in-person") ? (client.driveMins||0) : 0;
 
     let candidateDates = [...dates];
-
-    // date ordering:
-    // - if spreading requested and not frequent canceller, prefer weeks w/ fewer of this client
-    // - also prefer lighter-loaded days
     if(client.frequentCanceller !== "yes" && !allowWeekStack){
       candidateDates.sort((a,b)=>{
         const wa=weekKeyMondayStart(a), wb=weekKeyMondayStart(b);
@@ -818,12 +959,9 @@ function tryPlaceDirectBlock({
             placeDirectWithBuffers(client, dateKey, directS, directE, buf, mode, blockHrs);
             return true;
           } else {
-            // repair allowed: if overlaps, try to displace lower priority events (simple swap)
             const overlapping = eventsOverlapping(dateKey, spanS, spanE);
-
-            // Only attempt to displace if ALL overlapping events are lower priority than this client
-            // and are movable types (direct/indirect/buffer).
             const myPri = client.priority;
+
             const movable = overlapping.filter(ev => (ev.type==="direct" || ev.type==="indirect" || ev.type==="buffer"));
             if(movable.length !== overlapping.length) continue;
 
@@ -831,27 +969,20 @@ function tryPlaceDirectBlock({
             if(!canDisplace) continue;
 
             const removedIds = movable.map(ev=>ev.id);
-            const removedEvents = movable.map(ev=>({...ev})); // copy
+            const removedEvents = movable.map(ev=>({...ev}));
             removeEventsByIds(removedIds);
 
-            // now ensure the slot is free
             if(overlaps(dateKey, spanS, spanE)){
-              // something else still overlaps; undo removal
               EVENTS.push(...removedEvents);
               continue;
             }
 
-            // place target
             placeDirectWithBuffers(client, dateKey, directS, directE, buf, mode, blockHrs);
 
-            // try to re-place displaced events elsewhere (best-effort)
             const ok = rehomeDisplacedEvents(removedEvents, dates, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, allClientsByName);
-
-            // if we couldn't rehome, we still keep them as unmet (log) rather than undoing
             if(!ok){
               log(`⚠️ Repair: placed ${client.name} by displacing lower-priority items; some displaced items may remain unmet.`);
             }
-
             return true;
           }
         }
@@ -861,161 +992,64 @@ function tryPlaceDirectBlock({
   return false;
 }
 
-function placeDirectWithBuffers(client, dateKey, directS, directE, buf, mode, blockHrs){
-  if(buf>0){
-    addEvent({
-      id: (crypto?.randomUUID?.() ?? String(Math.random())),
-      type:"buffer",
-      client:client.name,
-      dateKey,
-      startMins: directS-buf,
-      endMins: directS,
-      label:"Drive buffer",
-      mode,
-      note:`${buf} min`,
-      priority: client.priority
-    });
-  }
-
-  addEvent({
-    id: (crypto?.randomUUID?.() ?? String(Math.random())),
-    type:"direct",
-    client:client.name,
-    dateKey,
-    startMins: directS,
-    endMins: directE,
-    label:"Direct Supervision",
-    mode,
-    note:`${blockHrs.toFixed(2)}h`,
-    priority: client.priority
-  });
-
-  if(buf>0){
-    addEvent({
-      id: (crypto?.randomUUID?.() ?? String(Math.random())),
-      type:"buffer",
-      client:client.name,
-      dateKey,
-      startMins: directE,
-      endMins: directE+buf,
-      label:"Drive buffer",
-      mode,
-      note:`${buf} min`,
-      priority: client.priority
-    });
-  }
-}
-
 /* =========================
-   Rehome displaced events (best-effort)
-   - direct: try to place another block of same duration for that client (fallback rules)
-   - indirect: try to place same duration anywhere in indirect window (fallback)
-   - buffer: will be recreated automatically if direct rehomed; standalone buffers can be dropped
+   Coverage + repair passes
 ========================= */
-function rehomeDisplacedEvents(removedEvents, dates, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, allClientsByName){
-  // sort: rehome direct first, then indirect, ignore buffers
-  const directs = removedEvents.filter(e=>e.type==="direct");
-  const indirects = removedEvents.filter(e=>e.type==="indirect");
-  // buffers not rehomed directly
-  let ok = true;
+function scheduleCoveragePass(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName){
+  for(const c of clients){
+    if(c.onHold) continue;                 // NEW
+    if(!c.windows || !c.windows.length) continue;
+    if(c.directHours <= 0) continue;
 
-  for(const ev of directs){
-    const client = allClientsByName.get(ev.client);
-    if(!client || !client.windows || !client.windows.length){
-      ok = false; continue;
-    }
-    const durH = minsToHours(ev.endMins-ev.startMins);
-    const placed = tryPlaceDirectBlock({
-      client,
-      blockHrs: durH,
-      dates,
+    const already = EVENTS.some(ev=>ev.type==="direct" && ev.client===c.name);
+    if(already) continue;
+
+    const minBlock = clamp(Math.min(2.0, c.directHours), 1.0, maxDirectBlock);
+
+    tryPlaceDirectBlock({
+      client:c,
+      blockHrs:minBlock,
+      dates:workdays,
       dayStartHr,
       dayEndHr,
-      allowWeekStack: true,
-      allowMonMorning: true,
+      allowWeekStack:false,
+      allowMonMorning:false,
       hardAvoidMon,
       avoidMonBeforeHr,
-      allowRepair: false,
+      allowRepair:false,
       allClientsByName
     });
-    if(!placed) ok = false;
   }
-
-  // For indirect, shove it anywhere (respect window using UI values indirectly in caller; here just use day bounds)
-  const indStartHr = +document.getElementById("indStart").value;
-  const indEndHr = +document.getElementById("indEnd").value;
-  for(const ev of indirects){
-    const durM = (ev.endMins-ev.startMins);
-    const placed = tryPlaceIndirectAny(ev.client, durM, dates, dayStartHr, dayEndHr, indStartHr, indEndHr, hardAvoidMon, avoidMonBeforeHr, ev.priority ?? -999);
-    if(!placed) ok = false;
-  }
-
-  return ok;
 }
+function repairZeroScheduledClients(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName){
+  const zeros = clients.filter(c => !c.onHold && c.directHours>0 && clientScheduledDirectHours(c.name)===0 && c.windows && c.windows.length);
+  if(!zeros.length) return;
 
-function tryPlaceIndirectAny(clientName, durMins, dates, dayStartHr, dayEndHr, indStartHr, indEndHr, hardAvoidMon, avoidMonBeforeHr, priority){
-  // prefer low-load days
-  const candidateDates=[...dates].sort((a,b)=>dayLoadBillable(toDateKey(a)) - dayLoadBillable(toDateKey(b)));
-  for(const d of candidateDates){
-    const dateKey=toDateKey(d);
-    const startLimit = Math.max(indStartHr*60, dayStartHr*60);
-    const endLimit = Math.min(indEndHr*60, dayEndHr*60);
+  log(`\n🛠 Repair pass: ${zeros.length} clients had 0 direct scheduled. Attempting swaps...`);
 
-    const isMon = (d.getDay()===1);
-    const avoidCut = avoidMonBeforeHr*60;
+  for(const c of zeros){
+    const block = clamp(Math.min(2.0, c.directHours), 1.0, maxDirectBlock);
 
-    for(let s=startLimit; s<=endLimit-durMins; s+=15){
-      if(isMon && s < avoidCut){
-        if(hardAvoidMon===1) continue;
-        // indirect: still avoid if possible, but this is a rehome so allow as last resort at end
-        continue;
-      }
-      const e=s+durMins;
-      if(overlaps(dateKey, s, e)) continue;
+    const placed = tryPlaceDirectBlock({
+      client:c,
+      blockHrs:block,
+      dates:workdays,
+      dayStartHr,
+      dayEndHr,
+      allowWeekStack:true,
+      allowMonMorning:true,
+      hardAvoidMon,
+      avoidMonBeforeHr,
+      allowRepair:true,
+      allClientsByName
+    });
 
-      addEvent({
-        id: (crypto?.randomUUID?.() ?? String(Math.random())),
-        type:"indirect",
-        client:clientName,
-        dateKey,
-        startMins:s,
-        endMins:e,
-        label:"Indirect (re-home)",
-        mode:"indirect",
-        note:`${minsToHours(durMins).toFixed(2)}h`,
-        priority
-      });
-      return true;
+    if(placed){
+      log(`✅ Repair: scheduled at least 1 block for ${c.name}`);
+    } else {
+      log(`❗ Repair failed for ${c.name} (no feasible swap found)`);
     }
   }
-
-  // last resort pass: allow monday mornings if not hard avoided
-  if(hardAvoidMon !== 1){
-    for(const d of candidateDates){
-      const dateKey=toDateKey(d);
-      const startLimit = Math.max(indStartHr*60, dayStartHr*60);
-      const endLimit = Math.min(indEndHr*60, dayEndHr*60);
-      for(let s=startLimit; s<=endLimit-durMins; s+=15){
-        const e=s+durMins;
-        if(overlaps(dateKey, s, e)) continue;
-        addEvent({
-          id: (crypto?.randomUUID?.() ?? String(Math.random())),
-          type:"indirect",
-          client:clientName,
-          dateKey,
-          startMins:s,
-          endMins:e,
-          label:"Indirect (re-home)",
-          mode:"indirect",
-          note:`${minsToHours(durMins).toFixed(2)}h`,
-          priority
-        });
-        return true;
-      }
-    }
-  }
-
-  return false;
 }
 
 /* =========================
@@ -1065,9 +1099,7 @@ function buildIndirectPreferenceDates(client, workdays){
       score += Math.abs(dayDiff(d, mid));
     }
 
-    // balance: prefer lower-load days
     score += dayLoadBillable(toDateKey(d)) / 240;
-
     return {d, score};
   });
 
@@ -1090,74 +1122,7 @@ function computeMonthSummary(start, end){
 }
 
 /* =========================
-   Coverage pass: ensure every client gets at least 1 direct block if possible
-========================= */
-function scheduleCoveragePass(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName){
-  for(const c of clients){
-    if(!c.windows || !c.windows.length) continue;
-    if(c.directHours <= 0) continue;
-
-    const already = EVENTS.some(ev=>ev.type==="direct" && ev.client===c.name);
-    if(already) continue;
-
-    const minBlock = clamp(Math.min(2.0, c.directHours), 1.0, maxDirectBlock);
-
-    const placed = tryPlaceDirectBlock({
-      client:c,
-      blockHrs:minBlock,
-      dates:workdays,
-      dayStartHr,
-      dayEndHr,
-      allowWeekStack:false,
-      allowMonMorning:false,
-      hardAvoidMon,
-      avoidMonBeforeHr,
-      allowRepair:false,
-      allClientsByName
-    });
-
-    if(!placed){
-      // Don't log spam here; the main loop will do unmet accounting.
-    }
-  }
-}
-
-/* =========================
-   Repair pass: if a client got 0 direct scheduled, try again allowing repairs (displace lower-priority)
-========================= */
-function repairZeroScheduledClients(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName){
-  const zeros = clients.filter(c => c.directHours>0 && clientScheduledDirectHours(c.name)===0 && c.windows && c.windows.length);
-  if(!zeros.length) return;
-
-  log(`\n🛠 Repair pass: ${zeros.length} clients had 0 direct scheduled. Attempting swaps...`);
-
-  for(const c of zeros){
-    const block = clamp(Math.min(2.0, c.directHours), 1.0, maxDirectBlock);
-
-    const placed = tryPlaceDirectBlock({
-      client:c,
-      blockHrs:block,
-      dates:workdays,
-      dayStartHr,
-      dayEndHr,
-      allowWeekStack:true,
-      allowMonMorning:true,
-      hardAvoidMon,
-      avoidMonBeforeHr,
-      allowRepair:true,
-      allClientsByName
-    });
-
-    if(placed){
-      log(`✅ Repair: scheduled at least 1 block for ${c.name}`);
-    } else {
-      log(`❗ Repair failed for ${c.name} (no feasible swap found)`);
-    }
-  }
-}
-
-/* =========================
-   Main scheduling
+   Main scheduling (NEW: skip onHold entirely)
 ========================= */
 function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, indMin, indMax){
   EVENTS=[];
@@ -1177,18 +1142,25 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
   const {start, end} = monthStartEnd(monthStr);
   activeMonth = {start, end, monthStr};
 
-  // Workdays excluding days off
   const workdays = iterateDays(start, end)
     .filter(d=>!isWeekend(d))
     .filter(d=>!offSet.has(toDateKey(d)));
 
   const workdayCount = workdays.length;
 
-  // Sort clients by priority (highest first)
-  const clients = [...RAW_CLIENTS].sort((a,b)=>b.priority-a.priority);
-  const allClientsByName = new Map(clients.map(c=>[c.name,c]));
+  // Sort clients by priority
+  const clientsAll = [...RAW_CLIENTS].sort((a,b)=>b.priority-a.priority);
+  const clients = clientsAll.filter(c=>!c.onHold);            // <-- NEW: schedule list excludes on-hold
+  const onHold = clientsAll.filter(c=>c.onHold);
 
-  // COVERAGE PASS (mitigates greedy starvation)
+  if(onHold.length){
+    log(`⏸ On hold (Sessions/Week=0): ${onHold.length} clients will NOT be scheduled (direct/indirect).`);
+    log(`On hold list: ${onHold.map(c=>c.name).slice(0,12).join(", ")}${onHold.length>12 ? "..." : ""}`);
+  }
+
+  const allClientsByName = new Map(clientsAll.map(c=>[c.name,c])); // includes on-hold for lookups
+
+  // Coverage pass
   scheduleCoveragePass(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
 
   // DIRECT main pass
@@ -1198,14 +1170,10 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     let remaining = roundToQuarterHours(c.directHours - clientScheduledDirectHours(c.name));
 
     if(!c.windows || !c.windows.length){
-      const rec={client:c.name, directUnmet: remaining>0?remaining:0, indirectUnmet:0};
-      UNMET.push(rec);
+      UNMET.push({client:c.name, directUnmet: remaining>0?remaining:0, indirectUnmet:0});
       if(remaining>0){
         unmetDirectByClient.set(c.name, remaining);
         log(`⚠️ ${c.name}: no session windows parsed → direct unmet ${remaining.toFixed(2)}h`);
-        if(c.notes || c.serviceType || c.driveMins){
-          // no-op; just keep minimal
-        }
       }
       continue;
     }
@@ -1226,8 +1194,8 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
         dates:workdays,
         dayStartHr,
         dayEndHr,
-        allowWeekStack:false,        // spread first
-        allowMonMorning:false,       // avoid Monday AM first
+        allowWeekStack:false,
+        allowMonMorning:false,
         hardAvoidMon,
         avoidMonBeforeHr,
         allowRepair:false,
@@ -1246,7 +1214,7 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     UNMET.push({client:c.name, directUnmet: unmet>0?unmet:0, indirectUnmet:0});
   }
 
-  // DIRECT fallback pass for unmet: allow week stacking + allow Monday AM (unless hard avoided)
+  // DIRECT fallback
   for(const c of clients){
     const unmet = unmetDirectByClient.get(c.name) || 0;
     if(unmet<=0) continue;
@@ -1284,19 +1252,18 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     }
   }
 
-  // REPAIR PASS for 0-scheduled clients (swap out lower-priority items if needed)
+  // Repair swaps for zeros
   repairZeroScheduledClients(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
 
-  // Recompute direct unmet after repair swaps (simple: if you got hours scheduled now, reduce unmet)
+  // Recompute direct unmet after repair
   for(const c of clients){
     const scheduled = clientScheduledDirectHours(c.name);
-    const need = c.directHours;
-    const still = roundToQuarterHours(Math.max(0, need - scheduled));
+    const still = roundToQuarterHours(Math.max(0, c.directHours - scheduled));
     const rec = UNMET.find(x=>x.client===c.name);
     if(rec) rec.directUnmet = still;
   }
 
-  // INDIRECT balanced placement
+  // INDIRECT (skip on-hold already because clients excludes)
   for(const c of clients){
     let remaining = c.indirectHours;
     if(remaining<=0) continue;
@@ -1322,7 +1289,7 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
         for(let s=startLimit; s<=endLimit-blockMins; s+=15){
           if(isMon && s < avoidCut){
             if(hardAvoidMon===1) continue;
-            continue; // skip monday AM unless we must
+            continue;
           }
           const e=s+blockMins;
           if(overlaps(dateKey, s, e)) continue;
@@ -1347,7 +1314,6 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
       }
 
       if(!placed){
-        // last resort: allow monday AM if not hard avoided
         if(hardAvoidMon !== 1){
           for(const d of preferredDates){
             const dateKey=toDateKey(d);
@@ -1385,6 +1351,11 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     }
   }
 
+  // For ON HOLD clients, we don't track unmet because they are intentionally excluded.
+  if(onHold.length){
+    log(`\nℹ️ On-hold clients ignored for unmet hours (by design).`);
+  }
+
   // Summary
   const sums = computeMonthSummary(start, end);
   log("\n✅ Done.");
@@ -1396,13 +1367,8 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
 
   if(unmetDirect>0 || unmetIndirect>0){
     log(`\n❌ Unmet direct: ${unmetDirect.toFixed(2)}h | Unmet indirect: ${unmetIndirect.toFixed(2)}h`);
-    const zeros = clients.filter(c => c.directHours>0 && clientScheduledDirectHours(c.name)===0);
-    if(zeros.length){
-      log(`\n⚠️ Still 0-direct scheduled for: ${zeros.map(z=>z.name).join(", ")}`);
-      log(`Most likely: windows not parsed or month/day bounds exclude their times.`);
-    }
   } else {
-    log("\n🎉 No unmet hours.");
+    log("\n🎉 No unmet hours (excluding on-hold).");
   }
 
   viewWeekStart = startOfWeek(start);
@@ -1569,10 +1535,13 @@ document.getElementById("csvFile").addEventListener("change", async (e)=>{
   RAW_CLIENTS = buildClients(parsed.rows);
 
   clearLog(`Loaded ${RAW_CLIENTS.length} clients.\n`);
-  const noWindows = RAW_CLIENTS.filter(c=>!c.windows || !c.windows.length).length;
-  log(`Clients missing session windows: ${noWindows}`);
+  const onHold = RAW_CLIENTS.filter(c=>c.onHold).length;
+  const noWindows = RAW_CLIENTS.filter(c=>!c.onHold && (!c.windows || !c.windows.length)).length;
+
+  log(`On hold (Sessions/Week=0): ${onHold}`);
+  log(`Active clients missing session windows: ${noWindows}`);
   if(noWindows){
-    const names = RAW_CLIENTS.filter(c=>!c.windows || !c.windows.length).map(c=>c.name);
+    const names = RAW_CLIENTS.filter(c=>!c.onHold && (!c.windows || !c.windows.length)).map(c=>c.name);
     log(`Missing windows: ${names.slice(0,12).join(", ")}${names.length>12 ? "..." : ""}`);
     log(`Fix: fill Mon/Tue/etc Start/End columns for those clients (recommended).`);
   }
