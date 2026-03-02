@@ -41,7 +41,7 @@
       z-index:50;
     }
     header h1{ margin:0; font-size:16px; letter-spacing:.4px; font-weight:800; }
-    header .sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+    header .sub{ font-size:12px; color:var(--muted); margin-top:2px; line-height:1.25; }
     .wrap{
       display:grid;
       grid-template-columns: 420px 1fr;
@@ -235,7 +235,7 @@
   <div>
     <h1>BCBA Monthly Scheduler</h1>
     <div class="sub">
-      Auto computes Therapy Hours/Month from session windows (+ Start Date + Blackout Dates) when Therapy Hours/Month is blank/0 • supervision target = min(authorized supervision, 10% of therapy hours) • option: 10% vs full authorized • front-load vs spread evenly • Sessions/Week=0 = on hold
+      <b>NEW:</b> Direct scheduling uses <b>minimum 10%</b> as must-hit, then runs a <b>top-up pass</b> to try to schedule up to the authorized supervision cap where possible (never exceeding it). On-hold clients (Sessions/Week=0) are skipped for <b>direct</b> but can still receive <b>indirect</b>. Max direct block length enforced.
     </div>
   </div>
   <div class="mono" id="statusTiny"></div>
@@ -269,13 +269,6 @@
       <option value="front">Front-load (prefer earliest dates)</option>
       <option value="back">Back-load (prefer latest dates)</option>
     </select>
-
-    <label>Supervision target mode</label>
-    <select id="supTargetMode">
-      <option value="ten" selected>Schedule 10% target (capped by authorized supervision)</option>
-      <option value="auth">Schedule full authorized supervision hours</option>
-    </select>
-    <div class="hint">If authorized supervision is lower than the 10% target, schedule authorized only and mark “Below 10% (covered by other supervisor)”.</div>
 
     <label>Indirect window (Mon–Fri)</label>
     <div class="row">
@@ -322,7 +315,7 @@ or M/D/YYYY like 3/6/2026"></textarea>
       <div class="chip"><span class="dot" style="background:rgba(37,99,235,.95)"></span><span>Direct</span></div>
       <div class="chip"><span class="dot warn"></span><span>Drive buffer</span></div>
       <div class="chip"><span class="dot good"></span><span>Indirect</span></div>
-      <div class="chip"><span class="dot bad"></span><span>Unmet hours</span></div>
+      <div class="chip"><span class="dot bad"></span><span>Required unmet</span></div>
     </div>
 
     <div class="log" id="logBox">Upload CSV → pick month → Generate.</div>
@@ -564,7 +557,7 @@ function parseDaysTimesFallback(text){
 ========================= */
 let RAW_CLIENTS=[];
 let EVENTS=[]; // {id,type,client,dateKey,startMins,endMins,label,mode,note,priority}
-let UNMET=[];  // {client,directUnmet,indirectUnmet}
+let UNMET=[];  // {client,directUnmetRequired,indirectUnmet}
 let viewWeekStart=null;
 let activeMonth=null;
 
@@ -608,9 +601,7 @@ function parseDaysOffSet(){
 }
 
 /* =========================
-   NEW: Auto compute therapy hours/month from windows
-   - Respects client.startDate (earliest schedulable date this month)
-   - Respects client.blackoutSet (planned cancellations)
+   Auto compute therapy hours/month from windows
 ========================= */
 function hoursBetweenMins(startMins, endMins){
   if(startMins == null || endMins == null || endMins <= startMins) return 0;
@@ -732,29 +723,27 @@ function computePriorityTier(c){
 }
 
 /* =========================
-   Supervision target calc
-   - therapyHoursMonth = authorized BT 1:1 hours/month (auto computed if blank/0)
-   - authSupHoursMonth = authorized supervision hours/month (your cap)
-   - mode "ten": min(authSup, 10% of therapy)
-   - mode "auth": authSup
+   NEW: supervision targets
+   - minRequired = min(auth cap, 10% of therapy)
+   - maxAllowed = auth cap
 ========================= */
-function computeSupervisionTargetHours(therapyHoursMonth, authSupHoursMonth, mode){
+function computeSupervisionTargets(therapyHoursMonth, authSupHoursMonth){
   const therapy = Math.max(0, therapyHoursMonth || 0);
   const authSup = Math.max(0, authSupHoursMonth || 0);
 
   const target10 = roundToQuarterHours(therapy * 0.10);
+  const minRequired = roundToQuarterHours(Math.min(authSup, target10));
+  const maxAllowed = roundToQuarterHours(authSup);
 
-  if(mode === "auth"){
-    return { targetHours: roundToQuarterHours(authSup), target10, authSup, belowTenNeeded: authSup < target10 };
-  }
-  return { targetHours: roundToQuarterHours(Math.min(authSup, target10)), target10, authSup, belowTenNeeded: authSup < target10 };
+  return { minRequired, maxAllowed, target10, belowTenNeeded: authSup < target10 };
 }
 
 /* =========================
    Client building
-   - If Therapy Hours/Month is blank or 0, it is auto computed from session windows
+   - onHold affects DIRECT only
+   - indirect remains schedulable even when onHold=true
 ========================= */
-function buildClients(rows, monthStart, monthEnd, supTargetMode){
+function buildClients(rows, monthStart, monthEnd){
   const clients=[];
   for(const r of rows){
     const name = r["Client Name"] || r["Client"] || r["Name"];
@@ -763,10 +752,7 @@ function buildClients(rows, monthStart, monthEnd, supTargetMode){
     const sessionsPerWeek = parseInt((r["Sessions per Week"]||"0").replace(/[^0-9]/g,""),10) || 0;
     const onHold = (sessionsPerWeek === 0);
 
-    // Optional override. If blank/0 => auto compute from windows.
     let therapyHoursMonth = parseFloat((r["Therapy Hours/Month"] || r["Authorized Therapy Hours/Month"] || "0").replace(/[^0-9.]/g,"")) || 0;
-
-    // Authorized supervision cap (your billable direct sup cap)
     const authSupHoursMonth = parseFloat((r["Direct Hours/Month"]||r["Direct Hours/Month (Supervision)"]||"0").replace(/[^0-9.]/g,"")) || 0;
 
     const indirect = parseFloat((r["Indirect Hours/Month"]||"0").replace(/[^0-9.]/g,"")) || 0;
@@ -780,7 +766,6 @@ function buildClients(rows, monthStart, monthEnd, supTargetMode){
     const reportType = String(r["Report Type"]||"").trim().toLowerCase();
     const notes = r["Group/Notes"] || "";
 
-    // Client constraints
     const startDateRaw = r["Start Date"] || r["Earliest Start Date"] || "";
     const startDateParsed = parseAnyDate(startDateRaw);
     const startDate = startDateParsed ? startDateParsed : null;
@@ -788,20 +773,20 @@ function buildClients(rows, monthStart, monthEnd, supTargetMode){
     const blackoutRaw = r["Blackout Dates"] || r["Planned Cancellations"] || "";
     const blackoutSet = parseBlackoutSet(blackoutRaw, monthStart, monthEnd);
 
-    // Session windows
     let wins = getStructuredWindows(r);
     if(!wins.length){
       wins = parseDaysTimesFallback(r["Session Days/Times"] || "");
     }
 
-    // Create client first (so auto calc can use startDate/blackouts/windows)
     const client = {
       name,
       sessionsPerWeek,
       onHold,
       therapyHoursMonth: roundToQuarterHours(therapyHoursMonth),
       authSupHoursMonth: roundToQuarterHours(authSupHoursMonth),
-      directHours: 0,
+
+      directMinHours: 0,
+      directMaxHours: 0,
       direct10Target: 0,
       belowTenNeeded: false,
 
@@ -815,19 +800,19 @@ function buildClients(rows, monthStart, monthEnd, supTargetMode){
       notes,
       startDate,
       blackoutSet,
-      windows: wins
+      windows: wins,
+      priority: 0
     };
 
-    // AUTO compute Therapy Hours/Month if missing/0
     if(!therapyHoursMonth || therapyHoursMonth <= 0){
       therapyHoursMonth = computeTherapyHoursMonthFromWindows(client, monthStart, monthEnd);
       client.therapyHoursMonth = roundToQuarterHours(therapyHoursMonth);
     }
 
-    // Now compute supervision target based on therapyHoursMonth + authorized sup cap
-    const sup = computeSupervisionTargetHours(client.therapyHoursMonth, client.authSupHoursMonth, supTargetMode);
-    client.directHours = roundToQuarterHours(sup.targetHours);
-    client.direct10Target = roundToQuarterHours(sup.target10);
+    const sup = computeSupervisionTargets(client.therapyHoursMonth, client.authSupHoursMonth);
+    client.directMinHours = sup.minRequired;
+    client.directMaxHours = sup.maxAllowed;
+    client.direct10Target = sup.target10;
     client.belowTenNeeded = sup.belowTenNeeded;
 
     client.priority = computePriorityTier(client);
@@ -876,7 +861,7 @@ function splitDirectHours(total, maxBlock=3.0){
     blocks.push(b);
     rem = roundToQuarterHours(rem - b);
 
-    if(blocks.length > 40) break;
+    if(blocks.length > 60) break;
   }
 
   if(blocks.length && blocks[blocks.length-1] < 1.0){
@@ -927,7 +912,7 @@ function placeDirectWithBuffers(client, dateKey, directS, directE, buf, mode, bl
     mode,
     note:`${blockHrs.toFixed(2)}h`,
     priority: client.priority
-  });
+    });
 
   if(buf>0){
     addEvent({
@@ -1034,8 +1019,6 @@ function rehomeDisplacedEvents(removedEvents, dates, dayStartHr, dayEndHr, hardA
   const indStartHr = +document.getElementById("indStart").value;
   const indEndHr = +document.getElementById("indEnd").value;
   for(const ev of indirects){
-    const client = allClientsByName.get(ev.client);
-    if(client && client.onHold) { ok=false; continue; }
     const durM = (ev.endMins-ev.startMins);
     const placed = tryPlaceIndirectAny(ev.client, durM, dates, dayStartHr, dayEndHr, indStartHr, indEndHr, hardAvoidMon, avoidMonBeforeHr, ev.priority ?? -999);
     if(!placed) ok = false;
@@ -1169,18 +1152,18 @@ function tryPlaceDirectBlock({
 }
 
 /* =========================
-   Coverage + repair passes
+   Coverage + repair passes (REQUIRED minimum only)
 ========================= */
 function scheduleCoveragePass(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName){
   for(const c of clients){
     if(c.onHold) continue;
     if(!c.windows || !c.windows.length) continue;
-    if(c.directHours <= 0) continue;
+    if(c.directMinHours <= 0) continue;
 
     const already = EVENTS.some(ev=>ev.type==="direct" && ev.client===c.name);
     if(already) continue;
 
-    const minBlock = clamp(Math.min(2.0, c.directHours), 1.0, maxDirectBlock);
+    const minBlock = clamp(Math.min(2.0, c.directMinHours), 1.0, maxDirectBlock);
 
     tryPlaceDirectBlock({
       client:c,
@@ -1198,12 +1181,12 @@ function scheduleCoveragePass(clients, workdays, dayStartHr, dayEndHr, hardAvoid
   }
 }
 function repairZeroScheduledClients(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName){
-  const zeros = clients.filter(c => !c.onHold && c.directHours>0 && clientScheduledDirectHours(c.name)===0 && c.windows && c.windows.length);
+  const zeros = clients.filter(c => !c.onHold && c.directMinHours>0 && clientScheduledDirectHours(c.name)===0 && c.windows && c.windows.length);
   if(!zeros.length) return;
 
   log(`\n🛠 Repair pass: ${zeros.length} clients had 0 direct scheduled. Attempting swaps...`);
   for(const c of zeros){
-    const block = clamp(Math.min(2.0, c.directHours), 1.0, maxDirectBlock);
+    const block = clamp(Math.min(2.0, c.directMinHours), 1.0, maxDirectBlock);
 
     const placed = tryPlaceDirectBlock({
       client:c,
@@ -1301,12 +1284,10 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
   UNMET=[];
   clearLog("Generating...\n");
 
-  const supTargetMode = document.getElementById("supTargetMode").value;
-
   const {start, end} = monthStartEnd(monthStr);
   activeMonth = {start, end, monthStr};
 
-  if(!RAW_CLIENTS.length){
+  if(!RAW_CLIENTS_RAW){
     log("❌ No clients loaded. Upload CSV first.");
     return;
   }
@@ -1319,51 +1300,49 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
   const workdaysAll = iterateDays(start, end).filter(d=>!isWeekend(d)).filter(d=>!offSet.has(toDateKey(d)));
   const workdayCount = workdaysAll.length;
 
-  const clientsAll = RAW_CLIENTS_RAW
-    ? buildClients(RAW_CLIENTS_RAW, start, end, supTargetMode)
-    : RAW_CLIENTS;
+  RAW_CLIENTS = buildClients(RAW_CLIENTS_RAW, start, end);
 
-  RAW_CLIENTS = clientsAll;
-
-  const clientsSorted = [...clientsAll].sort((a,b)=>b.priority-a.priority);
-  const clients = clientsSorted.filter(c=>!c.onHold);
+  const clientsSorted = [...RAW_CLIENTS].sort((a,b)=>b.priority-a.priority);
+  const activeForDirect = clientsSorted.filter(c=>!c.onHold);
+  const allForIndirect = clientsSorted; // includes on hold
   const onHold = clientsSorted.filter(c=>c.onHold);
 
   if(onHold.length){
-    log(`⏸ On hold (Sessions/Week=0): ${onHold.length} clients will NOT be scheduled (direct/indirect).`);
+    log(`⏸ On hold (Sessions/Week=0): ${onHold.length} clients will NOT be scheduled for DIRECT, but CAN be scheduled for INDIRECT.`);
   }
 
-  // Auto therapy hours notices (shows when computed)
-  const autoTherapy = clients.filter(c => c.therapyHoursMonth > 0 && (!RAW_CLIENTS_RAW || true));
-  // log below-10% cases
-  const belowTen = clients.filter(c=>c.belowTenNeeded && c.authSupHoursMonth>0 && c.therapyHoursMonth>0);
+  const belowTen = activeForDirect.filter(c=>c.belowTenNeeded && c.authSupHoursMonth>0 && c.therapyHoursMonth>0);
   if(belowTen.length){
-    log(`\nℹ️ Below 10% supervision authorization (other supervisor will cover):`);
+    log(`\nℹ️ Below 10% supervision authorization (other supervisor will cover remainder):`);
     for(const c of belowTen.slice(0,12)){
-      log(`- ${c.name}: therapy ${c.therapyHoursMonth.toFixed(2)}h → 10% ${c.direct10Target.toFixed(2)}h, authorized sup ${c.authSupHoursMonth.toFixed(2)}h → scheduling ${c.directHours.toFixed(2)}h`);
+      log(`- ${c.name}: therapy ${c.therapyHoursMonth.toFixed(2)}h → 10% ${c.direct10Target.toFixed(2)}h, auth sup cap ${c.authSupHoursMonth.toFixed(2)}h → min required scheduled ${c.directMinHours.toFixed(2)}h`);
     }
     if(belowTen.length>12) log(`...and ${belowTen.length-12} more`);
   }
 
-  const allClientsByName = new Map(clientsAll.map(c=>[c.name,c]));
+  const allClientsByName = new Map(RAW_CLIENTS.map(c=>[c.name,c]));
 
-  scheduleCoveragePass(clients, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
+  /* ===== PASS 0: Coverage (ensure each active direct client gets at least 1 block) ===== */
+  scheduleCoveragePass(activeForDirect, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
 
-  const unmetDirectByClient = new Map();
-  for(const c of clients){
-    let remaining = roundToQuarterHours(c.directHours - clientScheduledDirectHours(c.name));
+  /* ===== PASS 1: Schedule REQUIRED minimum (10% capped by auth) ===== */
+  const unmetRequiredMap = new Map();
 
+  for(const c of activeForDirect){
     if(!c.windows || !c.windows.length){
-      UNMET.push({client:c.name, directUnmet: remaining>0?remaining:0, indirectUnmet:0});
-      if(remaining>0){
-        unmetDirectByClient.set(c.name, remaining);
-        log(`⚠️ ${c.name}: no session windows parsed → direct unmet ${remaining.toFixed(2)}h`);
+      const req = c.directMinHours;
+      UNMET.push({client:c.name, directUnmetRequired: req>0?req:0, indirectUnmet:0});
+      if(req>0){
+        unmetRequiredMap.set(c.name, req);
+        log(`⚠️ ${c.name}: no session windows parsed → required direct unmet ${req.toFixed(2)}h`);
       }
       continue;
     }
 
+    let remaining = roundToQuarterHours(c.directMinHours - clientScheduledDirectHours(c.name));
+
     if(remaining<=0){
-      UNMET.push({client:c.name, directUnmet:0, indirectUnmet:0});
+      UNMET.push({client:c.name, directUnmetRequired:0, indirectUnmet:0});
       continue;
     }
 
@@ -1389,16 +1368,16 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     }
 
     if(unmet>0){
-      unmetDirectByClient.set(c.name, unmet);
-      log(`❗ ${c.name}: direct unmet after pass 1: ${unmet.toFixed(2)}h`);
+      unmetRequiredMap.set(c.name, unmet);
+      log(`❗ ${c.name}: required direct unmet after pass 1: ${unmet.toFixed(2)}h`);
     }
 
-    UNMET.push({client:c.name, directUnmet: unmet>0?unmet:0, indirectUnmet:0});
+    UNMET.push({client:c.name, directUnmetRequired: unmet>0?unmet:0, indirectUnmet:0});
   }
 
-  // Unmet direct fallback: allow week stacking + allow Monday AM (unless hard avoided)
-  for(const c of clients){
-    const unmet = unmetDirectByClient.get(c.name) || 0;
+  /* ===== PASS 2: If REQUIRED unmet remains, allow week stacking + allow Mon AM (unless hard avoided) ===== */
+  for(const c of activeForDirect){
+    const unmet = unmetRequiredMap.get(c.name) || 0;
     if(unmet<=0) continue;
 
     const split = splitDirectHours(unmet, maxDirectBlock);
@@ -1423,25 +1402,67 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     }
 
     const rec = UNMET.find(x=>x.client===c.name);
-    if(rec) rec.directUnmet = stillUnmet;
+    if(rec) rec.directUnmetRequired = stillUnmet;
   }
 
-  repairZeroScheduledClients(clients, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
+  /* ===== PASS 3: Repair any client with 0 scheduled direct by swapping lower-priority items ===== */
+  repairZeroScheduledClients(activeForDirect, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
 
-  for(const c of clients){
+  /* recompute required unmet precisely */
+  for(const c of activeForDirect){
     const scheduled = clientScheduledDirectHours(c.name);
-    const still = roundToQuarterHours(Math.max(0, c.directHours - scheduled));
+    const still = roundToQuarterHours(Math.max(0, c.directMinHours - scheduled));
     const rec = UNMET.find(x=>x.client===c.name);
-    if(rec) rec.directUnmet = still;
+    if(rec) rec.directUnmetRequired = still;
   }
 
-  // INDIRECT scheduling
-  for(const c of clients){
+  /* ===== PASS 4: TOP-UP (optional) try to schedule up to authorized cap (never displace required items) ===== */
+  log("\n➕ Top-up pass: trying to schedule extra supervision up to the authorized cap where possible...");
+
+  for(const c of activeForDirect){
+    if(!c.windows || !c.windows.length) continue;
+
+    const scheduled = clientScheduledDirectHours(c.name);
+    let extraRemaining = roundToQuarterHours(Math.max(0, c.directMaxHours - scheduled));
+    if(extraRemaining <= 0) continue;
+
+    const split = splitDirectHours(extraRemaining, maxDirectBlock);
+    const blocks = split.blocks;
+    let extraUnmet = split.rem;
+
+    for(const blockHrs of blocks){
+      const placed = tryPlaceDirectBlock({
+        client: c,
+        blockHrs,
+        dates: workdaysAll,
+        dayStartHr,
+        dayEndHr,
+        allowWeekStack: true,
+        allowMonMorning: true,
+        hardAvoidMon,
+        avoidMonBeforeHr,
+        allowRepair: false, // IMPORTANT: no displacement for optional top-up
+        allClientsByName
+      });
+      if(!placed) extraUnmet = roundToQuarterHours(extraUnmet + blockHrs);
+    }
+
+    if(extraUnmet > 0){
+      log(`(optional) ${c.name}: couldn't fit ${extraUnmet.toFixed(2)}h of extra supervision up to cap`);
+    }
+  }
+
+  /* ===== INDIRECT scheduling (includes on-hold clients) ===== */
+  for(const c of allForIndirect){
     let remaining = c.indirectHours;
     if(remaining<=0) continue;
 
-    const rec = UNMET.find(x=>x.client===c.name);
-    if(!rec) continue;
+    // Add UNMET record for on-hold clients (they weren't added above)
+    let rec = UNMET.find(x=>x.client===c.name);
+    if(!rec){
+      rec = {client:c.name, directUnmetRequired: 0, indirectUnmet: 0};
+      UNMET.push(rec);
+    }
 
     const eligibleWorkdays = workdaysAll.filter(d => clientAllowsDate(c, d));
     const preferredDates = buildIndirectPreferenceDates(c, eligibleWorkdays);
@@ -1487,39 +1508,9 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
       }
 
       if(!placed){
-        if(hardAvoidMon !== 1){
-          for(const d of preferredDates){
-            const dateKey=toDateKey(d);
-            const startLimit = Math.max(indStartHr*60, dayStartHr*60);
-            const endLimit = Math.min(indEndHr*60, dayEndHr*60);
-            for(let s=startLimit; s<=endLimit-blockMins; s+=15){
-              const e=s+blockMins;
-              if(overlaps(dateKey, s, e)) continue;
-              addEvent({
-                id: (crypto?.randomUUID?.() ?? String(Math.random())),
-                type:"indirect",
-                client:c.name,
-                dateKey,
-                startMins:s,
-                endMins:e,
-                label:`Indirect (${c.reportType || "general"})`,
-                mode:"indirect",
-                note:`${block.toFixed(2)}h`,
-                priority: c.priority
-              });
-              remaining = roundToQuarterHours(remaining - block);
-              placed=true;
-              break;
-            }
-            if(placed) break;
-          }
-        }
-
-        if(!placed){
-          rec.indirectUnmet = roundToQuarterHours(rec.indirectUnmet + remaining);
-          log(`❗ ${c.name}: could not place remaining indirect ${remaining.toFixed(2)}h → unmet`);
-          remaining=0;
-        }
+        rec.indirectUnmet = roundToQuarterHours(rec.indirectUnmet + remaining);
+        log(`❗ ${c.name}: could not place remaining indirect ${remaining.toFixed(2)}h → unmet`);
+        remaining=0;
       }
     }
   }
@@ -1529,13 +1520,13 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
   log(`Total scheduled hours (direct + indirect, buffers excluded): ${sums.totalBillable.toFixed(2)}h`);
   log(`Average billable hours per workday: ${sums.avgPerWorkday.toFixed(2)}h (target 5.00h)`);
 
-  const unmetDirect = UNMET.reduce((a,b)=>a+(b.directUnmet||0),0);
+  const unmetDirectReq = UNMET.reduce((a,b)=>a+(b.directUnmetRequired||0),0);
   const unmetIndirect = UNMET.reduce((a,b)=>a+(b.indirectUnmet||0),0);
 
-  if(unmetDirect>0 || unmetIndirect>0){
-    log(`\n❌ Unmet direct: ${unmetDirect.toFixed(2)}h | Unmet indirect: ${unmetIndirect.toFixed(2)}h`);
+  if(unmetDirectReq>0 || unmetIndirect>0){
+    log(`\n❌ Required unmet direct: ${unmetDirectReq.toFixed(2)}h | Unmet indirect: ${unmetIndirect.toFixed(2)}h`);
   } else {
-    log("\n🎉 No unmet hours (excluding on-hold).");
+    log("\n🎉 All required hours met (excluding direct for on-hold).");
   }
 
   viewWeekStart = startOfWeek(start);
@@ -1669,14 +1660,14 @@ function renderWeekView(){
 }
 
 function updateFooter(sums, workdayCount){
-  const unmetDirect = UNMET.reduce((a,b)=>a+(b.directUnmet||0),0);
+  const unmetDirectReq = UNMET.reduce((a,b)=>a+(b.directUnmetRequired||0),0);
   const unmetIndirect = UNMET.reduce((a,b)=>a+(b.indirectUnmet||0),0);
 
   document.getElementById("footerLeft").textContent =
     `Billable scheduled: ${sums.totalBillable.toFixed(2)}h • Avg/workday: ${sums.avgPerWorkday.toFixed(2)}h (target 5.00h)`;
 
   document.getElementById("footerRight").textContent =
-    `Unmet direct: ${unmetDirect.toFixed(2)}h | Unmet indirect: ${unmetIndirect.toFixed(2)}h | Workdays: ${workdayCount}`;
+    `Required unmet direct: ${unmetDirectReq.toFixed(2)}h | Unmet indirect: ${unmetIndirect.toFixed(2)}h | Workdays: ${workdayCount}`;
 }
 
 /* =========================
@@ -1705,32 +1696,29 @@ document.getElementById("csvFile").addEventListener("change", async (e)=>{
 
   const monthStr = document.getElementById("monthPick").value || (()=>{ const n=new Date(); return `${n.getFullYear()}-${pad2(n.getMonth()+1)}`; })();
   const {start, end} = monthStartEnd(monthStr);
-  const supTargetMode = document.getElementById("supTargetMode").value;
 
-  RAW_CLIENTS = buildClients(parsed.rows, start, end, supTargetMode);
+  RAW_CLIENTS = buildClients(parsed.rows, start, end);
 
   clearLog(`Loaded ${RAW_CLIENTS.length} clients.\n`);
   const onHold = RAW_CLIENTS.filter(c=>c.onHold).length;
   const noWindows = RAW_CLIENTS.filter(c=>!c.onHold && (!c.windows || !c.windows.length)).length;
 
   log(`On hold (Sessions/Week=0): ${onHold}`);
-  log(`Active clients missing session windows: ${noWindows}`);
+  log(`Active-for-direct clients missing session windows: ${noWindows}`);
 
-  // Show who got auto-computed therapy hours (therapyHoursMonth > 0 even if sheet blank/0)
-  const computed = RAW_CLIENTS.filter(c=>!c.onHold && c.therapyHoursMonth>0);
-  log(`\nTherapy Hours/Month used for 10% target:`);
-  for(const c of computed.slice(0,12)){
-    log(`- ${c.name}: therapy ${c.therapyHoursMonth.toFixed(2)}h → 10% ${c.direct10Target.toFixed(2)}h (auth sup cap ${c.authSupHoursMonth.toFixed(2)}h)`);
+  log(`\nTargets (per client): min required = min(auth cap, 10% of therapy), max allowed = auth cap`);
+  for(const c of RAW_CLIENTS.slice(0,12)){
+    log(`- ${c.name}: therapy ${c.therapyHoursMonth.toFixed(2)}h → 10% ${c.direct10Target.toFixed(2)}h | auth cap ${c.authSupHoursMonth.toFixed(2)}h | min ${c.directMinHours.toFixed(2)}h | max ${c.directMaxHours.toFixed(2)}h | indirect ${c.indirectHours.toFixed(2)}h`);
   }
-  if(computed.length>12) log(`...and ${computed.length-12} more`);
+  if(RAW_CLIENTS.length>12) log(`...and ${RAW_CLIENTS.length-12} more`);
 
   if(noWindows){
     const names = RAW_CLIENTS.filter(c=>!c.onHold && (!c.windows || !c.windows.length)).map(c=>c.name);
-    log(`\nMissing windows: ${names.slice(0,12).join(", ")}${names.length>12 ? "..." : ""}`);
+    log(`\nMissing windows (direct can't be placed): ${names.slice(0,12).join(", ")}${names.length>12 ? "..." : ""}`);
     log(`Fix: fill Mon/Tue/etc Start/End columns for those clients (recommended).`);
   }
   log(`\nDrive buffers use each client's "Drive Time (minutes)" when in-person.`);
-  log(`Start Date + Blackout Dates affect BOTH (a) therapy-hours auto calc and (b) supervision placement dates.`);
+  log(`Start Date + Blackout Dates affect BOTH (a) therapy-hours auto calc and (b) allowable scheduling dates.`);
 });
 
 document.getElementById("btnGenerate").addEventListener("click", ()=>{
