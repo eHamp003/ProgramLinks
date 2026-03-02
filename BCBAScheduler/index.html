@@ -235,7 +235,7 @@
   <div>
     <h1>BCBA Monthly Scheduler</h1>
     <div class="sub">
-      New: client Start Date + Blackout Dates (single dates or ranges) • supervision target = min(authorized supervision, 10% of therapy hours) • option: 10% vs full authorized • front-load vs spread evenly • Sessions/Week=0 = on hold
+      Auto computes Therapy Hours/Month from session windows (+ Start Date + Blackout Dates) when Therapy Hours/Month is blank/0 • supervision target = min(authorized supervision, 10% of therapy hours) • option: 10% vs full authorized • front-load vs spread evenly • Sessions/Week=0 = on hold
     </div>
   </div>
   <div class="mono" id="statusTiny"></div>
@@ -275,7 +275,7 @@
       <option value="ten" selected>Schedule 10% target (capped by authorized supervision)</option>
       <option value="auth">Schedule full authorized supervision hours</option>
     </select>
-    <div class="hint">If authorized supervision is lower than 10% target, schedule authorized only and mark “Below 10% (covered by other supervisor)”.</div>
+    <div class="hint">If authorized supervision is lower than the 10% target, schedule authorized only and mark “Below 10% (covered by other supervisor)”.</div>
 
     <label>Indirect window (Mon–Fri)</label>
     <div class="row">
@@ -396,6 +396,7 @@ function toDateKey(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2
 function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 function roundToQuarterHours(hours){ return Math.round(hours*4)/4; }
 function minsToHours(mins){ return roundToQuarterHours(mins/60); }
+function roundQuarter(x){ return Math.round(x*4)/4; }
 
 function parseDateYYYYMMDD(s){
   const m = String(s||"").trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -441,11 +442,6 @@ function minsToLabel(mins){
 
 /* =========================
    Blackout parsing (single dates or ranges)
-   Examples:
-     2026-03-12
-     3/12/2026
-     2026-03-10 - 2026-03-14
-     3/10/2026-3/14/2026
 ========================= */
 function parseBlackoutSet(raw, monthStart, monthEnd){
   const set=new Set();
@@ -470,7 +466,6 @@ function parseBlackoutSet(raw, monthStart, monthEnd){
   }
 
   for(const p of parts){
-    // range?
     const m = p.match(/^(.+?)\s*-\s*(.+)$/);
     if(m){
       const a=parseAnyDate(m[1].trim());
@@ -569,7 +564,7 @@ function parseDaysTimesFallback(text){
 ========================= */
 let RAW_CLIENTS=[];
 let EVENTS=[]; // {id,type,client,dateKey,startMins,endMins,label,mode,note,priority}
-let UNMET=[];  // {client,directUnmet,indirectUnmet, flags?}
+let UNMET=[];  // {client,directUnmet,indirectUnmet}
 let viewWeekStart=null;
 let activeMonth=null;
 
@@ -610,6 +605,50 @@ function parseDaysOffSet(){
     set.add(toDateKey(d));
   }
   return set;
+}
+
+/* =========================
+   NEW: Auto compute therapy hours/month from windows
+   - Respects client.startDate (earliest schedulable date this month)
+   - Respects client.blackoutSet (planned cancellations)
+========================= */
+function hoursBetweenMins(startMins, endMins){
+  if(startMins == null || endMins == null || endMins <= startMins) return 0;
+  return (endMins - startMins) / 60;
+}
+function computeTherapyHoursMonthFromWindows(client, monthStart, monthEnd){
+  if(!client.windows || !client.windows.length) return 0;
+
+  const byDow = new Map();
+  for(const w of client.windows){
+    if(!byDow.has(w.dow)) byDow.set(w.dow, []);
+    byDow.get(w.dow).push(w);
+  }
+
+  let total = 0;
+  const d = new Date(monthStart);
+  while(d <= monthEnd){
+    const key = toDateKey(d);
+
+    if(client.startDate && d < client.startDate){
+      d.setDate(d.getDate()+1);
+      continue;
+    }
+    if(client.blackoutSet && client.blackoutSet.has(key)){
+      d.setDate(d.getDate()+1);
+      continue;
+    }
+
+    const wins = byDow.get(d.getDay());
+    if(wins && wins.length){
+      for(const w of wins){
+        total += hoursBetweenMins(w.startMins, w.endMins);
+      }
+    }
+    d.setDate(d.getDate()+1);
+  }
+
+  return roundQuarter(total);
 }
 
 /* =========================
@@ -694,13 +733,10 @@ function computePriorityTier(c){
 
 /* =========================
    Supervision target calc
-   - therapyHoursMonth = authorized direct therapy hours (BT 1:1 hours)
-   - authSupHoursMonth = authorized supervision hours (your billable direct supervision cap)
-   - target10 = 10% of therapy hours
-   - scheduledDirectTarget:
-       mode "ten": min(authSup, target10)
-       mode "auth": authSup
-   - Flag "belowTenNeeded" if authSup < target10 (meaning other supervisor will cover)
+   - therapyHoursMonth = authorized BT 1:1 hours/month (auto computed if blank/0)
+   - authSupHoursMonth = authorized supervision hours/month (your cap)
+   - mode "ten": min(authSup, 10% of therapy)
+   - mode "auth": authSup
 ========================= */
 function computeSupervisionTargetHours(therapyHoursMonth, authSupHoursMonth, mode){
   const therapy = Math.max(0, therapyHoursMonth || 0);
@@ -711,18 +747,12 @@ function computeSupervisionTargetHours(therapyHoursMonth, authSupHoursMonth, mod
   if(mode === "auth"){
     return { targetHours: roundToQuarterHours(authSup), target10, authSup, belowTenNeeded: authSup < target10 };
   }
-  // default "ten"
   return { targetHours: roundToQuarterHours(Math.min(authSup, target10)), target10, authSup, belowTenNeeded: authSup < target10 };
 }
 
 /* =========================
    Client building
-   Expected columns (works even if missing):
-   - Sessions per Week
-   - Therapy Hours/Month (NEW)
-   - Direct Hours/Month (authorized supervision cap)
-   - Start Date (NEW)
-   - Blackout Dates (NEW)
+   - If Therapy Hours/Month is blank or 0, it is auto computed from session windows
 ========================= */
 function buildClients(rows, monthStart, monthEnd, supTargetMode){
   const clients=[];
@@ -733,9 +763,10 @@ function buildClients(rows, monthStart, monthEnd, supTargetMode){
     const sessionsPerWeek = parseInt((r["Sessions per Week"]||"0").replace(/[^0-9]/g,""),10) || 0;
     const onHold = (sessionsPerWeek === 0);
 
-    const therapyHoursMonth = parseFloat((r["Therapy Hours/Month"] || r["Authorized Therapy Hours/Month"] || "0").replace(/[^0-9.]/g,"")) || 0;
+    // Optional override. If blank/0 => auto compute from windows.
+    let therapyHoursMonth = parseFloat((r["Therapy Hours/Month"] || r["Authorized Therapy Hours/Month"] || "0").replace(/[^0-9.]/g,"")) || 0;
 
-    // This is your authorized supervision cap (billable direct supervision hours)
+    // Authorized supervision cap (your billable direct sup cap)
     const authSupHoursMonth = parseFloat((r["Direct Hours/Month"]||r["Direct Hours/Month (Supervision)"]||"0").replace(/[^0-9.]/g,"")) || 0;
 
     const indirect = parseFloat((r["Indirect Hours/Month"]||"0").replace(/[^0-9.]/g,"")) || 0;
@@ -749,32 +780,30 @@ function buildClients(rows, monthStart, monthEnd, supTargetMode){
     const reportType = String(r["Report Type"]||"").trim().toLowerCase();
     const notes = r["Group/Notes"] || "";
 
-    // client-level scheduling constraints
+    // Client constraints
     const startDateRaw = r["Start Date"] || r["Earliest Start Date"] || "";
     const startDateParsed = parseAnyDate(startDateRaw);
-    // start date applies only for this month; if blank -> monthStart
     const startDate = startDateParsed ? startDateParsed : null;
 
     const blackoutRaw = r["Blackout Dates"] || r["Planned Cancellations"] || "";
     const blackoutSet = parseBlackoutSet(blackoutRaw, monthStart, monthEnd);
 
+    // Session windows
     let wins = getStructuredWindows(r);
     if(!wins.length){
       wins = parseDaysTimesFallback(r["Session Days/Times"] || "");
     }
 
-    const sup = computeSupervisionTargetHours(therapyHoursMonth, authSupHoursMonth, supTargetMode);
-
+    // Create client first (so auto calc can use startDate/blackouts/windows)
     const client = {
       name,
       sessionsPerWeek,
       onHold,
       therapyHoursMonth: roundToQuarterHours(therapyHoursMonth),
       authSupHoursMonth: roundToQuarterHours(authSupHoursMonth),
-      // the value the scheduler will try to schedule:
-      directHours: roundToQuarterHours(sup.targetHours),
-      direct10Target: roundToQuarterHours(sup.target10),
-      belowTenNeeded: sup.belowTenNeeded,
+      directHours: 0,
+      direct10Target: 0,
+      belowTenNeeded: false,
 
       indirectHours: roundToQuarterHours(indirect),
       soleSupervisor,
@@ -784,10 +813,23 @@ function buildClients(rows, monthStart, monthEnd, supTargetMode){
       dueDate,
       reportType,
       notes,
-      startDate,        // Date or null
-      blackoutSet,      // Set of YYYY-MM-DD for this month
+      startDate,
+      blackoutSet,
       windows: wins
     };
+
+    // AUTO compute Therapy Hours/Month if missing/0
+    if(!therapyHoursMonth || therapyHoursMonth <= 0){
+      therapyHoursMonth = computeTherapyHoursMonthFromWindows(client, monthStart, monthEnd);
+      client.therapyHoursMonth = roundToQuarterHours(therapyHoursMonth);
+    }
+
+    // Now compute supervision target based on therapyHoursMonth + authorized sup cap
+    const sup = computeSupervisionTargetHours(client.therapyHoursMonth, client.authSupHoursMonth, supTargetMode);
+    client.directHours = roundToQuarterHours(sup.targetHours);
+    client.direct10Target = roundToQuarterHours(sup.target10);
+    client.belowTenNeeded = sup.belowTenNeeded;
+
     client.priority = computePriorityTier(client);
     clients.push(client);
   }
@@ -799,15 +841,7 @@ function buildClients(rows, monthStart, monthEnd, supTargetMode){
 ========================= */
 function clientAllowsDate(client, d){
   const key=toDateKey(d);
-
-  // Start Date is "earliest day THIS month we can schedule"
-  if(client.startDate){
-    // If they put a date after month end, they will effectively have no dates.
-    // If they put a date before month start, it won't block.
-    const sd = client.startDate;
-    if(d < sd) return false;
-  }
-
+  if(client.startDate && d < client.startDate) return false;
   if(client.blackoutSet && client.blackoutSet.has(key)) return false;
   return true;
 }
@@ -1026,10 +1060,8 @@ function tryPlaceDirectBlock({
   for(const mode of modeOrder){
     const buf = (mode==="in-person") ? (client.driveMins||0) : 0;
 
-    // filter dates by client start date + blackout
     let candidateDates = dates.filter(d => clientAllowsDate(client, d));
 
-    // sort dates based on distribution preference
     if(distMode === "front"){
       candidateDates.sort((a,b)=>{
         const la=dayLoadBillable(toDateKey(a));
@@ -1045,7 +1077,6 @@ function tryPlaceDirectBlock({
         return b-a;
       });
     } else {
-      // spread (default): if not frequent canceller and not allowWeekStack, prefer weeks with fewer client sessions
       if(client.frequentCanceller !== "yes" && !allowWeekStack){
         candidateDates.sort((a,b)=>{
           const wa=weekKeyMondayStart(a), wb=weekKeyMondayStart(b);
@@ -1194,7 +1225,7 @@ function repairZeroScheduledClients(clients, workdays, dayStartHr, dayEndHr, har
 }
 
 /* =========================
-   Indirect preference dates (unchanged)
+   Indirect preference dates
 ========================= */
 function buildIndirectPreferenceDates(client, workdays){
   const due = client.dueDate;
@@ -1285,12 +1316,9 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
   const hardAvoidMon = +document.getElementById("hardAvoidMon").value;
   const maxDirectBlock = +document.getElementById("maxDirectBlock").value || 3.0;
 
-  // workdays in month excluding global days off
   const workdaysAll = iterateDays(start, end).filter(d=>!isWeekend(d)).filter(d=>!offSet.has(toDateKey(d)));
   const workdayCount = workdaysAll.length;
 
-  // rebuild clients for this month so blackout ranges + start date apply correctly
-  // (we store the original raw rows in RAW_CLIENTS_RAW below)
   const clientsAll = RAW_CLIENTS_RAW
     ? buildClients(RAW_CLIENTS_RAW, start, end, supTargetMode)
     : RAW_CLIENTS;
@@ -1305,24 +1333,22 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     log(`⏸ On hold (Sessions/Week=0): ${onHold.length} clients will NOT be scheduled (direct/indirect).`);
   }
 
-  // quick note: below-10% cases
+  // Auto therapy hours notices (shows when computed)
+  const autoTherapy = clients.filter(c => c.therapyHoursMonth > 0 && (!RAW_CLIENTS_RAW || true));
+  // log below-10% cases
   const belowTen = clients.filter(c=>c.belowTenNeeded && c.authSupHoursMonth>0 && c.therapyHoursMonth>0);
   if(belowTen.length){
     log(`\nℹ️ Below 10% supervision authorization (other supervisor will cover):`);
     for(const c of belowTen.slice(0,12)){
-      log(`- ${c.name}: 10% target ${c.direct10Target.toFixed(2)}h, authorized sup ${c.authSupHoursMonth.toFixed(2)}h → scheduling ${c.directHours.toFixed(2)}h`);
+      log(`- ${c.name}: therapy ${c.therapyHoursMonth.toFixed(2)}h → 10% ${c.direct10Target.toFixed(2)}h, authorized sup ${c.authSupHoursMonth.toFixed(2)}h → scheduling ${c.directHours.toFixed(2)}h`);
     }
     if(belowTen.length>12) log(`...and ${belowTen.length-12} more`);
   }
 
-  // map for repair rehome
   const allClientsByName = new Map(clientsAll.map(c=>[c.name,c]));
 
-  // DIRECT dates per client should respect client start + blackout, so keep workdaysAll and filter per-client inside tryPlaceDirectBlock
-  // COVERAGE PASS
   scheduleCoveragePass(clients, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
 
-  // DIRECT main pass
   const unmetDirectByClient = new Map();
   for(const c of clients){
     let remaining = roundToQuarterHours(c.directHours - clientScheduledDirectHours(c.name));
@@ -1370,7 +1396,7 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     UNMET.push({client:c.name, directUnmet: unmet>0?unmet:0, indirectUnmet:0});
   }
 
-  // DIRECT fallback for unmet: allow week stacking + allow Monday AM (unless hard avoided)
+  // Unmet direct fallback: allow week stacking + allow Monday AM (unless hard avoided)
   for(const c of clients){
     const unmet = unmetDirectByClient.get(c.name) || 0;
     if(unmet<=0) continue;
@@ -1400,10 +1426,8 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     if(rec) rec.directUnmet = stillUnmet;
   }
 
-  // repair swaps for 0-scheduled
   repairZeroScheduledClients(clients, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
 
-  // recompute direct unmet after repair
   for(const c of clients){
     const scheduled = clientScheduledDirectHours(c.name);
     const still = roundToQuarterHours(Math.max(0, c.directHours - scheduled));
@@ -1411,7 +1435,7 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     if(rec) rec.directUnmet = still;
   }
 
-  // INDIRECT scheduling (still only for active clients; you can add client-level blackout/start if desired too)
+  // INDIRECT scheduling
   for(const c of clients){
     let remaining = c.indirectHours;
     if(remaining<=0) continue;
@@ -1419,9 +1443,7 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     const rec = UNMET.find(x=>x.client===c.name);
     if(!rec) continue;
 
-    // for indirect, respect client start date + client blackout too (usually OK)
     const eligibleWorkdays = workdaysAll.filter(d => clientAllowsDate(c, d));
-
     const preferredDates = buildIndirectPreferenceDates(c, eligibleWorkdays);
 
     while(remaining > 0){
@@ -1502,7 +1524,6 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     }
   }
 
-  // Summary
   const sums = computeMonthSummary(start, end);
   log("\n✅ Done.");
   log(`Total scheduled hours (direct + indirect, buffers excluded): ${sums.totalBillable.toFixed(2)}h`);
@@ -1672,7 +1693,6 @@ document.getElementById("btnClear").addEventListener("click", ()=>{
   document.getElementById("footerRight").textContent="—";
 });
 
-// Keep the raw row objects so we can rebuild clients per month (blackouts + start dates are month-specific)
 let RAW_CLIENTS_RAW = null;
 
 document.getElementById("csvFile").addEventListener("change", async (e)=>{
@@ -1683,7 +1703,6 @@ document.getElementById("csvFile").addEventListener("change", async (e)=>{
 
   RAW_CLIENTS_RAW = parsed.rows;
 
-  // build using current month pick (or today month)
   const monthStr = document.getElementById("monthPick").value || (()=>{ const n=new Date(); return `${n.getFullYear()}-${pad2(n.getMonth()+1)}`; })();
   const {start, end} = monthStartEnd(monthStr);
   const supTargetMode = document.getElementById("supTargetMode").value;
@@ -1696,13 +1715,22 @@ document.getElementById("csvFile").addEventListener("change", async (e)=>{
 
   log(`On hold (Sessions/Week=0): ${onHold}`);
   log(`Active clients missing session windows: ${noWindows}`);
+
+  // Show who got auto-computed therapy hours (therapyHoursMonth > 0 even if sheet blank/0)
+  const computed = RAW_CLIENTS.filter(c=>!c.onHold && c.therapyHoursMonth>0);
+  log(`\nTherapy Hours/Month used for 10% target:`);
+  for(const c of computed.slice(0,12)){
+    log(`- ${c.name}: therapy ${c.therapyHoursMonth.toFixed(2)}h → 10% ${c.direct10Target.toFixed(2)}h (auth sup cap ${c.authSupHoursMonth.toFixed(2)}h)`);
+  }
+  if(computed.length>12) log(`...and ${computed.length-12} more`);
+
   if(noWindows){
     const names = RAW_CLIENTS.filter(c=>!c.onHold && (!c.windows || !c.windows.length)).map(c=>c.name);
-    log(`Missing windows: ${names.slice(0,12).join(", ")}${names.length>12 ? "..." : ""}`);
+    log(`\nMissing windows: ${names.slice(0,12).join(", ")}${names.length>12 ? "..." : ""}`);
     log(`Fix: fill Mon/Tue/etc Start/End columns for those clients (recommended).`);
   }
-  log(`Drive buffers use each client's "Drive Time (minutes)" when in-person.`);
-  log(`New columns supported: Therapy Hours/Month, Start Date, Blackout Dates.`);
+  log(`\nDrive buffers use each client's "Drive Time (minutes)" when in-person.`);
+  log(`Start Date + Blackout Dates affect BOTH (a) therapy-hours auto calc and (b) supervision placement dates.`);
 });
 
 document.getElementById("btnGenerate").addEventListener("click", ()=>{
@@ -1736,7 +1764,6 @@ document.getElementById("todayWeek").addEventListener("click", ()=>{
   renderWeekView();
 });
 
-// Default month
 (function init(){
   const now=new Date();
   const m=`${now.getFullYear()}-${pad2(now.getMonth()+1)}`;
