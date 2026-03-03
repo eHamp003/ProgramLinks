@@ -20,6 +20,7 @@
       --timeColW:68px;
       --dayMinW:160px;
       --rowH:28px; /* 15-min row height */
+      --modalBg: rgba(2,6,23,.55);
     }
     *{box-sizing:border-box}
     body{
@@ -85,6 +86,11 @@
     button:hover{ background: rgba(37,99,235,.18); }
     button:active{ transform: translateY(1px); }
     button.secondary{ background: rgba(15,23,42,.06); }
+    button.danger{ background: rgba(220,38,38,.12); }
+    button.danger:hover{ background: rgba(220,38,38,.18); }
+    button.good{ background: rgba(22,163,74,.12); }
+    button.good:hover{ background: rgba(22,163,74,.18); }
+
     .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .chip{
       background: rgba(241,245,255,.85);
@@ -112,8 +118,9 @@
       line-height:1.35;
       white-space:pre-wrap;
     }
-    .hint{font-size:11px;color:rgba(81,96,122,.85);margin-top:6px;line-height:1.25}
     .divider{ height:1px; background: rgba(15,23,42,.08); margin:12px 0; }
+    .hint{font-size:11px;color:rgba(81,96,122,.85);margin-top:6px;line-height:1.25}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;}
 
     /* Calendar */
     .cal{ padding:0; overflow:hidden; min-height: 660px; }
@@ -137,6 +144,7 @@
       overflow:auto;
       max-height: calc(100vh - 190px);
       background: rgba(255,255,255,.70);
+      position:relative;
     }
     .weekGrid{
       position:relative;
@@ -198,7 +206,10 @@
       box-shadow: 0 8px 20px rgba(15,23,42,.10);
       padding:8px 10px;
       overflow:hidden;
+      user-select:none;
+      touch-action:none;
     }
+    .event:hover{ outline: 2px solid rgba(37,99,235,.18); }
     .event .t{ font-size:12px; font-weight:900; line-height:1.1; margin-bottom:4px; }
     .event .s{ font-size:11px; color: rgba(15,23,42,.78); line-height:1.2; }
     .event .k{
@@ -212,10 +223,24 @@
       border-radius:999px;
     }
 
-    .ev-direct{ background: rgba(37,99,235,.14); }
-    .ev-indirect{ background: rgba(22,163,74,.12); }
-    .ev-buffer{ background: rgba(245,158,11,.12); border-style:dashed; }
+    .ev-direct{ background: rgba(37,99,235,.14); cursor:grab; }
+    .ev-indirect{ background: rgba(22,163,74,.12); cursor:pointer; }
+    .ev-buffer{ background: rgba(245,158,11,.12); border-style:dashed; cursor:default; }
 
+    .dragging{
+      opacity:.82;
+      cursor:grabbing !important;
+      outline: 2px solid rgba(37,99,235,.35) !important;
+    }
+    .ghostHint{
+      position:absolute;
+      pointer-events:none;
+      left:8px; right:8px;
+      border-radius: 14px;
+      border:2px dashed rgba(37,99,235,.35);
+      background: rgba(37,99,235,.06);
+      z-index:1000;
+    }
     .footerNote{
       padding:12px 14px;
       border-top:1px solid rgba(15,23,42,.10);
@@ -227,7 +252,79 @@
       flex-wrap:wrap;
       background: rgba(255,255,255,.92);
     }
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;}
+
+    /* Modal */
+    .modalBg{
+      position:fixed;
+      inset:0;
+      background: var(--modalBg);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:2000;
+      padding:16px;
+    }
+    .modal{
+      width:min(720px, 96vw);
+      background: rgba(255,255,255,.98);
+      border:1px solid rgba(15,23,42,.14);
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(2,6,23,.35);
+      overflow:hidden;
+    }
+    .modalTop{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .modalTop .h{
+      font-weight:950;
+      letter-spacing:.2px;
+      font-size:14px;
+      margin:0;
+    }
+    .modalTop .m{
+      font-size:12px; color:var(--muted); margin-top:4px; line-height:1.25;
+    }
+    .modalBody{ padding:14px 16px; }
+    .modalGrid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .altList{
+      margin-top:12px;
+      padding:10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(15,23,42,.10);
+      max-height: 240px;
+      overflow:auto;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .altItem{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:8px 8px;
+      border-radius: 12px;
+      border:1px solid rgba(15,23,42,.08);
+      background: rgba(241,245,255,.55);
+      margin-bottom:8px;
+    }
+    .altItem .l{ line-height:1.2; }
+    .altItem .r button{ width:auto; padding:8px 10px; }
+    .modalBtns{
+      padding:12px 16px;
+      border-top:1px solid rgba(15,23,42,.10);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      background: rgba(255,255,255,.92);
+    }
+    .modalBtns button{ width:auto; padding:9px 12px; }
   </style>
 </head>
 
@@ -236,9 +333,7 @@
   <div>
     <h1>BCBA Monthly Scheduler</h1>
     <div class="sub">
-      Direct scheduling uses <b>minimum 10%</b> as must-hit, then runs a <b>top-up pass</b> to try to schedule up to the authorized supervision cap where possible (never exceeding it). On-hold clients (Sessions/Week=0) are skipped for <b>direct</b> but can still receive <b>indirect</b>. Max direct block length enforced.
-      <br/>
-      <b>NEW:</b> Save/Load + Download/Upload schedule so you can revisit it throughout the month.
+      Drag & drop for <b>Direct</b> moves buffers with it. Click a Direct event to toggle <b>Telehealth ↔ In-person</b> and auto-remove/add buffers. Use <b>Find Alternatives</b> when a client cancels.
     </div>
   </div>
   <div class="mono" id="statusTiny"></div>
@@ -333,13 +428,13 @@ or M/D/YYYY like 3/6/2026"></textarea>
     </div>
 
     <div class="chips">
-      <div class="chip"><span class="dot" style="background:rgba(37,99,235,.95)"></span><span>Direct</span></div>
-      <div class="chip"><span class="dot warn"></span><span>Drive buffer</span></div>
+      <div class="chip"><span class="dot" style="background:rgba(37,99,235,.95)"></span><span>Direct (draggable)</span></div>
+      <div class="chip"><span class="dot warn"></span><span>Drive buffer (moves with direct)</span></div>
       <div class="chip"><span class="dot good"></span><span>Indirect</span></div>
       <div class="chip"><span class="dot bad"></span><span>Required unmet</span></div>
     </div>
 
-    <div class="log" id="logBox">Upload CSV → pick month → Generate.</div>
+    <div class="log" id="logBox">Upload CSV → pick month → Generate. Click a Direct block to edit or find alternatives. Drag Direct blocks to reschedule.</div>
   </div>
 
   <div class="card cal">
@@ -362,6 +457,45 @@ or M/D/YYYY like 3/6/2026"></textarea>
     <div class="footerNote">
       <div id="footerLeft">—</div>
       <div id="footerRight" class="mono">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modalBg" id="modalBg">
+  <div class="modal">
+    <div class="modalTop">
+      <div>
+        <div class="h" id="modalTitle">Event</div>
+        <div class="m" id="modalMeta">—</div>
+      </div>
+      <button class="secondary" id="modalClose">Close</button>
+    </div>
+    <div class="modalBody">
+      <div class="modalGrid">
+        <div>
+          <label>Mode (Direct only)</label>
+          <select id="modalMode">
+            <option value="in-person">In-person</option>
+            <option value="telehealth">Telehealth</option>
+          </select>
+          <div class="hint">Telehealth removes buffers. In-person adds buffers based on Drive Time (minutes) for that client.</div>
+        </div>
+        <div>
+          <label>Action</label>
+          <div class="row">
+            <button id="btnDeleteEvent" class="danger">Delete</button>
+            <button id="btnFindAlts" class="good">Find Alternatives</button>
+          </div>
+          <div class="hint">Use Delete for cancellations; then click “Find Alternatives” to immediately see replacement slots.</div>
+        </div>
+      </div>
+
+      <div class="altList" id="altList" style="display:none;"></div>
+    </div>
+    <div class="modalBtns">
+      <button class="secondary" id="btnApplyMode">Apply Mode Change</button>
+      <button id="btnMarkCancelled" class="danger">Mark Cancelled + Find Options</button>
     </div>
   </div>
 </div>
@@ -455,7 +589,7 @@ function minsToLabel(mins){
 }
 
 /* =========================
-   Blackout parsing (single dates or ranges)
+   Blackout parsing
 ========================= */
 function parseBlackoutSet(raw, monthStart, monthEnd){
   const set=new Set();
@@ -493,7 +627,7 @@ function parseBlackoutSet(raw, monthStart, monthEnd){
 }
 
 /* =========================
-   Schedule windows extraction
+   Windows extraction
 ========================= */
 const dayMap = { Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6, Sun:0 };
 const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -574,16 +708,17 @@ function parseDaysTimesFallback(text){
 }
 
 /* =========================
-   Model state
+   State
 ========================= */
 let RAW_CLIENTS=[];
 let RAW_CLIENTS_RAW = null;
-let EVENTS=[]; // {id,type,client,dateKey,startMins,endMins,label,mode,note,priority}
+let EVENTS=[]; // {id,type,client,dateKey,startMins,endMins,label,mode,note,priority, groupId}
 let UNMET=[];  // {client,directUnmetRequired,indirectUnmet}
 let viewWeekStart=null;
 let activeMonth=null;
 
-const STORAGE_KEY = "bcba_scheduler_saved_schedule_v1";
+const STORAGE_KEY = "bcba_scheduler_saved_schedule_v2_drag";
+let lastRenderedDomByEventId = new Map(); // for drag helpers
 
 function log(msg){
   const box=document.getElementById("logBox");
@@ -662,34 +797,33 @@ function computeTherapyHoursMonthFromWindows(client, monthStart, monthEnd){
     }
     d.setDate(d.getDate()+1);
   }
-
   return roundQuarter(total);
 }
 
 /* =========================
-   Overlap + event utils
+   Overlap utils
 ========================= */
-function overlaps(dateKey, s, e){
+function overlaps(dateKey, s, e, ignoreIds=null){
+  const ignore = ignoreIds ? new Set(ignoreIds) : null;
   for(const ev of EVENTS){
+    if(ignore && ignore.has(ev.id)) continue;
     if(ev.dateKey!==dateKey) continue;
     if(!(e<=ev.startMins || s>=ev.endMins)) return true;
   }
   return false;
-}
-function eventsOverlapping(dateKey, s, e){
-  const arr=[];
-  for(const ev of EVENTS){
-    if(ev.dateKey!==dateKey) continue;
-    if(!(e<=ev.startMins || s>=ev.endMins)) arr.push(ev);
-  }
-  return arr;
 }
 function addEvent(ev){ EVENTS.push(ev); }
 function removeEventsByIds(ids){
   const idset=new Set(ids);
   EVENTS = EVENTS.filter(ev=>!idset.has(ev.id));
 }
+function findClientByName(name){
+  return RAW_CLIENTS.find(c=>c.name===name) || null;
+}
 
+/* =========================
+   Week + calendar positioning
+========================= */
 function startOfWeek(d){
   const x=new Date(d);
   const day=x.getDay();
@@ -698,38 +832,15 @@ function startOfWeek(d){
   x.setHours(0,0,0,0);
   return x;
 }
+function addDays(d, n){
+  const x=new Date(d);
+  x.setDate(x.getDate()+n);
+  return x;
+}
 function weekKeyMondayStart(d){ return toDateKey(startOfWeek(d)); }
 
-function dayLoadBillable(dateKey){
-  let mins=0;
-  for(const ev of EVENTS){
-    if(ev.dateKey!==dateKey) continue;
-    if(ev.type==="direct" || ev.type==="indirect") mins += (ev.endMins-ev.startMins);
-  }
-  return mins;
-}
-function clientScheduledDirectHours(name){
-  let h=0;
-  for(const ev of EVENTS){
-    if(ev.type==="direct" && ev.client===name){
-      h += (ev.endMins-ev.startMins)/60;
-    }
-  }
-  return roundToQuarterHours(h);
-}
-function clientWeekDirectCount(clientName, wkKey){
-  let count=0;
-  for(const ev of EVENTS){
-    if(ev.type!=="direct") continue;
-    if(ev.client!==clientName) continue;
-    const d=new Date(ev.dateKey+"T00:00:00");
-    if(weekKeyMondayStart(d)===wkKey) count++;
-  }
-  return count;
-}
-
 /* =========================
-   Priority
+   Priority + targets
 ========================= */
 function computePriorityTier(c){
   const sessions = +c.sessionsPerWeek || 0;
@@ -745,18 +856,12 @@ function computePriorityTier(c){
   const combo = (freq?2:0) + (sole?1:0);
   return bucket*10 + combo;
 }
-
-/* =========================
-   NEW: supervision targets
-========================= */
 function computeSupervisionTargets(therapyHoursMonth, authSupHoursMonth){
   const therapy = Math.max(0, therapyHoursMonth || 0);
   const authSup = Math.max(0, authSupHoursMonth || 0);
-
   const target10 = roundToQuarterHours(therapy * 0.10);
   const minRequired = roundToQuarterHours(Math.min(authSup, target10));
   const maxAllowed = roundToQuarterHours(authSup);
-
   return { minRequired, maxAllowed, target10, belowTenNeeded: authSup < target10 };
 }
 
@@ -774,7 +879,6 @@ function buildClients(rows, monthStart, monthEnd){
 
     let therapyHoursMonth = parseFloat((r["Therapy Hours/Month"] || r["Authorized Therapy Hours/Month"] || "0").replace(/[^0-9.]/g,"")) || 0;
     const authSupHoursMonth = parseFloat((r["Direct Hours/Month"]||r["Direct Hours/Month (Supervision)"]||"0").replace(/[^0-9.]/g,"")) || 0;
-
     const indirect = parseFloat((r["Indirect Hours/Month"]||"0").replace(/[^0-9.]/g,"")) || 0;
 
     const soleSupervisor = normYesNo(r["Sole Supervisor"]);
@@ -840,10 +944,6 @@ function buildClients(rows, monthStart, monthEnd){
   }
   return clients;
 }
-
-/* =========================
-   Client date filter
-========================= */
 function clientAllowsDate(client, d){
   const key=toDateKey(d);
   if(client.startDate && d < client.startDate) return false;
@@ -852,7 +952,63 @@ function clientAllowsDate(client, d){
 }
 
 /* =========================
-   Direct splitting with max block cap
+   Direct blocks + buffers grouped
+========================= */
+function genId(){ return (crypto?.randomUUID?.() ?? (Math.random().toString(36).slice(2)+Date.now())); }
+function groupIdForDirect(){ return "G-" + genId(); }
+
+function placeDirectWithBuffersGrouped(client, dateKey, directS, directE, buf, mode, blockHrs){
+  const gid = groupIdForDirect();
+
+  if(buf>0){
+    addEvent({
+      id: genId(),
+      type:"buffer",
+      client:client.name,
+      dateKey,
+      startMins: directS-buf,
+      endMins: directS,
+      label:"Drive buffer",
+      mode,
+      note:`${buf} min`,
+      priority: client.priority,
+      groupId: gid
+    });
+  }
+
+  addEvent({
+    id: genId(),
+    type:"direct",
+    client:client.name,
+    dateKey,
+    startMins: directS,
+    endMins: directE,
+    label:"Direct Supervision",
+    mode,
+    note:`${blockHrs.toFixed(2)}h`,
+    priority: client.priority,
+    groupId: gid
+  });
+
+  if(buf>0){
+    addEvent({
+      id: genId(),
+      type:"buffer",
+      client:client.name,
+      dateKey,
+      startMins: directE,
+      endMins: directE+buf,
+      label:"Drive buffer",
+      mode,
+      note:`${buf} min`,
+      priority: client.priority,
+      groupId: gid
+    });
+  }
+}
+
+/* =========================
+   Split direct hours (max 3h blocks)
 ========================= */
 function splitDirectHours(total, maxBlock=3.0){
   const blocks=[];
@@ -883,129 +1039,39 @@ function splitDirectHours(total, maxBlock=3.0){
 }
 
 /* =========================
-   Placement
+   Scheduling core (same as before, but uses grouped buffers)
 ========================= */
-function placeDirectWithBuffers(client, dateKey, directS, directE, buf, mode, blockHrs){
-  if(buf>0){
-    addEvent({
-      id: (crypto?.randomUUID?.() ?? String(Math.random())),
-      type:"buffer",
-      client:client.name,
-      dateKey,
-      startMins: directS-buf,
-      endMins: directS,
-      label:"Drive buffer",
-      mode,
-      note:`${buf} min`,
-      priority: client.priority
-    });
+function dayLoadBillable(dateKey){
+  let mins=0;
+  for(const ev of EVENTS){
+    if(ev.dateKey!==dateKey) continue;
+    if(ev.type==="direct" || ev.type==="indirect") mins += (ev.endMins-ev.startMins);
   }
-
-  addEvent({
-    id: (crypto?.randomUUID?.() ?? String(Math.random())),
-    type:"direct",
-    client:client.name,
-    dateKey,
-    startMins: directS,
-    endMins: directE,
-    label:"Direct Supervision",
-    mode,
-    note:`${blockHrs.toFixed(2)}h`,
-    priority: client.priority
-  });
-
-  if(buf>0){
-    addEvent({
-      id: (crypto?.randomUUID?.() ?? String(Math.random())),
-      type:"buffer",
-      client:client.name,
-      dateKey,
-      startMins: directE,
-      endMins: directE+buf,
-      label:"Drive buffer",
-      mode,
-      note:`${buf} min`,
-      priority: client.priority
-    });
-  }
+  return mins;
 }
-
-function tryPlaceIndirectAny(clientName, durMins, dates, dayStartHr, dayEndHr, indStartHr, indEndHr, hardAvoidMon, avoidMonBeforeHr, priority){
-  const candidateDates=[...dates].sort((a,b)=>dayLoadBillable(toDateKey(a)) - dayLoadBillable(toDateKey(b)));
-  for(const d of candidateDates){
-    const dateKey=toDateKey(d);
-    const startLimit = Math.max(indStartHr*60, dayStartHr*60);
-    const endLimit = Math.min(indEndHr*60, dayEndHr*60);
-
-    const isMon = (d.getDay()===1);
-    const avoidCut = avoidMonBeforeHr*60;
-
-    for(let s=startLimit; s<=endLimit-durMins; s+=15){
-      if(isMon && s < avoidCut){
-        if(hardAvoidMon===1) continue;
-        continue;
-      }
-      const e=s+durMins;
-      if(overlaps(dateKey, s, e)) continue;
-
-      addEvent({
-        id: (crypto?.randomUUID?.() ?? String(Math.random())),
-        type:"indirect",
-        client:clientName,
-        dateKey,
-        startMins:s,
-        endMins:e,
-        label:"Indirect (re-home)",
-        mode:"indirect",
-        note:`${minsToHours(durMins).toFixed(2)}h`,
-        priority
-      });
-      return true;
+function clientScheduledDirectHours(name){
+  let h=0;
+  for(const ev of EVENTS){
+    if(ev.type==="direct" && ev.client===name){
+      h += (ev.endMins-ev.startMins)/60;
     }
   }
-  return false;
+  return roundToQuarterHours(h);
 }
-
-function rehomeDisplacedEvents(removedEvents, dates, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, allClientsByName){
-  const directs = removedEvents.filter(e=>e.type==="direct");
-  const indirects = removedEvents.filter(e=>e.type==="indirect");
-  let ok = true;
-
-  for(const ev of directs){
-    const client = allClientsByName.get(ev.client);
-    if(!client || client.onHold) { ok=false; continue; }
-    if(!client.windows || !client.windows.length){ ok = false; continue; }
-    const durH = minsToHours(ev.endMins-ev.startMins);
-    const placed = tryPlaceDirectBlock({
-      client,
-      blockHrs: durH,
-      dates,
-      dayStartHr,
-      dayEndHr,
-      allowWeekStack: true,
-      allowMonMorning: true,
-      hardAvoidMon,
-      avoidMonBeforeHr,
-      allowRepair: false,
-      allClientsByName
-    });
-    if(!placed) ok = false;
+function clientWeekDirectCount(clientName, wkKey){
+  let count=0;
+  for(const ev of EVENTS){
+    if(ev.type!=="direct") continue;
+    if(ev.client!==clientName) continue;
+    const d=new Date(ev.dateKey+"T00:00:00");
+    if(weekKeyMondayStart(d)===wkKey) count++;
   }
-
-  const indStartHr = +document.getElementById("indStart").value;
-  const indEndHr = +document.getElementById("indEnd").value;
-  for(const ev of indirects){
-    const durM = (ev.endMins-ev.startMins);
-    const placed = tryPlaceIndirectAny(ev.client, durM, dates, dayStartHr, dayEndHr, indStartHr, indEndHr, hardAvoidMon, avoidMonBeforeHr, ev.priority ?? -999);
-    if(!placed) ok = false;
-  }
-  return ok;
+  return count;
 }
 
 function tryPlaceDirectBlock({
   client, blockHrs, dates, dayStartHr, dayEndHr,
-  allowWeekStack, allowMonMorning, hardAvoidMon, avoidMonBeforeHr,
-  allowRepair, allClientsByName
+  allowWeekStack, allowMonMorning, hardAvoidMon, avoidMonBeforeHr
 }){
   if(client.onHold) return false;
   const blockMins = Math.round(blockHrs*60);
@@ -1088,37 +1154,10 @@ function tryPlaceDirectBlock({
           const spanE=directE+buf;
           const dateKey=toDateKey(d);
 
-          if(!allowRepair){
-            if(overlaps(dateKey, spanS, spanE)) continue;
-            placeDirectWithBuffers(client, dateKey, directS, directE, buf, mode, blockHrs);
-            return true;
-          } else {
-            const overlapping = eventsOverlapping(dateKey, spanS, spanE);
-            const myPri = client.priority;
+          if(overlaps(dateKey, spanS, spanE)) continue;
 
-            const movable = overlapping.filter(ev => (ev.type==="direct" || ev.type==="indirect" || ev.type==="buffer"));
-            if(movable.length !== overlapping.length) continue;
-
-            const canDisplace = movable.every(ev => (ev.priority ?? -999) < myPri);
-            if(!canDisplace) continue;
-
-            const removedIds = movable.map(ev=>ev.id);
-            const removedEvents = movable.map(ev=>({...ev}));
-            removeEventsByIds(removedIds);
-
-            if(overlaps(dateKey, spanS, spanE)){
-              EVENTS.push(...removedEvents);
-              continue;
-            }
-
-            placeDirectWithBuffers(client, dateKey, directS, directE, buf, mode, blockHrs);
-
-            const ok = rehomeDisplacedEvents(removedEvents, dates, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, allClientsByName);
-            if(!ok){
-              log(`⚠️ Repair: placed ${client.name} by displacing lower-priority items; some displaced items may remain unmet.`);
-            }
-            return true;
-          }
+          placeDirectWithBuffersGrouped(client, dateKey, directS, directE, buf, mode, blockHrs);
+          return true;
         }
       }
     }
@@ -1128,63 +1167,7 @@ function tryPlaceDirectBlock({
 }
 
 /* =========================
-   Coverage + repair passes (REQUIRED minimum only)
-========================= */
-function scheduleCoveragePass(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName){
-  for(const c of clients){
-    if(c.onHold) continue;
-    if(!c.windows || !c.windows.length) continue;
-    if(c.directMinHours <= 0) continue;
-
-    const already = EVENTS.some(ev=>ev.type==="direct" && ev.client===c.name);
-    if(already) continue;
-
-    const minBlock = clamp(Math.min(2.0, c.directMinHours), 1.0, maxDirectBlock);
-
-    tryPlaceDirectBlock({
-      client:c,
-      blockHrs:minBlock,
-      dates:workdays,
-      dayStartHr,
-      dayEndHr,
-      allowWeekStack:false,
-      allowMonMorning:false,
-      hardAvoidMon,
-      avoidMonBeforeHr,
-      allowRepair:false,
-      allClientsByName
-    });
-  }
-}
-function repairZeroScheduledClients(clients, workdays, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName){
-  const zeros = clients.filter(c => !c.onHold && c.directMinHours>0 && clientScheduledDirectHours(c.name)===0 && c.windows && c.windows.length);
-  if(!zeros.length) return;
-
-  log(`\n🛠 Repair pass: ${zeros.length} clients had 0 direct scheduled. Attempting swaps...`);
-  for(const c of zeros){
-    const block = clamp(Math.min(2.0, c.directMinHours), 1.0, maxDirectBlock);
-
-    const placed = tryPlaceDirectBlock({
-      client:c,
-      blockHrs:block,
-      dates:workdays,
-      dayStartHr,
-      dayEndHr,
-      allowWeekStack:true,
-      allowMonMorning:true,
-      hardAvoidMon,
-      avoidMonBeforeHr,
-      allowRepair:true,
-      allClientsByName
-    });
-
-    if(placed) log(`✅ Repair: scheduled at least 1 block for ${c.name}`);
-    else log(`❗ Repair failed for ${c.name} (no feasible swap found)`);
-  }
-}
-
-/* =========================
-   Indirect preference dates
+   Indirect scheduling
 ========================= */
 function buildIndirectPreferenceDates(client, workdays){
   const due = client.dueDate;
@@ -1251,9 +1234,19 @@ function computeMonthSummary(start, end){
   const avg = totalBillable / (workdays.length || 1);
   return {totalBillable, avgPerWorkday: avg, workdaysCount: workdays.length};
 }
+function updateFooter(sums, workdayCount){
+  const unmetDirectReq = UNMET.reduce((a,b)=>a+(b.directUnmetRequired||0),0);
+  const unmetIndirect = UNMET.reduce((a,b)=>a+(b.indirectUnmet||0),0);
+
+  document.getElementById("footerLeft").textContent =
+    `Billable scheduled: ${sums.totalBillable.toFixed(2)}h • Avg/workday: ${sums.avgPerWorkday.toFixed(2)}h (target 5.00h)`;
+
+  document.getElementById("footerRight").textContent =
+    `Required unmet direct: ${unmetDirectReq.toFixed(2)}h | Unmet indirect: ${unmetIndirect.toFixed(2)}h | Workdays: ${workdayCount}`;
+}
 
 /* =========================
-   Main scheduling
+   Main generate
 ========================= */
 function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, indMin, indMax){
   EVENTS=[];
@@ -1273,45 +1266,18 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
   const hardAvoidMon = +document.getElementById("hardAvoidMon").value;
   const maxDirectBlock = +document.getElementById("maxDirectBlock").value || 3.0;
 
-  const workdaysAll = iterateDays(start, end).filter(d=>!isWeekend(d)).filter(d=>!offSet.has(toDateKey(d)));
-  const workdayCount = workdaysAll.length;
+  const workdaysAll = iterateDays(start, end)
+    .filter(d=>!isWeekend(d))
+    .filter(d=>!offSet.has(toDateKey(d)));
 
   RAW_CLIENTS = buildClients(RAW_CLIENTS_RAW, start, end);
-
   const clientsSorted = [...RAW_CLIENTS].sort((a,b)=>b.priority-a.priority);
   const activeForDirect = clientsSorted.filter(c=>!c.onHold);
-  const allForIndirect = clientsSorted; // includes on hold
+  const allForIndirect = clientsSorted;
 
-  const onHold = clientsSorted.filter(c=>c.onHold);
-  if(onHold.length){
-    log(`⏸ On hold (Sessions/Week=0): ${onHold.length} clients will NOT be scheduled for DIRECT, but CAN be scheduled for INDIRECT.`);
-  }
-
-  const allClientsByName = new Map(RAW_CLIENTS.map(c=>[c.name,c]));
-
-  /* PASS 0: ensure each active direct client gets at least 1 block */
-  scheduleCoveragePass(activeForDirect, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
-
-  /* PASS 1: schedule REQUIRED minimum */
-  const unmetRequiredMap = new Map();
-
+  /* pass: required minimum */
   for(const c of activeForDirect){
-    if(!c.windows || !c.windows.length){
-      const req = c.directMinHours;
-      UNMET.push({client:c.name, directUnmetRequired: req>0?req:0, indirectUnmet:0});
-      if(req>0){
-        unmetRequiredMap.set(c.name, req);
-        log(`⚠️ ${c.name}: no session windows parsed → required direct unmet ${req.toFixed(2)}h`);
-      }
-      continue;
-    }
-
-    let remaining = roundToQuarterHours(c.directMinHours - clientScheduledDirectHours(c.name));
-    if(remaining<=0){
-      UNMET.push({client:c.name, directUnmetRequired:0, indirectUnmet:0});
-      continue;
-    }
-
+    let remaining = roundToQuarterHours(c.directMinHours);
     const split = splitDirectHours(remaining, maxDirectBlock);
     let unmet = split.rem;
 
@@ -1325,30 +1291,23 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
         allowWeekStack:false,
         allowMonMorning:false,
         hardAvoidMon,
-        avoidMonBeforeHr,
-        allowRepair:false,
-        allClientsByName
+        avoidMonBeforeHr
       });
       if(!placed) unmet = roundToQuarterHours(unmet + blockHrs);
-    }
-
-    if(unmet>0){
-      unmetRequiredMap.set(c.name, unmet);
-      log(`❗ ${c.name}: required direct unmet after pass 1: ${unmet.toFixed(2)}h`);
     }
     UNMET.push({client:c.name, directUnmetRequired: unmet>0?unmet:0, indirectUnmet:0});
   }
 
-  /* PASS 2: required unmet → relax distribution + allow Mon AM */
+  /* top-up to cap */
+  log("\n➕ Top-up pass: trying to schedule extra supervision up to authorized cap...");
   for(const c of activeForDirect){
-    const unmet = unmetRequiredMap.get(c.name) || 0;
-    if(unmet<=0) continue;
+    const scheduled = clientScheduledDirectHours(c.name);
+    let extra = roundToQuarterHours(Math.max(0, c.directMaxHours - scheduled));
+    if(extra<=0) continue;
 
-    const split = splitDirectHours(unmet, maxDirectBlock);
-    let stillUnmet = split.rem;
-
+    const split = splitDirectHours(extra, maxDirectBlock);
     for(const blockHrs of split.blocks){
-      const placed = tryPlaceDirectBlock({
+      tryPlaceDirectBlock({
         client:c,
         blockHrs,
         dates:workdaysAll,
@@ -1357,73 +1316,18 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
         allowWeekStack:true,
         allowMonMorning:true,
         hardAvoidMon,
-        avoidMonBeforeHr,
-        allowRepair:false,
-        allClientsByName
+        avoidMonBeforeHr
       });
-      if(!placed) stillUnmet = roundToQuarterHours(stillUnmet + blockHrs);
-    }
-
-    const rec = UNMET.find(x=>x.client===c.name);
-    if(rec) rec.directUnmetRequired = stillUnmet;
-  }
-
-  /* PASS 3: repair zeros via swaps */
-  repairZeroScheduledClients(activeForDirect, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
-
-  /* recompute required unmet precisely */
-  for(const c of activeForDirect){
-    const scheduled = clientScheduledDirectHours(c.name);
-    const still = roundToQuarterHours(Math.max(0, c.directMinHours - scheduled));
-    const rec = UNMET.find(x=>x.client===c.name);
-    if(rec) rec.directUnmetRequired = still;
-  }
-
-  /* PASS 4: TOP-UP optional to cap (no displacement) */
-  log("\n➕ Top-up pass: trying to schedule extra supervision up to the authorized cap where possible...");
-
-  for(const c of activeForDirect){
-    if(!c.windows || !c.windows.length) continue;
-
-    const scheduled = clientScheduledDirectHours(c.name);
-    let extraRemaining = roundToQuarterHours(Math.max(0, c.directMaxHours - scheduled));
-    if(extraRemaining <= 0) continue;
-
-    const split = splitDirectHours(extraRemaining, maxDirectBlock);
-    let extraUnmet = split.rem;
-
-    for(const blockHrs of split.blocks){
-      const placed = tryPlaceDirectBlock({
-        client: c,
-        blockHrs,
-        dates: workdaysAll,
-        dayStartHr,
-        dayEndHr,
-        allowWeekStack: true,
-        allowMonMorning: true,
-        hardAvoidMon,
-        avoidMonBeforeHr,
-        allowRepair: false,
-        allClientsByName
-      });
-      if(!placed) extraUnmet = roundToQuarterHours(extraUnmet + blockHrs);
-    }
-
-    if(extraUnmet > 0){
-      log(`(optional) ${c.name}: couldn't fit ${extraUnmet.toFixed(2)}h of extra supervision up to cap`);
     }
   }
 
-  /* INDIRECT scheduling (includes on-hold clients) */
+  /* indirect */
   for(const c of allForIndirect){
     let remaining = c.indirectHours;
     if(remaining<=0) continue;
 
     let rec = UNMET.find(x=>x.client===c.name);
-    if(!rec){
-      rec = {client:c.name, directUnmetRequired: 0, indirectUnmet: 0};
-      UNMET.push(rec);
-    }
+    if(!rec){ rec = {client:c.name, directUnmetRequired: 0, indirectUnmet: 0}; UNMET.push(rec); }
 
     const eligibleWorkdays = workdaysAll.filter(d => clientAllowsDate(c, d));
     const preferredDates = buildIndirectPreferenceDates(c, eligibleWorkdays);
@@ -1450,7 +1354,7 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
           if(overlaps(dateKey, s, e)) continue;
 
           addEvent({
-            id: (crypto?.randomUUID?.() ?? String(Math.random())),
+            id: genId(),
             type:"indirect",
             client:c.name,
             dateKey,
@@ -1470,7 +1374,6 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
 
       if(!placed){
         rec.indirectUnmet = roundToQuarterHours(rec.indirectUnmet + remaining);
-        log(`❗ ${c.name}: could not place remaining indirect ${remaining.toFixed(2)}h → unmet`);
         remaining=0;
       }
     }
@@ -1481,31 +1384,19 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
   log(`Total scheduled hours (direct + indirect, buffers excluded): ${sums.totalBillable.toFixed(2)}h`);
   log(`Average billable hours per workday: ${sums.avgPerWorkday.toFixed(2)}h (target 5.00h)`);
 
-  const unmetDirectReq = UNMET.reduce((a,b)=>a+(b.directUnmetRequired||0),0);
-  const unmetIndirect = UNMET.reduce((a,b)=>a+(b.indirectUnmet||0),0);
-
-  if(unmetDirectReq>0 || unmetIndirect>0){
-    log(`\n❌ Required unmet direct: ${unmetDirectReq.toFixed(2)}h | Unmet indirect: ${unmetIndirect.toFixed(2)}h`);
-  } else {
-    log("\n🎉 All required hours met (excluding direct for on-hold).");
-  }
-
   viewWeekStart = startOfWeek(start);
   renderWeekView();
-  updateFooter(sums, workdayCount);
+  updateFooter(sums, workdaysAll.length);
+  setStatusTiny(activeMonth.monthStr);
 }
 
 /* =========================
-   Calendar rendering
+   RENDER (click + drag)
 ========================= */
-function addDays(d, n){
-  const x=new Date(d);
-  x.setDate(x.getDate()+n);
-  return x;
-}
 function renderWeekView(){
   const wrap=document.getElementById("gridWrap");
   wrap.innerHTML="";
+  lastRenderedDomByEventId = new Map();
 
   if(!viewWeekStart){
     wrap.innerHTML = `<div style="padding:16px;color:var(--muted);">Upload CSV and generate a schedule to view.</div>`;
@@ -1565,6 +1456,7 @@ function renderWeekView(){
   for(const d of weekDays){
     const col=document.createElement("div");
     col.className="dayCol";
+    col.dataset.dateKey = toDateKey(d);
 
     for(let r=0;r<rows;r++){
       const slot=document.createElement("div");
@@ -1593,6 +1485,7 @@ function renderWeekView(){
 
       box.style.top = `${top+2}px`;
       box.style.height = `${Math.max(22,height-4)}px`;
+      box.dataset.eventId = ev.id;
 
       const t = ev.type==="buffer" ? "Drive Buffer" : ev.client;
       const sub = `${ev.label} • ${minsToLabel(ev.startMins)}–${minsToLabel(ev.endMins)}`;
@@ -1607,7 +1500,20 @@ function renderWeekView(){
           ${ev.note ? `<span class="pill">${ev.note}</span>` : ""}
         </div>
       `;
+
+      if(ev.type==="direct" || ev.type==="indirect"){
+        box.addEventListener("click", (e)=>{
+          e.stopPropagation();
+          openEventModal(ev.id);
+        });
+      }
+
+      if(ev.type==="direct"){
+        enableDragForDirect(box);
+      }
+
       col.appendChild(box);
+      lastRenderedDomByEventId.set(ev.id, box);
     }
 
     body.appendChild(col);
@@ -1616,19 +1522,538 @@ function renderWeekView(){
   container.appendChild(header);
   container.appendChild(body);
   wrap.appendChild(container);
-
-  setStatusTiny(activeMonth ? activeMonth.monthStr : "");
 }
 
-function updateFooter(sums, workdayCount){
-  const unmetDirectReq = UNMET.reduce((a,b)=>a+(b.directUnmetRequired||0),0);
-  const unmetIndirect = UNMET.reduce((a,b)=>a+(b.indirectUnmet||0),0);
+/* =========================
+   DRAG & DROP (DIRECT + BUFFERS)
+========================= */
+let dragState=null;
+let ghost=null;
 
-  document.getElementById("footerLeft").textContent =
-    `Billable scheduled: ${sums.totalBillable.toFixed(2)}h • Avg/workday: ${sums.avgPerWorkday.toFixed(2)}h (target 5.00h)`;
+function getEventById(id){ return EVENTS.find(e=>e.id===id) || null; }
+function getGroupEvents(groupId){
+  return EVENTS.filter(e => e.groupId && e.groupId===groupId);
+}
+function getGroupSpan(groupEvents){
+  let minS=Infinity, maxE=-Infinity, dateKey=null;
+  for(const e of groupEvents){
+    minS=Math.min(minS, e.startMins);
+    maxE=Math.max(maxE, e.endMins);
+    dateKey = e.dateKey;
+  }
+  return {dateKey, startMins:minS, endMins:maxE, durMins:(maxE-minS)};
+}
 
-  document.getElementById("footerRight").textContent =
-    `Required unmet direct: ${unmetDirectReq.toFixed(2)}h | Unmet indirect: ${unmetIndirect.toFixed(2)}h | Workdays: ${workdayCount}`;
+function enableDragForDirect(el){
+  el.addEventListener("pointerdown", (ev)=>{
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    const id = el.dataset.eventId;
+    const direct = getEventById(id);
+    if(!direct) return;
+
+    const groupEvents = getGroupEvents(direct.groupId || "");
+    if(!groupEvents.length) return;
+
+    const span = getGroupSpan(groupEvents);
+
+    const dayStartHr = +document.getElementById("dayStart").value;
+    const dayEndHr = +document.getElementById("dayEnd").value;
+    const startM = dayStartHr*60;
+    const rowH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rowH"));
+
+    const col = el.closest(".dayCol");
+    const dateKey = col?.dataset?.dateKey;
+    if(!dateKey) return;
+
+    dragState = {
+      directId: id,
+      groupId: direct.groupId,
+      groupEvents: groupEvents.map(e=>({...e})),
+      origDateKey: span.dateKey,
+      origStart: span.startMins,
+      origEnd: span.endMins,
+      durMins: span.durMins,
+      pointerId: ev.pointerId,
+      startClientX: ev.clientX,
+      startClientY: ev.clientY,
+      startM,
+      rowH
+    };
+
+    el.setPointerCapture(ev.pointerId);
+    el.classList.add("dragging");
+
+    ghost = document.createElement("div");
+    ghost.className="ghostHint";
+    ghost.style.height = `${Math.max(22, (dragState.durMins/15)*rowH - 4)}px`;
+    ghost.style.top = el.style.top;
+    col.appendChild(ghost);
+
+    document.addEventListener("pointermove", onDragMove, {passive:false});
+    document.addEventListener("pointerup", onDragEnd, {passive:false});
+  });
+}
+
+function onDragMove(ev){
+  if(!dragState) return;
+  ev.preventDefault();
+
+  const elUnder = document.elementFromPoint(ev.clientX, ev.clientY);
+  const col = elUnder?.closest?.(".dayCol");
+  if(!col) return;
+
+  const dateKey = col.dataset.dateKey;
+  const dayStartHr = +document.getElementById("dayStart").value;
+  const dayEndHr = +document.getElementById("dayEnd").value;
+  const startM = dayStartHr*60;
+  const endM = dayEndHr*60;
+  const rowH = dragState.rowH;
+
+  const colRect = col.getBoundingClientRect();
+  const y = ev.clientY - colRect.top;
+
+  const rowIndex = Math.round(y / rowH);
+  let newSpanStart = startM + rowIndex*15;
+
+  newSpanStart = clamp(newSpanStart, startM, endM - dragState.durMins);
+  const top = ((newSpanStart-startM)/15)*rowH + 2;
+
+  if(ghost){
+    if(ghost.parentElement !== col){
+      ghost.remove();
+      col.appendChild(ghost);
+    }
+    ghost.style.top = `${top}px`;
+  }
+
+  dragState.preview = { dateKey, spanStart:newSpanStart, spanEnd:newSpanStart+dragState.durMins };
+}
+
+function onDragEnd(ev){
+  if(!dragState) return;
+  ev.preventDefault();
+
+  document.removeEventListener("pointermove", onDragMove);
+  document.removeEventListener("pointerup", onDragEnd);
+
+  const directDom = lastRenderedDomByEventId.get(dragState.directId);
+  if(directDom) directDom.classList.remove("dragging");
+  if(ghost){ ghost.remove(); ghost=null; }
+
+  const preview = dragState.preview;
+  if(!preview){
+    dragState=null;
+    return;
+  }
+
+  const ok = attemptMoveGroup(dragState.groupId, preview.dateKey, preview.spanStart);
+  if(!ok){
+    log("❌ Move blocked (overlap, days off/weekend, outside client window, or buffer won’t fit). Snapped back.");
+  } else {
+    log("✅ Moved appointment.");
+  }
+
+  dragState=null;
+  renderWeekView();
+}
+
+function attemptMoveGroup(groupId, newDateKey, newSpanStart){
+  const group = getGroupEvents(groupId);
+  if(!group.length) return false;
+
+  const span = getGroupSpan(group);
+  const delta = newSpanStart - span.startMins;
+
+  const client = findClientByName(group.find(e=>e.type==="direct")?.client || "");
+  if(!client) return false;
+
+  const offSet = parseDaysOffSet();
+  const d = new Date(newDateKey+"T00:00:00");
+  if(isWeekend(d)) return false;
+  if(offSet.has(newDateKey)) return false;
+  if(!clientAllowsDate(client, d)) return false;
+
+  const dayStartHr = +document.getElementById("dayStart").value;
+  const dayEndHr = +document.getElementById("dayEnd").value;
+  const startM = dayStartHr*60;
+  const endM = dayEndHr*60;
+
+  const newEvents = group.map(e=>({
+    ...e,
+    dateKey: newDateKey,
+    startMins: e.startMins + delta,
+    endMins: e.endMins + delta
+  }));
+
+  const minS = Math.min(...newEvents.map(e=>e.startMins));
+  const maxE = Math.max(...newEvents.map(e=>e.endMins));
+  if(minS < startM || maxE > endM) return false;
+
+  const ignoreIds = group.map(e=>e.id);
+  if(overlaps(newDateKey, minS, maxE, ignoreIds)) return false;
+
+  const direct = newEvents.find(e=>e.type==="direct");
+  if(!direct) return false;
+
+  const dow = d.getDay();
+  const wins = client.windows.filter(w=>w.dow===dow);
+  if(!wins.length) return false;
+
+  const fitsWin = wins.some(w => direct.startMins >= w.startMins && direct.endMins <= w.endMins);
+  if(!fitsWin) return false;
+
+  const avoidMonBeforeHr = +document.getElementById("avoidMonBefore").value;
+  const hardAvoidMon = +document.getElementById("hardAvoidMon").value;
+  if(dow===1 && hardAvoidMon===1){
+    if(minS < avoidMonBeforeHr*60) return false;
+  }
+
+  for(const e of group){
+    e.dateKey = newDateKey;
+    e.startMins = e.startMins + delta;
+    e.endMins = e.endMins + delta;
+  }
+  return true;
+}
+
+/* =========================
+   EVENT MODAL
+========================= */
+let modalEventId=null;
+
+function openEventModal(eventId){
+  const ev = getEventById(eventId);
+  if(!ev) return;
+
+  modalEventId = eventId;
+  const bg = document.getElementById("modalBg");
+  bg.style.display="flex";
+
+  const d = new Date(ev.dateKey+"T00:00:00");
+  document.getElementById("modalTitle").textContent = `${ev.client} • ${ev.type.toUpperCase()}`;
+  document.getElementById("modalMeta").textContent = `${dayNames[d.getDay()]} ${ev.dateKey} • ${minsToLabel(ev.startMins)}–${minsToLabel(ev.endMins)} • ${ev.label}`;
+
+  const modeSelect = document.getElementById("modalMode");
+  if(ev.type==="direct"){
+    modeSelect.disabled = false;
+    modeSelect.value = (ev.mode==="telehealth") ? "telehealth" : "in-person";
+  } else {
+    modeSelect.disabled = true;
+    modeSelect.value = "telehealth";
+  }
+
+  document.getElementById("altList").style.display="none";
+  document.getElementById("altList").innerHTML="";
+}
+
+function closeModal(){
+  document.getElementById("modalBg").style.display="none";
+  modalEventId=null;
+}
+document.getElementById("modalClose").addEventListener("click", closeModal);
+document.getElementById("modalBg").addEventListener("click", (e)=>{
+  if(e.target.id==="modalBg") closeModal();
+});
+
+function removeGroup(groupId){
+  const ids = EVENTS.filter(e=>e.groupId===groupId).map(e=>e.id);
+  removeEventsByIds(ids);
+}
+function rebuildGroupAsMode(directEventId, newMode){
+  const direct = getEventById(directEventId);
+  if(!direct || direct.type!=="direct") return false;
+
+  const client = findClientByName(direct.client);
+  if(!client) return false;
+
+  const group = getGroupEvents(direct.groupId || "");
+  const directStart = direct.startMins;
+  const directEnd = direct.endMins;
+  const directDurH = minsToHours(directEnd-directStart);
+
+  const oldGroupId = direct.groupId;
+  removeGroup(oldGroupId);
+
+  const buf = (newMode==="in-person") ? (client.driveMins||0) : 0;
+
+  const dayStartHr = +document.getElementById("dayStart").value;
+  const dayEndHr = +document.getElementById("dayEnd").value;
+  const startM = dayStartHr*60;
+  const endM = dayEndHr*60;
+
+  const spanS = directStart - buf;
+  const spanE = directEnd + buf;
+  if(spanS < startM || spanE > endM) {
+    EVENTS.push(...group.map(e=>({...e})));
+    return false;
+  }
+  if(overlaps(direct.dateKey, spanS, spanE)){
+    EVENTS.push(...group.map(e=>({...e})));
+    return false;
+  }
+
+  const d = new Date(direct.dateKey+"T00:00:00");
+  const wins = client.windows.filter(w=>w.dow===d.getDay());
+  const fitsWin = wins.some(w => directStart >= w.startMins && directEnd <= w.endMins);
+  if(!fitsWin){
+    EVENTS.push(...group.map(e=>({...e})));
+    return false;
+  }
+
+  placeDirectWithBuffersGrouped(client, direct.dateKey, directStart, directEnd, buf, newMode, directDurH);
+  return true;
+}
+
+document.getElementById("btnApplyMode").addEventListener("click", ()=>{
+  const ev = getEventById(modalEventId);
+  if(!ev) return;
+
+  if(ev.type!=="direct"){
+    log("Mode changes only apply to Direct events.");
+    closeModal();
+    return;
+  }
+
+  const newMode = document.getElementById("modalMode").value;
+  const ok = rebuildGroupAsMode(ev.id, newMode);
+  if(!ok){
+    alert("Could not change mode (buffer would not fit, overlap, or outside session window). Try moving it first, or choose Telehealth.");
+  } else {
+    log(`✅ Updated mode to ${newMode} for ${ev.client}.`);
+  }
+  renderWeekView();
+  closeModal();
+});
+
+document.getElementById("btnDeleteEvent").addEventListener("click", ()=>{
+  const ev = getEventById(modalEventId);
+  if(!ev) return;
+
+  if(ev.type==="direct"){
+    removeGroup(ev.groupId);
+    log(`🗑 Deleted direct appointment (and buffers) for ${ev.client}.`);
+  } else {
+    removeEventsByIds([ev.id]);
+    log(`🗑 Deleted indirect appointment for ${ev.client}.`);
+  }
+  renderWeekView();
+  closeModal();
+});
+
+document.getElementById("btnMarkCancelled").addEventListener("click", ()=>{
+  const ev = getEventById(modalEventId);
+  if(!ev) return;
+
+  const clientName = ev.client;
+  const durMins = (ev.endMins - ev.startMins);
+  const isDirect = (ev.type==="direct");
+  const priorMode = isDirect ? ev.mode : "indirect";
+
+  if(isDirect) removeGroup(ev.groupId);
+  else removeEventsByIds([ev.id]);
+
+  renderWeekView();
+  log(`🚫 Cancelled: removed ${isDirect?"direct":"indirect"} for ${clientName}. Finding alternatives...`);
+
+  openAdHocAlternativeModal(clientName, isDirect ? "direct" : "indirect", durMins, priorMode);
+});
+
+document.getElementById("btnFindAlts").addEventListener("click", ()=>{
+  const ev = getEventById(modalEventId);
+  if(!ev) return;
+
+  const durMins = (ev.endMins - ev.startMins);
+  openAdHocAlternativeModal(ev.client, ev.type, durMins, ev.mode);
+});
+
+/* =========================
+   ALTERNATIVES ENGINE
+========================= */
+function openAdHocAlternativeModal(clientName, type, durMins, preferredMode){
+  const bg = document.getElementById("modalBg");
+  bg.style.display="flex";
+  document.getElementById("modalTitle").textContent = `${clientName} • Find Alternatives`;
+  document.getElementById("modalMeta").textContent = `${type.toUpperCase()} • Duration ${minsToHours(durMins).toFixed(2)}h • prefers ${preferredMode||"—"}`;
+
+  const modeSelect = document.getElementById("modalMode");
+  modeSelect.disabled = (type!=="direct");
+  modeSelect.value = (preferredMode==="telehealth") ? "telehealth" : "in-person";
+
+  const altList = document.getElementById("altList");
+  altList.style.display="block";
+  altList.innerHTML = "Searching...";
+
+  const options = findAlternativeSlots(clientName, type, durMins, preferredMode, 18);
+  if(!options.length){
+    altList.innerHTML = "No valid alternatives found with current constraints. Try Telehealth, widen day start/end, or remove a day off.";
+    return;
+  }
+
+  altList.innerHTML = "";
+  for(const opt of options){
+    const div=document.createElement("div");
+    div.className="altItem";
+    div.innerHTML = `
+      <div class="l">
+        <div><b>${opt.dayLabel}</b> • ${opt.dateKey} • ${opt.timeLabel}</div>
+        <div>Mode: ${opt.mode} ${opt.bufMins?`• Buffers: ${opt.bufMins}m`:``} • Reason: ${opt.reason}</div>
+      </div>
+      <div class="r">
+        <button class="good">Use</button>
+      </div>
+    `;
+    div.querySelector("button").addEventListener("click", ()=>{
+      if(type==="direct"){
+        const client = findClientByName(clientName);
+        if(!client) return;
+
+        const blockHrs = minsToHours(durMins);
+        placeDirectWithBuffersGrouped(client, opt.dateKey, opt.directStart, opt.directEnd, opt.bufMins, opt.mode, blockHrs);
+        log(`✅ Added replacement direct for ${clientName} on ${opt.dateKey} ${minsToLabel(opt.directStart)} (${opt.mode}).`);
+      } else {
+        addEvent({
+          id: genId(),
+          type:"indirect",
+          client:clientName,
+          dateKey: opt.dateKey,
+          startMins: opt.directStart,
+          endMins: opt.directEnd,
+          label:"Indirect (replacement)",
+          mode:"indirect",
+          note:`${minsToHours(durMins).toFixed(2)}h`,
+          priority: findClientByName(clientName)?.priority ?? -999
+        });
+        log(`✅ Added replacement indirect for ${clientName} on ${opt.dateKey} ${minsToLabel(opt.directStart)}.`);
+      }
+      renderWeekView();
+      closeModal();
+    });
+
+    altList.appendChild(div);
+  }
+}
+
+/* UPDATED per your answers:
+   - Anywhere-in-month is already true (we search all workdays in the month).
+   - Prefer telehealth if the day is "tight" (already heavily loaded).
+*/
+function findAlternativeSlots(clientName, type, durMins, preferredMode, limit=15){
+  const client = findClientByName(clientName);
+  if(!client) return [];
+
+  if(!activeMonth?.monthStr){
+    return [];
+  }
+
+  const {start, end} = monthStartEnd(activeMonth.monthStr);
+  const offSet = parseDaysOffSet();
+  const dayStartHr = +document.getElementById("dayStart").value;
+  const dayEndHr = +document.getElementById("dayEnd").value;
+  const startM = dayStartHr*60;
+  const endM = dayEndHr*60;
+
+  const avoidMonBeforeHr = +document.getElementById("avoidMonBefore").value;
+  const hardAvoidMon = +document.getElementById("hardAvoidMon").value;
+
+  const days = iterateDays(start, end)
+    .filter(d=>!isWeekend(d))
+    .filter(d=>!offSet.has(toDateKey(d)))
+    .filter(d=>clientAllowsDate(client, d));
+
+  const modeOrder = (type!=="direct") ? ["indirect"] :
+    (client.serviceType === "telehealth") ? ["telehealth"] :
+    (client.serviceType === "in-person") ? ["in-person"] :
+    // If BOTH: we’ll still include both modes, but scoring will push Telehealth up on tight days
+    (preferredMode==="telehealth") ? ["telehealth","in-person"] : ["in-person","telehealth"];
+
+  const results=[];
+
+  // Define what "tight" means:
+  // If the day already has >= 5 billable hours scheduled, we treat it as tight.
+  const TIGHT_THRESHOLD_MINS = 5 * 60;
+
+  for(const d of days){
+    const dateKey=toDateKey(d);
+    const dow=d.getDay();
+
+    let windows=[];
+    if(type==="direct"){
+      windows = client.windows.filter(w=>w.dow===dow);
+      if(!windows.length) continue;
+    } else {
+      windows = [{startMins: (+document.getElementById("indStart").value)*60, endMins:(+document.getElementById("indEnd").value)*60, dow}];
+    }
+
+    const dayLoad = dayLoadBillable(dateKey); // billable mins scheduled already
+    const dayIsTight = dayLoad >= TIGHT_THRESHOLD_MINS;
+
+    for(const mode of modeOrder){
+      const buf = (type==="direct" && mode==="in-person") ? (client.driveMins||0) : 0;
+
+      for(const w of windows){
+        const winStart = clamp(w.startMins, startM, endM);
+        const winEnd = clamp(w.endMins, startM, endM);
+        if(winEnd<=winStart) continue;
+
+        const earliest = winStart + buf;
+        const latest = winEnd - buf - durMins;
+        if(latest < earliest) continue;
+
+        for(let s=earliest; s<=latest; s+=15){
+          const directS=s, directE=s+durMins;
+          const spanS=directS-buf, spanE=directE+buf;
+
+          if(dow===1 && hardAvoidMon===1 && spanS < avoidMonBeforeHr*60) continue;
+
+          if(spanS < startM || spanE > endM) continue;
+          if(overlaps(dateKey, spanS, spanE)) continue;
+
+          // Score: we want "anywhere in month", so we DO NOT add same-week preference.
+          // We primarily prefer: low-load day, and on tight days prefer telehealth over in-person for BOTH clients.
+          let score = dayLoad;
+
+          if(type==="direct" && client.serviceType==="both"){
+            if(dayIsTight){
+              // Tight day: strongly prefer telehealth
+              if(mode==="in-person") score += 120;    // push down
+              if(mode==="telehealth") score -= 20;   // pull up
+            } else {
+              // Not tight: mild preference to keep in-person if it fits (your overall preference)
+              if(mode==="in-person") score -= 5;
+            }
+          }
+
+          // Still keep a small penalty for stacking weeks for non-frequent cancellers (quality-of-life),
+          // BUT very small so it doesn't fight "anywhere in month".
+          if(type==="direct" && client.frequentCanceller!=="yes"){
+            const weekCnt = clientWeekDirectCount(clientName, weekKeyMondayStart(d));
+            score += weekCnt * 10;
+          }
+
+          results.push({
+            dateKey,
+            directStart: directS,
+            directEnd: directE,
+            mode: (type==="direct") ? mode : "indirect",
+            bufMins: buf,
+            score,
+            reason: (type!=="direct") ? "Indirect slot" :
+                    (client.serviceType!=="both") ? "Client mode fixed" :
+                    (dayIsTight ? "Tight day → Telehealth preferred" : "Not tight → In-person slightly preferred"),
+            dayLabel: dayNames[dow],
+            timeLabel: `${minsToLabel(directS)}–${minsToLabel(directE)}`
+          });
+
+          if(results.length > 8000) break;
+        }
+      }
+    }
+  }
+
+  results.sort((a,b)=>a.score-b.score);
+  return results.slice(0, limit);
 }
 
 /* =========================
@@ -1636,7 +2061,7 @@ function updateFooter(sums, workdayCount){
 ========================= */
 function makeSavePayload(){
   return {
-    version: 1,
+    version: 2,
     savedAt: new Date().toISOString(),
     activeMonth,
     viewWeekStart: viewWeekStart ? viewWeekStart.toISOString() : null,
@@ -1665,7 +2090,6 @@ function loadFromPayload(payload){
   activeMonth = payload.activeMonth || null;
   viewWeekStart = payload.viewWeekStart ? new Date(payload.viewWeekStart) : (activeMonth?.start ? startOfWeek(new Date(activeMonth.start)) : null);
 
-  // restore UI
   if(payload.ui){
     document.getElementById("monthPick").value = payload.ui.monthPick ?? document.getElementById("monthPick").value;
     document.getElementById("dayStart").value = payload.ui.dayStart ?? document.getElementById("dayStart").value;
@@ -1684,16 +2108,13 @@ function loadFromPayload(payload){
   clearLog(`Loaded schedule.\nSaved at: ${payload.savedAt || "unknown"}\nEvents: ${EVENTS.length}\n`);
   renderWeekView();
 
-  // Footer recompute if month exists
   if(activeMonth?.monthStr){
     const {start, end} = monthStartEnd(activeMonth.monthStr);
     const offSet = parseDaysOffSet();
     const workdaysAll = iterateDays(start, end).filter(d=>!isWeekend(d)).filter(d=>!offSet.has(toDateKey(d)));
     const sums = computeMonthSummary(start, end);
     updateFooter(sums, workdaysAll.length);
-  } else {
-    document.getElementById("footerLeft").textContent="—";
-    document.getElementById("footerRight").textContent="—";
+    setStatusTiny(activeMonth.monthStr);
   }
 }
 
@@ -1727,7 +2148,7 @@ function downloadJson(){
   log("⬇️ Downloaded schedule JSON.");
 }
 function exportEventsCsv(){
-  const header = ["date","day","start","end","type","client","label","mode","note"];
+  const header = ["date","day","start","end","type","client","label","mode","note","groupId"];
   const lines=[header.join(",")];
 
   const sorted=[...EVENTS].sort((a,b)=>{
@@ -1746,7 +2167,8 @@ function exportEventsCsv(){
       ev.client || "",
       ev.label || "",
       ev.mode || "",
-      (ev.note || "").replaceAll('"','""')
+      (ev.note || "").replaceAll('"','""'),
+      ev.groupId || ""
     ];
     lines.push(row.map(v=>{
       const s=String(v ?? "");
@@ -1766,7 +2188,6 @@ function exportEventsCsv(){
   URL.revokeObjectURL(url);
   log("⬇️ Exported events CSV.");
 }
-
 function copyMonthSummary(){
   if(!activeMonth?.monthStr){
     alert("Generate or load a schedule first.");
@@ -1830,7 +2251,7 @@ document.getElementById("csvFile").addEventListener("change", async (e)=>{
 
   log(`On hold (Sessions/Week=0): ${onHold}`);
   log(`Active-for-direct clients missing session windows: ${noWindows}`);
-  log(`\nTip: Click Generate, then Save (Browser) or Download JSON to revisit anytime.`);
+  log(`\nTip: click any Direct block → Mark Cancelled + Find Options.`);
 });
 
 document.getElementById("btnGenerate").addEventListener("click", ()=>{
@@ -1865,32 +2286,19 @@ document.getElementById("todayWeek").addEventListener("click", ()=>{
 });
 
 document.getElementById("btnSave").addEventListener("click", ()=>{
-  if(!EVENTS.length){
-    alert("Generate or load a schedule first.");
-    return;
-  }
+  if(!EVENTS.length){ alert("Generate or load a schedule first."); return; }
   saveToBrowser();
 });
-document.getElementById("btnLoad").addEventListener("click", ()=>{
-  loadFromBrowser();
-});
+document.getElementById("btnLoad").addEventListener("click", ()=> loadFromBrowser());
 document.getElementById("btnDownloadJson").addEventListener("click", ()=>{
-  if(!EVENTS.length){
-    alert("Generate or load a schedule first.");
-    return;
-  }
+  if(!EVENTS.length){ alert("Generate or load a schedule first."); return; }
   downloadJson();
 });
 document.getElementById("btnExportCsv").addEventListener("click", ()=>{
-  if(!EVENTS.length){
-    alert("Generate or load a schedule first.");
-    return;
-  }
+  if(!EVENTS.length){ alert("Generate or load a schedule first."); return; }
   exportEventsCsv();
 });
-document.getElementById("btnCopySummary").addEventListener("click", ()=>{
-  copyMonthSummary();
-});
+document.getElementById("btnCopySummary").addEventListener("click", ()=> copyMonthSummary());
 
 document.getElementById("jsonFile").addEventListener("change", async (e)=>{
   const file = e.target.files?.[0];
@@ -1907,21 +2315,21 @@ document.getElementById("jsonFile").addEventListener("change", async (e)=>{
   }
 });
 
+/* =========================
+   INIT
+========================= */
 (function init(){
   const now=new Date();
   const m=`${now.getFullYear()}-${pad2(now.getMonth()+1)}`;
   document.getElementById("monthPick").value=m;
-  document.getElementById("gridWrap").innerHTML = `<div style="padding:16px;color:var(--muted);">Upload CSV and click Generate. If you already saved a schedule, click “Load Saved”.</div>`;
+  document.getElementById("gridWrap").innerHTML = `<div style="padding:16px;color:var(--muted);">Upload CSV and click Generate. Or Load Saved if you already have a schedule.</div>`;
 
-  // Auto prompt to load saved schedule if present
   const saved = localStorage.getItem(STORAGE_KEY);
   if(saved){
     try{
       const payload = JSON.parse(saved);
       const ok = confirm("Saved schedule found in this browser. Load it now?");
-      if(ok){
-        loadFromPayload(payload);
-      }
+      if(ok) loadFromPayload(payload);
     }catch(_){}
   }
 })();
