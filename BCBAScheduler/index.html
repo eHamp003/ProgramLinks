@@ -105,7 +105,7 @@
       border-radius: 12px;
       background: rgba(255,255,255,.92);
       border:1px solid rgba(15,23,42,.10);
-      max-height: 280px;
+      max-height: 260px;
       overflow:auto;
       font-size:12px;
       color:var(--muted);
@@ -113,6 +113,7 @@
       white-space:pre-wrap;
     }
     .hint{font-size:11px;color:rgba(81,96,122,.85);margin-top:6px;line-height:1.25}
+    .divider{ height:1px; background: rgba(15,23,42,.08); margin:12px 0; }
 
     /* Calendar */
     .cal{ padding:0; overflow:hidden; min-height: 660px; }
@@ -235,7 +236,9 @@
   <div>
     <h1>BCBA Monthly Scheduler</h1>
     <div class="sub">
-      <b>NEW:</b> Direct scheduling uses <b>minimum 10%</b> as must-hit, then runs a <b>top-up pass</b> to try to schedule up to the authorized supervision cap where possible (never exceeding it). On-hold clients (Sessions/Week=0) are skipped for <b>direct</b> but can still receive <b>indirect</b>. Max direct block length enforced.
+      Direct scheduling uses <b>minimum 10%</b> as must-hit, then runs a <b>top-up pass</b> to try to schedule up to the authorized supervision cap where possible (never exceeding it). On-hold clients (Sessions/Week=0) are skipped for <b>direct</b> but can still receive <b>indirect</b>. Max direct block length enforced.
+      <br/>
+      <b>NEW:</b> Save/Load + Download/Upload schedule so you can revisit it throughout the month.
     </div>
   </div>
   <div class="mono" id="statusTiny"></div>
@@ -284,31 +287,49 @@
 
     <label>Max direct block length (hours)</label>
     <input id="maxDirectBlock" type="number" step="0.25" min="1" value="3" />
-    <div class="hint">Direct supervision blocks will never exceed this length (default 3.00 hours).</div>
 
     <label>Days off (no scheduling)</label>
     <textarea id="daysOff" placeholder="Paste dates like:
 2026-03-06
 2026-03-17, 2026-03-18
 or M/D/YYYY like 3/6/2026"></textarea>
-    <div class="hint">Accepts YYYY-MM-DD or M/D/YYYY. Commas or new lines both work.</div>
 
     <div class="row">
       <div>
         <label>Avoid Monday before (hour)</label>
         <input id="avoidMonBefore" type="number" min="0" max="23" step="1" value="12" />
-        <div class="hint">Monday morning starts are avoided until last resort.</div>
       </div>
       <div>
         <label>Hard avoid Monday morning?</label>
         <input id="hardAvoidMon" type="number" min="0" max="1" step="1" value="0" />
-        <div class="hint">0 = last resort, 1 = never schedule.</div>
       </div>
     </div>
 
     <div class="row" style="margin-top:12px;">
       <button id="btnGenerate">Generate Schedule</button>
       <button id="btnClear" class="secondary">Clear</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Save / Export</h2>
+
+    <div class="row">
+      <button id="btnSave" class="secondary">Save (Browser)</button>
+      <button id="btnLoad" class="secondary">Load Saved</button>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <button id="btnDownloadJson" class="secondary">Download Schedule JSON</button>
+      <label style="margin:0;">
+        <div style="font-size:12px;color:var(--muted);font-weight:800;margin-bottom:6px;">Upload Schedule JSON</div>
+        <input id="jsonFile" type="file" accept=".json" />
+      </label>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <button id="btnExportCsv" class="secondary">Export Events CSV</button>
+      <button id="btnCopySummary" class="secondary">Copy Month Summary</button>
     </div>
 
     <div class="chips">
@@ -556,10 +577,13 @@ function parseDaysTimesFallback(text){
    Model state
 ========================= */
 let RAW_CLIENTS=[];
+let RAW_CLIENTS_RAW = null;
 let EVENTS=[]; // {id,type,client,dateKey,startMins,endMins,label,mode,note,priority}
 let UNMET=[];  // {client,directUnmetRequired,indirectUnmet}
 let viewWeekStart=null;
 let activeMonth=null;
+
+const STORAGE_KEY = "bcba_scheduler_saved_schedule_v1";
 
 function log(msg){
   const box=document.getElementById("logBox");
@@ -724,8 +748,6 @@ function computePriorityTier(c){
 
 /* =========================
    NEW: supervision targets
-   - minRequired = min(auth cap, 10% of therapy)
-   - maxAllowed = auth cap
 ========================= */
 function computeSupervisionTargets(therapyHoursMonth, authSupHoursMonth){
   const therapy = Math.max(0, therapyHoursMonth || 0);
@@ -740,8 +762,6 @@ function computeSupervisionTargets(therapyHoursMonth, authSupHoursMonth){
 
 /* =========================
    Client building
-   - onHold affects DIRECT only
-   - indirect remains schedulable even when onHold=true
 ========================= */
 function buildClients(rows, monthStart, monthEnd){
   const clients=[];
@@ -840,12 +860,7 @@ function splitDirectHours(total, maxBlock=3.0){
   if(rem < 1) return {blocks:[], rem};
 
   while(rem > 0){
-    let b = 0;
-    if(rem >= 2.0 + 1.0){
-      b = Math.min(2.0, maxBlock);
-    } else {
-      b = rem;
-    }
+    let b = rem >= 3 ? Math.min(2.0, maxBlock) : rem;
     b = Math.min(b, maxBlock);
 
     const after = roundToQuarterHours(rem - b);
@@ -861,22 +876,7 @@ function splitDirectHours(total, maxBlock=3.0){
     blocks.push(b);
     rem = roundToQuarterHours(rem - b);
 
-    if(blocks.length > 60) break;
-  }
-
-  if(blocks.length && blocks[blocks.length-1] < 1.0){
-    let need = roundToQuarterHours(1.0 - blocks[blocks.length-1]);
-    for(let i=blocks.length-2; i>=0 && need>0; i--){
-      if(blocks[i] - 0.25 >= 1.0){
-        blocks[i] = roundToQuarterHours(blocks[i] - 0.25);
-        blocks[blocks.length-1] = roundToQuarterHours(blocks[blocks.length-1] + 0.25);
-        need = roundToQuarterHours(1.0 - blocks[blocks.length-1]);
-      }
-    }
-    if(blocks[blocks.length-1] < 1.0){
-      const extra = blocks.pop();
-      return {blocks, rem: roundToQuarterHours(rem + extra)};
-    }
+    if(blocks.length > 80) break;
   }
 
   return {blocks, rem};
@@ -912,7 +912,7 @@ function placeDirectWithBuffers(client, dateKey, directS, directE, buf, mode, bl
     mode,
     note:`${blockHrs.toFixed(2)}h`,
     priority: client.priority
-    });
+  });
 
   if(buf>0){
     addEvent({
@@ -961,30 +961,6 @@ function tryPlaceIndirectAny(clientName, durMins, dates, dayStartHr, dayEndHr, i
         priority
       });
       return true;
-    }
-  }
-  if(hardAvoidMon !== 1){
-    for(const d of candidateDates){
-      const dateKey=toDateKey(d);
-      const startLimit = Math.max(indStartHr*60, dayStartHr*60);
-      const endLimit = Math.min(indEndHr*60, dayEndHr*60);
-      for(let s=startLimit; s<=endLimit-durMins; s+=15){
-        const e=s+durMins;
-        if(overlaps(dateKey, s, e)) continue;
-        addEvent({
-          id: (crypto?.randomUUID?.() ?? String(Math.random())),
-          type:"indirect",
-          client:clientName,
-          dateKey,
-          startMins:s,
-          endMins:e,
-          label:"Indirect (re-home)",
-          mode:"indirect",
-          note:`${minsToHours(durMins).toFixed(2)}h`,
-          priority
-        });
-        return true;
-      }
     }
   }
   return false;
@@ -1305,27 +1281,18 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
   const clientsSorted = [...RAW_CLIENTS].sort((a,b)=>b.priority-a.priority);
   const activeForDirect = clientsSorted.filter(c=>!c.onHold);
   const allForIndirect = clientsSorted; // includes on hold
-  const onHold = clientsSorted.filter(c=>c.onHold);
 
+  const onHold = clientsSorted.filter(c=>c.onHold);
   if(onHold.length){
     log(`⏸ On hold (Sessions/Week=0): ${onHold.length} clients will NOT be scheduled for DIRECT, but CAN be scheduled for INDIRECT.`);
   }
 
-  const belowTen = activeForDirect.filter(c=>c.belowTenNeeded && c.authSupHoursMonth>0 && c.therapyHoursMonth>0);
-  if(belowTen.length){
-    log(`\nℹ️ Below 10% supervision authorization (other supervisor will cover remainder):`);
-    for(const c of belowTen.slice(0,12)){
-      log(`- ${c.name}: therapy ${c.therapyHoursMonth.toFixed(2)}h → 10% ${c.direct10Target.toFixed(2)}h, auth sup cap ${c.authSupHoursMonth.toFixed(2)}h → min required scheduled ${c.directMinHours.toFixed(2)}h`);
-    }
-    if(belowTen.length>12) log(`...and ${belowTen.length-12} more`);
-  }
-
   const allClientsByName = new Map(RAW_CLIENTS.map(c=>[c.name,c]));
 
-  /* ===== PASS 0: Coverage (ensure each active direct client gets at least 1 block) ===== */
+  /* PASS 0: ensure each active direct client gets at least 1 block */
   scheduleCoveragePass(activeForDirect, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
 
-  /* ===== PASS 1: Schedule REQUIRED minimum (10% capped by auth) ===== */
+  /* PASS 1: schedule REQUIRED minimum */
   const unmetRequiredMap = new Map();
 
   for(const c of activeForDirect){
@@ -1340,17 +1307,15 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     }
 
     let remaining = roundToQuarterHours(c.directMinHours - clientScheduledDirectHours(c.name));
-
     if(remaining<=0){
       UNMET.push({client:c.name, directUnmetRequired:0, indirectUnmet:0});
       continue;
     }
 
     const split = splitDirectHours(remaining, maxDirectBlock);
-    const blocks = split.blocks;
     let unmet = split.rem;
 
-    for(const blockHrs of blocks){
+    for(const blockHrs of split.blocks){
       const placed = tryPlaceDirectBlock({
         client:c,
         blockHrs,
@@ -1371,20 +1336,18 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
       unmetRequiredMap.set(c.name, unmet);
       log(`❗ ${c.name}: required direct unmet after pass 1: ${unmet.toFixed(2)}h`);
     }
-
     UNMET.push({client:c.name, directUnmetRequired: unmet>0?unmet:0, indirectUnmet:0});
   }
 
-  /* ===== PASS 2: If REQUIRED unmet remains, allow week stacking + allow Mon AM (unless hard avoided) ===== */
+  /* PASS 2: required unmet → relax distribution + allow Mon AM */
   for(const c of activeForDirect){
     const unmet = unmetRequiredMap.get(c.name) || 0;
     if(unmet<=0) continue;
 
     const split = splitDirectHours(unmet, maxDirectBlock);
-    const blocks = split.blocks;
     let stillUnmet = split.rem;
 
-    for(const blockHrs of blocks){
+    for(const blockHrs of split.blocks){
       const placed = tryPlaceDirectBlock({
         client:c,
         blockHrs,
@@ -1405,7 +1368,7 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     if(rec) rec.directUnmetRequired = stillUnmet;
   }
 
-  /* ===== PASS 3: Repair any client with 0 scheduled direct by swapping lower-priority items ===== */
+  /* PASS 3: repair zeros via swaps */
   repairZeroScheduledClients(activeForDirect, workdaysAll, dayStartHr, dayEndHr, hardAvoidMon, avoidMonBeforeHr, maxDirectBlock, allClientsByName);
 
   /* recompute required unmet precisely */
@@ -1416,7 +1379,7 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     if(rec) rec.directUnmetRequired = still;
   }
 
-  /* ===== PASS 4: TOP-UP (optional) try to schedule up to authorized cap (never displace required items) ===== */
+  /* PASS 4: TOP-UP optional to cap (no displacement) */
   log("\n➕ Top-up pass: trying to schedule extra supervision up to the authorized cap where possible...");
 
   for(const c of activeForDirect){
@@ -1427,10 +1390,9 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     if(extraRemaining <= 0) continue;
 
     const split = splitDirectHours(extraRemaining, maxDirectBlock);
-    const blocks = split.blocks;
     let extraUnmet = split.rem;
 
-    for(const blockHrs of blocks){
+    for(const blockHrs of split.blocks){
       const placed = tryPlaceDirectBlock({
         client: c,
         blockHrs,
@@ -1441,7 +1403,7 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
         allowMonMorning: true,
         hardAvoidMon,
         avoidMonBeforeHr,
-        allowRepair: false, // IMPORTANT: no displacement for optional top-up
+        allowRepair: false,
         allClientsByName
       });
       if(!placed) extraUnmet = roundToQuarterHours(extraUnmet + blockHrs);
@@ -1452,12 +1414,11 @@ function generateSchedule(monthStr, dayStartHr, dayEndHr, indStartHr, indEndHr, 
     }
   }
 
-  /* ===== INDIRECT scheduling (includes on-hold clients) ===== */
+  /* INDIRECT scheduling (includes on-hold clients) */
   for(const c of allForIndirect){
     let remaining = c.indirectHours;
     if(remaining<=0) continue;
 
-    // Add UNMET record for on-hold clients (they weren't added above)
     let rec = UNMET.find(x=>x.client===c.name);
     if(!rec){
       rec = {client:c.name, directUnmetRequired: 0, indirectUnmet: 0};
@@ -1671,6 +1632,172 @@ function updateFooter(sums, workdayCount){
 }
 
 /* =========================
+   SAVE / LOAD / EXPORT
+========================= */
+function makeSavePayload(){
+  return {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    activeMonth,
+    viewWeekStart: viewWeekStart ? viewWeekStart.toISOString() : null,
+    events: EVENTS,
+    unmet: UNMET,
+    ui: {
+      monthPick: document.getElementById("monthPick").value,
+      dayStart: +document.getElementById("dayStart").value,
+      dayEnd: +document.getElementById("dayEnd").value,
+      indStart: +document.getElementById("indStart").value,
+      indEnd: +document.getElementById("indEnd").value,
+      indMin: +document.getElementById("indMin").value,
+      indMax: +document.getElementById("indMax").value,
+      maxDirectBlock: +document.getElementById("maxDirectBlock").value,
+      distMode: document.getElementById("distMode").value,
+      daysOff: document.getElementById("daysOff").value,
+      avoidMonBefore: +document.getElementById("avoidMonBefore").value,
+      hardAvoidMon: +document.getElementById("hardAvoidMon").value
+    }
+  };
+}
+function loadFromPayload(payload){
+  if(!payload || !payload.events) throw new Error("Invalid schedule file.");
+  EVENTS = payload.events || [];
+  UNMET = payload.unmet || [];
+  activeMonth = payload.activeMonth || null;
+  viewWeekStart = payload.viewWeekStart ? new Date(payload.viewWeekStart) : (activeMonth?.start ? startOfWeek(new Date(activeMonth.start)) : null);
+
+  // restore UI
+  if(payload.ui){
+    document.getElementById("monthPick").value = payload.ui.monthPick ?? document.getElementById("monthPick").value;
+    document.getElementById("dayStart").value = payload.ui.dayStart ?? document.getElementById("dayStart").value;
+    document.getElementById("dayEnd").value = payload.ui.dayEnd ?? document.getElementById("dayEnd").value;
+    document.getElementById("indStart").value = payload.ui.indStart ?? document.getElementById("indStart").value;
+    document.getElementById("indEnd").value = payload.ui.indEnd ?? document.getElementById("indEnd").value;
+    document.getElementById("indMin").value = payload.ui.indMin ?? document.getElementById("indMin").value;
+    document.getElementById("indMax").value = payload.ui.indMax ?? document.getElementById("indMax").value;
+    document.getElementById("maxDirectBlock").value = payload.ui.maxDirectBlock ?? document.getElementById("maxDirectBlock").value;
+    document.getElementById("distMode").value = payload.ui.distMode ?? document.getElementById("distMode").value;
+    document.getElementById("daysOff").value = payload.ui.daysOff ?? "";
+    document.getElementById("avoidMonBefore").value = payload.ui.avoidMonBefore ?? document.getElementById("avoidMonBefore").value;
+    document.getElementById("hardAvoidMon").value = payload.ui.hardAvoidMon ?? document.getElementById("hardAvoidMon").value;
+  }
+
+  clearLog(`Loaded schedule.\nSaved at: ${payload.savedAt || "unknown"}\nEvents: ${EVENTS.length}\n`);
+  renderWeekView();
+
+  // Footer recompute if month exists
+  if(activeMonth?.monthStr){
+    const {start, end} = monthStartEnd(activeMonth.monthStr);
+    const offSet = parseDaysOffSet();
+    const workdaysAll = iterateDays(start, end).filter(d=>!isWeekend(d)).filter(d=>!offSet.has(toDateKey(d)));
+    const sums = computeMonthSummary(start, end);
+    updateFooter(sums, workdaysAll.length);
+  } else {
+    document.getElementById("footerLeft").textContent="—";
+    document.getElementById("footerRight").textContent="—";
+  }
+}
+
+function saveToBrowser(){
+  const payload = makeSavePayload();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  log(`💾 Saved to browser storage (${STORAGE_KEY}).`);
+}
+function loadFromBrowser(){
+  const s = localStorage.getItem(STORAGE_KEY);
+  if(!s){
+    log("No saved schedule found in this browser.");
+    return;
+  }
+  const payload = JSON.parse(s);
+  loadFromPayload(payload);
+  log("✅ Loaded saved schedule from browser.");
+}
+function downloadJson(){
+  const payload = makeSavePayload();
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const m = (activeMonth?.monthStr || document.getElementById("monthPick").value || "schedule");
+  a.href=url;
+  a.download=`bcba_schedule_${m}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  log("⬇️ Downloaded schedule JSON.");
+}
+function exportEventsCsv(){
+  const header = ["date","day","start","end","type","client","label","mode","note"];
+  const lines=[header.join(",")];
+
+  const sorted=[...EVENTS].sort((a,b)=>{
+    if(a.dateKey!==b.dateKey) return a.dateKey.localeCompare(b.dateKey);
+    return a.startMins-b.startMins;
+  });
+
+  for(const ev of sorted){
+    const d = new Date(ev.dateKey+"T00:00:00");
+    const row = [
+      ev.dateKey,
+      dayNames[d.getDay()],
+      minsToLabel(ev.startMins),
+      minsToLabel(ev.endMins),
+      ev.type,
+      ev.client || "",
+      ev.label || "",
+      ev.mode || "",
+      (ev.note || "").replaceAll('"','""')
+    ];
+    lines.push(row.map(v=>{
+      const s=String(v ?? "");
+      return (s.includes(",") || s.includes('"') || s.includes("\n")) ? `"${s}"` : s;
+    }).join(","));
+  }
+
+  const blob = new Blob([lines.join("\n")], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const m = (activeMonth?.monthStr || document.getElementById("monthPick").value || "schedule");
+  a.href=url;
+  a.download=`bcba_events_${m}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  log("⬇️ Exported events CSV.");
+}
+
+function copyMonthSummary(){
+  if(!activeMonth?.monthStr){
+    alert("Generate or load a schedule first.");
+    return;
+  }
+  const {start, end} = monthStartEnd(activeMonth.monthStr);
+  const offSet = parseDaysOffSet();
+  const workdaysAll = iterateDays(start, end).filter(d=>!isWeekend(d)).filter(d=>!offSet.has(toDateKey(d)));
+  const sums = computeMonthSummary(start, end);
+
+  const unmetDirectReq = UNMET.reduce((a,b)=>a+(b.directUnmetRequired||0),0);
+  const unmetIndirect = UNMET.reduce((a,b)=>a+(b.indirectUnmet||0),0);
+
+  const txt =
+`BCBA Scheduler Summary (${activeMonth.monthStr})
+- Total billable scheduled (direct + indirect): ${sums.totalBillable.toFixed(2)}h
+- Avg billable per workday: ${sums.avgPerWorkday.toFixed(2)}h (target 5.00h)
+- Workdays: ${workdaysAll.length}
+- Required unmet direct: ${unmetDirectReq.toFixed(2)}h
+- Unmet indirect: ${unmetIndirect.toFixed(2)}h
+- Total events (incl buffers): ${EVENTS.length}
+`;
+
+  navigator.clipboard?.writeText(txt).then(()=>{
+    log("📋 Copied month summary to clipboard.");
+  }).catch(()=>{
+    alert(txt);
+  });
+}
+
+/* =========================
    UI wiring
 ========================= */
 document.getElementById("btnClear").addEventListener("click", ()=>{
@@ -1683,8 +1810,6 @@ document.getElementById("btnClear").addEventListener("click", ()=>{
   document.getElementById("footerLeft").textContent="—";
   document.getElementById("footerRight").textContent="—";
 });
-
-let RAW_CLIENTS_RAW = null;
 
 document.getElementById("csvFile").addEventListener("change", async (e)=>{
   const file=e.target.files?.[0];
@@ -1705,20 +1830,7 @@ document.getElementById("csvFile").addEventListener("change", async (e)=>{
 
   log(`On hold (Sessions/Week=0): ${onHold}`);
   log(`Active-for-direct clients missing session windows: ${noWindows}`);
-
-  log(`\nTargets (per client): min required = min(auth cap, 10% of therapy), max allowed = auth cap`);
-  for(const c of RAW_CLIENTS.slice(0,12)){
-    log(`- ${c.name}: therapy ${c.therapyHoursMonth.toFixed(2)}h → 10% ${c.direct10Target.toFixed(2)}h | auth cap ${c.authSupHoursMonth.toFixed(2)}h | min ${c.directMinHours.toFixed(2)}h | max ${c.directMaxHours.toFixed(2)}h | indirect ${c.indirectHours.toFixed(2)}h`);
-  }
-  if(RAW_CLIENTS.length>12) log(`...and ${RAW_CLIENTS.length-12} more`);
-
-  if(noWindows){
-    const names = RAW_CLIENTS.filter(c=>!c.onHold && (!c.windows || !c.windows.length)).map(c=>c.name);
-    log(`\nMissing windows (direct can't be placed): ${names.slice(0,12).join(", ")}${names.length>12 ? "..." : ""}`);
-    log(`Fix: fill Mon/Tue/etc Start/End columns for those clients (recommended).`);
-  }
-  log(`\nDrive buffers use each client's "Drive Time (minutes)" when in-person.`);
-  log(`Start Date + Blackout Dates affect BOTH (a) therapy-hours auto calc and (b) allowable scheduling dates.`);
+  log(`\nTip: Click Generate, then Save (Browser) or Download JSON to revisit anytime.`);
 });
 
 document.getElementById("btnGenerate").addEventListener("click", ()=>{
@@ -1752,11 +1864,66 @@ document.getElementById("todayWeek").addEventListener("click", ()=>{
   renderWeekView();
 });
 
+document.getElementById("btnSave").addEventListener("click", ()=>{
+  if(!EVENTS.length){
+    alert("Generate or load a schedule first.");
+    return;
+  }
+  saveToBrowser();
+});
+document.getElementById("btnLoad").addEventListener("click", ()=>{
+  loadFromBrowser();
+});
+document.getElementById("btnDownloadJson").addEventListener("click", ()=>{
+  if(!EVENTS.length){
+    alert("Generate or load a schedule first.");
+    return;
+  }
+  downloadJson();
+});
+document.getElementById("btnExportCsv").addEventListener("click", ()=>{
+  if(!EVENTS.length){
+    alert("Generate or load a schedule first.");
+    return;
+  }
+  exportEventsCsv();
+});
+document.getElementById("btnCopySummary").addEventListener("click", ()=>{
+  copyMonthSummary();
+});
+
+document.getElementById("jsonFile").addEventListener("change", async (e)=>{
+  const file = e.target.files?.[0];
+  if(!file) return;
+  const text = await file.text();
+  try{
+    const payload = JSON.parse(text);
+    loadFromPayload(payload);
+    log("✅ Loaded schedule from JSON file.");
+  }catch(err){
+    alert("Could not load JSON: " + err.message);
+  }finally{
+    e.target.value = "";
+  }
+});
+
 (function init(){
   const now=new Date();
   const m=`${now.getFullYear()}-${pad2(now.getMonth()+1)}`;
   document.getElementById("monthPick").value=m;
-  document.getElementById("gridWrap").innerHTML = `<div style="padding:16px;color:var(--muted);">Upload CSV and click Generate.</div>`;
+  document.getElementById("gridWrap").innerHTML = `<div style="padding:16px;color:var(--muted);">Upload CSV and click Generate. If you already saved a schedule, click “Load Saved”.</div>`;
+
+  // Auto prompt to load saved schedule if present
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if(saved){
+    try{
+      const payload = JSON.parse(saved);
+      const ok = confirm("Saved schedule found in this browser. Load it now?");
+      if(ok){
+        loadFromPayload(payload);
+      }
+    }catch(_){}
+  }
 })();
 </script>
 </body>
