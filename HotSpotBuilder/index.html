@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hotspot Builder (Rectangles)</title>
+  <style>
+    :root{
+      --bg1:#7dd3fc; --bg2:#a7f3d0; --card:#ffffffee; --ink:#0f172a; --muted:#475569;
+      --accent:#7c3aed; --accent2:#f97316; --good:#16a34a; --bad:#ef4444;
+      --shadow: 0 18px 40px rgba(2,6,23,.18);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      min-height:100vh;
+      background:
+        radial-gradient(1200px 800px at 10% 10%, #fff8, transparent 60%),
+        radial-gradient(900px 700px at 90% 20%, #fff7, transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px 14px 28px;}
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .title{
+      display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:999px;
+      background:#ffffffb8; border:2px solid #ffffffcc; box-shadow: 0 10px 25px rgba(2,6,23,.12);
+      backdrop-filter: blur(8px);
+    }
+    .logo{
+      width:44px;height:44px;border-radius:14px; display:grid; place-items:center; font-size:22px; color:white;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 20px rgba(124,58,237,.25);
+      transform: rotate(-6deg);
+    }
+    .card{
+      background: var(--card);
+      border: 2px solid #ffffffcc;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      backdrop-filter: blur(10px);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.4fr .6fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr;} }
+
+    .panel{
+      padding:12px; border-radius:18px; border:2px solid #e2e8f0; background:#fff;
+      box-shadow: 0 12px 18px rgba(2,6,23,.10);
+    }
+    .panel h2{margin:0 0 8px 0; font-size:16px;}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .row > *{flex:0 0 auto;}
+    label{font-size:12px;color:var(--muted);font-weight:800}
+    input[type="text"], input[type="number"]{
+      padding:10px 10px;
+      border-radius:12px;
+      border:2px solid #e2e8f0;
+      outline:none;
+      font-weight:700;
+      width: 100%;
+      max-width: 320px;
+      background:#fff;
+    }
+    input[type="number"]{max-width:140px;}
+    .btn{
+      border:0; cursor:pointer;
+      padding:11px 14px; border-radius:999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:white; font-weight:900;
+      box-shadow: 0 14px 24px rgba(124,58,237,.22);
+      user-select:none;
+    }
+    .btn2{
+      border:2px solid #cbd5e1; cursor:pointer;
+      padding:11px 14px; border-radius:999px;
+      background:#fff; color:#0f172a; font-weight:900;
+      box-shadow: 0 12px 18px rgba(2,6,23,.10);
+      user-select:none;
+    }
+    .btn:disabled,.btn2:disabled{opacity:.6;cursor:not-allowed}
+    small{color:var(--muted)}
+    .tip{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4}
+
+    /* Canvas stage */
+    .stageWrap{
+      padding:12px; border-radius:18px; border:2px solid #ffffffcc; background:#fff;
+      box-shadow: 0 14px 26px rgba(2,6,23,.12);
+    }
+    .stageHeader{
+      display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .badge{
+      font-size:12px; font-weight:900; color:#0f172a;
+      padding:6px 10px; border-radius:999px;
+      background:#eef2ff; border:1px solid #c7d2fe;
+    }
+    .stage{
+      position:relative;
+      width:100%;
+      border-radius:16px;
+      overflow:hidden;
+      border:2px dashed #c7d2fe;
+      background: #f8fafc;
+      min-height: 260px;
+      user-select:none;
+    }
+    .stage img{
+      width:100%;
+      height:auto;
+      display:block;
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+
+    /* Hotspot rectangles */
+    .rect{
+      position:absolute;
+      border: 3px solid rgba(124,58,237,.85);
+      background: rgba(124,58,237,.18);
+      border-radius: 12px;
+      box-shadow: 0 10px 18px rgba(2,6,23,.10);
+    }
+    .rect .tag{
+      position:absolute;
+      left: 8px;
+      top: -12px;
+      background: rgba(15,23,42,.92);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 12px;
+      white-space: nowrap;
+      transform: translateY(-2px);
+    }
+    .rect .actions{
+      position:absolute;
+      right: 8px;
+      top: -12px;
+      display:flex;
+      gap:6px;
+      transform: translateY(-2px);
+    }
+    .mini{
+      border:0;
+      cursor:pointer;
+      font-weight:900;
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      color:#0f172a;
+      background:#fff;
+      border:1px solid #e2e8f0;
+    }
+    .mini:hover{filter:saturate(1.05)}
+    .mini.danger{color:#fff;background:rgba(239,68,68,.95);border-color:rgba(239,68,68,.95)}
+
+    /* Drawing overlay (current drag) */
+    .drawRect{
+      position:absolute;
+      border: 3px dashed rgba(249,115,22,.95);
+      background: rgba(249,115,22,.14);
+      border-radius: 12px;
+      pointer-events:none;
+    }
+
+    /* List */
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-height: 420px;
+      overflow:auto;
+      padding-right: 4px;
+    }
+    .item{
+      border:2px solid #e2e8f0;
+      border-radius:16px;
+      padding:10px;
+      background:#fff;
+    }
+    .itemTop{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+      flex-wrap:wrap;
+    }
+    .name{font-weight:900}
+    .coords{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; color:var(--muted); margin-top:6px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      background:#f1f5f9; border:1px solid #e2e8f0;
+      font-size:12px; font-weight:900;
+    }
+    .pill.good{background:#f0fdf4;border-color:#bbf7d0}
+    .pill.bad{background:#fff1f2;border-color:#fecaca}
+    textarea{
+      width:100%;
+      min-height: 180px;
+      resize: vertical;
+      padding: 10px;
+      border-radius: 16px;
+      border: 2px solid #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      outline:none;
+      background:#fff;
+    }
+    kbd{ background:#0f172a; color:white; padding:2px 6px; border-radius:6px; font-weight:900; font-size:11px; }
+
+    .note{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+    .ok{color: var(--good); font-weight:900;}
+    .warn{color: var(--bad); font-weight:900;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo">🎯</div>
+        <div>
+          <div style="font-weight:900;">Hotspot Builder (Rectangles)</div>
+          <div style="font-size:12px;color:var(--muted);">Drag to draw boxes. Export {x,y,w,h} in image pixels.</div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="badge" id="statusBadge">No image loaded</span>
+        <button class="btn2" id="toggleLabelsBtn" type="button">Show Labels: ON</button>
+        <button class="btn2" id="toggleRectsBtn" type="button">Show Boxes: ON</button>
+        <button class="btn2" id="clearBtn" type="button">Clear All</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: stage -->
+      <div class="card">
+        <div class="stageHeader">
+          <div class="row" style="gap:8px; align-items:flex-end;">
+            <div>
+              <label>Scene ID (optional)</label><br>
+              <input id="sceneId" type="text" placeholder="kitchen" />
+            </div>
+            <div>
+              <label>Scene Name (optional)</label><br>
+              <input id="sceneName" type="text" placeholder="Kitchen" />
+            </div>
+          </div>
+
+          <div class="row" style="align-items:flex-end;">
+            <div>
+              <label>Load Image</label><br>
+              <input id="fileInput" type="file" accept="image/*" />
+            </div>
+            <div>
+              <label>Or paste image path (for your game)</label><br>
+              <input id="imgPath" type="text" placeholder="images/scenes/scene_kitchen.png" />
+            </div>
+            <button class="btn" id="usePathBtn" type="button">Use Path</button>
+          </div>
+        </div>
+
+        <div class="stageWrap">
+          <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div class="row" style="gap:8px;">
+              <span class="pill" id="imgSizePill">Image: —</span>
+              <span class="pill" id="mousePill">Mouse: —</span>
+              <span class="pill" id="boxPill">Box: —</span>
+            </div>
+            <div class="row" style="gap:8px;">
+              <span class="badge">Draw: <kbd>Click + Drag</kbd></span>
+              <span class="badge">Undo: <kbd>Ctrl</kbd>+<kbd>Z</kbd></span>
+            </div>
+          </div>
+
+          <div class="stage" id="stage">
+            <!-- Image injected -->
+          </div>
+
+          <div class="note">
+            <span class="ok">Coordinates export in ORIGINAL image pixels</span> (not screen pixels).<br>
+            Tip: Name your targets exactly how you want to say them in prompts (e.g., <em>sink</em>, <em>fridge</em>, <em>spoon</em>).
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: controls / list / export -->
+      <div class="card">
+        <div class="panel">
+          <h2>1) Target Name</h2>
+          <div class="row">
+            <input id="targetName" type="text" placeholder="sink" />
+            <button class="btn" id="setNameBtn" type="button">Use Name</button>
+          </div>
+          <div class="tip">
+            Set a name first, then draw a box. Each new box uses the current name.
+            If you forget, you can rename later in the list.
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:12px;">
+          <h2>2) Hotspots List</h2>
+          <div class="row" style="justify-content:space-between;">
+            <span class="pill">Count: <span id="count">0</span></span>
+            <span class="pill" id="pathPill">Path: <span id="pathText">—</span></span>
+          </div>
+          <div class="list" id="list" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="panel" style="margin-top:12px;">
+          <h2>3) Export</h2>
+          <div class="row" style="gap:8px;">
+            <button class="btn" id="exportBtn" type="button">Export JSON</button>
+            <button class="btn2" id="copyBtn" type="button">Copy</button>
+            <button class="btn2" id="downloadBtn" type="button">Download .json</button>
+          </div>
+          <textarea id="exportBox" spellcheck="false" placeholder="Export will appear here..."></textarea>
+          <div class="tip">
+            Paste this into your game under a scene’s <code>targets</code>.
+            If you export multiple scenes, keep each scene in its own JSON block/file.
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:12px;">
+          <h2>Quick Tips</h2>
+          <div class="tip">
+            • Draw tight boxes, but leave a little “click room” for kids.<br>
+            • Avoid overlapping boxes when possible.<br>
+            • Use <kbd>Ctrl</kbd>+<kbd>Z</kbd> to undo the last box.<br>
+            • Toggle labels/boxes for clean screenshots if needed.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --------- State ---------
+    let imgEl = null;
+    let imgNaturalW = 0;
+    let imgNaturalH = 0;
+    let imgPath = "";
+    let currentName = "";
+    let showLabels = true;
+    let showRects = true;
+
+    // Each hotspot: { id, label, box:{x,y,w,h} }
+    let hotspots = [];
+
+    // Drawing
+    let drawing = false;
+    let startX = 0, startY = 0;
+    let drawEl = null;
+
+    // --------- Elements ---------
+    const stage = document.getElementById("stage");
+    const fileInput = document.getElementById("fileInput");
+    const imgPathInput = document.getElementById("imgPath");
+    const usePathBtn = document.getElementById("usePathBtn");
+
+    const targetName = document.getElementById("targetName");
+    const setNameBtn = document.getElementById("setNameBtn");
+
+    const sceneIdInput = document.getElementById("sceneId");
+    const sceneNameInput = document.getElementById("sceneName");
+
+    const statusBadge = document.getElementById("statusBadge");
+    const imgSizePill = document.getElementById("imgSizePill");
+    const mousePill = document.getElementById("mousePill");
+    const boxPill = document.getElementById("boxPill");
+    const countEl = document.getElementById("count");
+    const listEl = document.getElementById("list");
+
+    const toggleLabelsBtn = document.getElementById("toggleLabelsBtn");
+    const toggleRectsBtn = document.getElementById("toggleRectsBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    const exportBtn = document.getElementById("exportBtn");
+    const exportBox = document.getElementById("exportBox");
+    const copyBtn = document.getElementById("copyBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    const pathPill = document.getElementById("pathPill");
+    const pathText = document.getElementById("pathText");
+
+    // --------- Helpers ---------
+    function uid(){
+      return Math.random().toString(16).slice(2) + Date.now().toString(16);
+    }
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    // Convert a mouse position (client) into image pixel coords (natural pixels)
+    function clientToImagePixels(clientX, clientY){
+      if(!imgEl) return {x:0,y:0};
+      const rect = imgEl.getBoundingClientRect();
+      const cx = clamp(clientX - rect.left, 0, rect.width);
+      const cy = clamp(clientY - rect.top, 0, rect.height);
+
+      const sx = imgNaturalW / rect.width;
+      const sy = imgNaturalH / rect.height;
+
+      return { x: Math.round(cx * sx), y: Math.round(cy * sy) };
+    }
+
+    // Convert image pixel box -> stage overlay box (CSS px)
+    function imageBoxToCss(box){
+      if(!imgEl) return {left:0,top:0,width:0,height:0};
+      const rect = imgEl.getBoundingClientRect();
+      const sx = rect.width / imgNaturalW;
+      const sy = rect.height / imgNaturalH;
+      return {
+        left: box.x * sx,
+        top: box.y * sy,
+        width: box.w * sx,
+        height: box.h * sy
+      };
+    }
+
+    function setStatus(msg, type="neutral"){
+      statusBadge.textContent = msg;
+      statusBadge.style.background = type==="good" ? "#dcfce7" : type==="bad" ? "#ffe4e6" : "#eef2ff";
+      statusBadge.style.border = "1px solid " + (type==="good" ? "#bbf7d0" : type==="bad" ? "#fecaca" : "#c7d2fe");
+    }
+
+    function setPills(){
+      imgSizePill.textContent = imgEl ? `Image: ${imgNaturalW}×${imgNaturalH}` : "Image: —";
+      pathText.textContent = imgPath || "—";
+      countEl.textContent = hotspots.length;
+    }
+
+    function renderHotspots(){
+      // Remove old rects
+      [...stage.querySelectorAll(".rect")].forEach(r => r.remove());
+
+      if(!imgEl) return;
+
+      hotspots.forEach(h => {
+        const r = document.createElement("div");
+        r.className = "rect";
+        r.dataset.id = h.id;
+
+        const css = imageBoxToCss(h.box);
+        r.style.left = css.left + "px";
+        r.style.top = css.top + "px";
+        r.style.width = css.width + "px";
+        r.style.height = css.height + "px";
+        r.style.display = showRects ? "block" : "none";
+
+        const tag = document.createElement("div");
+        tag.className = "tag";
+        tag.textContent = h.label;
+        tag.style.display = showLabels ? "block" : "none";
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        actions.style.display = showRects ? "flex" : "none";
+
+        const renameBtn = document.createElement("button");
+        renameBtn.className = "mini";
+        renameBtn.type = "button";
+        renameBtn.textContent = "Rename";
+        renameBtn.onclick = () => {
+          const newName = prompt("Rename target:", h.label);
+          if(newName && newName.trim()){
+            h.label = newName.trim();
+            renderAll();
+          }
+        };
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "mini danger";
+        delBtn.type = "button";
+        delBtn.textContent = "Delete";
+        delBtn.onclick = () => {
+          hotspots = hotspots.filter(x => x.id !== h.id);
+          renderAll();
+        };
+
+        actions.appendChild(renameBtn);
+        actions.appendChild(delBtn);
+
+        r.appendChild(tag);
+        r.appendChild(actions);
+        stage.appendChild(r);
+      });
+    }
+
+    function renderList(){
+      listEl.innerHTML = "";
+      if(hotspots.length === 0){
+        listEl.innerHTML = `<div class="item"><div class="name">No hotspots yet</div><div class="coords">Draw boxes on the image.</div></div>`;
+        return;
+      }
+      hotspots.forEach((h, i) => {
+        const div = document.createElement("div");
+        div.className = "item";
+
+        div.innerHTML = `
+          <div class="itemTop">
+            <div>
+              <div class="name">${i+1}. ${escapeHtml(h.label)}</div>
+              <div class="coords">{x:${h.box.x}, y:${h.box.y}, w:${h.box.w}, h:${h.box.h}}</div>
+            </div>
+            <div class="row" style="gap:8px;">
+              <span class="pill good">px</span>
+              <button class="btn2" type="button" data-act="focus">Focus</button>
+              <button class="btn2" type="button" data-act="rename">Rename</button>
+              <button class="btn2" type="button" data-act="delete">Delete</button>
+            </div>
+          </div>
+        `;
+
+        const [focusBtn, renameBtn, delBtn] = div.querySelectorAll("button");
+        focusBtn.onclick = () => focusRect(h.id);
+        renameBtn.onclick = () => {
+          const newName = prompt("Rename target:", h.label);
+          if(newName && newName.trim()){
+            h.label = newName.trim();
+            renderAll();
+          }
+        };
+        delBtn.onclick = () => {
+          hotspots = hotspots.filter(x => x.id !== h.id);
+          renderAll();
+        };
+
+        listEl.appendChild(div);
+      });
+    }
+
+    function focusRect(id){
+      const rectEl = stage.querySelector(`.rect[data-id="${id}"]`);
+      if(!rectEl) return;
+      rectEl.animate([{transform:"scale(1)"},{transform:"scale(1.03)"},{transform:"scale(1)"}], {duration:260});
+      rectEl.style.borderColor = "rgba(249,115,22,.95)";
+      setTimeout(()=> rectEl.style.borderColor = "rgba(124,58,237,.85)", 350);
+    }
+
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    function exportJSON(){
+      const sceneId = (sceneIdInput.value || "").trim();
+      const sceneName = (sceneNameInput.value || "").trim();
+
+      const payload = {
+        id: sceneId || "scene_id_here",
+        name: sceneName || "Scene Name",
+        img: imgPath || "images/scenes/scene_file.png",
+        targets: hotspots.map(h => ({ label: h.label, box: {...h.box} }))
+      };
+
+      exportBox.value = JSON.stringify(payload, null, 2);
+    }
+
+    function downloadJSON(){
+      const text = exportBox.value.trim();
+      if(!text){
+        exportJSON();
+      }
+      const blob = new Blob([exportBox.value], {type:"application/json"});
+      const a = document.createElement("a");
+      const safeId = (sceneIdInput.value || "scene").trim().replace(/\s+/g,"_");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${safeId}_hotspots.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function renderAll(){
+      setPills();
+      renderHotspots();
+      renderList();
+    }
+
+    // Reposition boxes on resize
+    window.addEventListener("resize", ()=>{
+      renderHotspots();
+    });
+
+    // --------- Image Loading ---------
+    function loadImageFromSrc(src){
+      stage.innerHTML = "";
+      hotspots = [];
+      currentName = (targetName.value || "").trim();
+      exportBox.value = "";
+
+      imgEl = document.createElement("img");
+      imgEl.alt = "scene";
+      imgEl.src = src;
+      imgEl.onload = () => {
+        imgNaturalW = imgEl.naturalWidth;
+        imgNaturalH = imgEl.naturalHeight;
+        stage.appendChild(imgEl);
+        setStatus("Image loaded ✓", "good");
+        setPills();
+        renderAll();
+      };
+      imgEl.onerror = () => {
+        setStatus("Could not load image (check path)", "bad");
+        stage.innerHTML = "";
+        imgEl = null;
+        imgNaturalW = 0; imgNaturalH = 0;
+        renderAll();
+      };
+
+      setStatus("Loading image…");
+    }
+
+    fileInput.addEventListener("change", (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      const url = URL.createObjectURL(file);
+      // When using local file upload, we can't know your final path; you can type it in the path box.
+      imgPath = (imgPathInput.value || "").trim();
+      loadImageFromSrc(url);
+    });
+
+    usePathBtn.addEventListener("click", ()=>{
+      const p = (imgPathInput.value || "").trim();
+      if(!p){
+        alert("Paste an image path like: images/scenes/scene_kitchen.png");
+        return;
+      }
+      imgPath = p;
+      loadImageFromSrc(p);
+    });
+
+    // --------- Naming ---------
+    setNameBtn.addEventListener("click", ()=>{
+      currentName = (targetName.value || "").trim();
+      if(!currentName){
+        alert("Type a target name first (e.g., sink).");
+        return;
+      }
+      setStatus(`Current name set: ${currentName}`, "good");
+    });
+
+    targetName.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter") setNameBtn.click();
+    });
+
+    // --------- Toggles / Clear ---------
+    toggleLabelsBtn.addEventListener("click", ()=>{
+      showLabels = !showLabels;
+      toggleLabelsBtn.textContent = `Show Labels: ${showLabels ? "ON" : "OFF"}`;
+      renderHotspots();
+    });
+
+    toggleRectsBtn.addEventListener("click", ()=>{
+      showRects = !showRects;
+      toggleRectsBtn.textContent = `Show Boxes: ${showRects ? "ON" : "OFF"}`;
+      renderHotspots();
+    });
+
+    clearBtn.addEventListener("click", ()=>{
+      if(!confirm("Clear all hotspots?")) return;
+      hotspots = [];
+      exportBox.value = "";
+      renderAll();
+      setStatus("Cleared.", "neutral");
+    });
+
+    // --------- Export / Copy / Download ---------
+    exportBtn.addEventListener("click", exportJSON);
+
+    copyBtn.addEventListener("click", async ()=>{
+      const text = exportBox.value.trim() || (exportJSON(), exportBox.value.trim());
+      if(!text) return;
+      try{
+        await navigator.clipboard.writeText(text);
+        setStatus("Copied export to clipboard ✓", "good");
+      }catch(e){
+        // fallback
+        exportBox.select();
+        document.execCommand("copy");
+        setStatus("Copied (fallback) ✓", "good");
+      }
+    });
+
+    downloadBtn.addEventListener("click", downloadJSON);
+
+    // --------- Drawing logic ---------
+    function ensureReadyToDraw(){
+      if(!imgEl){
+        alert("Load an image first.");
+        return false;
+      }
+      if(!currentName){
+        currentName = (targetName.value || "").trim();
+      }
+      if(!currentName){
+        alert("Set a target name first (e.g., sink), then draw a box.");
+        return false;
+      }
+      return true;
+    }
+
+    stage.addEventListener("mousedown", (e)=>{
+      if(e.button !== 0) return;
+      if(!ensureReadyToDraw()) return;
+      if(!imgEl) return;
+
+      drawing = true;
+
+      const p = clientToImagePixels(e.clientX, e.clientY);
+      startX = p.x;
+      startY = p.y;
+
+      drawEl = document.createElement("div");
+      drawEl.className = "drawRect";
+      stage.appendChild(drawEl);
+
+      boxPill.textContent = "Box: drawing…";
+    });
+
+    window.addEventListener("mousemove", (e)=>{
+      if(!imgEl) return;
+      const p = clientToImagePixels(e.clientX, e.clientY);
+      mousePill.textContent = `Mouse: ${p.x}, ${p.y}`;
+
+      if(!drawing || !drawEl) return;
+
+      const x1 = startX, y1 = startY;
+      const x2 = p.x, y2 = p.y;
+
+      const x = Math.min(x1, x2);
+      const y = Math.min(y1, y2);
+      const w = Math.abs(x2 - x1);
+      const h = Math.abs(y2 - y1);
+
+      boxPill.textContent = `Box: {x:${x}, y:${y}, w:${w}, h:${h}}`;
+
+      // Convert to CSS for preview
+      const css = imageBoxToCss({x,y,w,h});
+      drawEl.style.left = css.left + "px";
+      drawEl.style.top = css.top + "px";
+      drawEl.style.width = css.width + "px";
+      drawEl.style.height = css.height + "px";
+    });
+
+    window.addEventListener("mouseup", (e)=>{
+      if(!drawing) return;
+      drawing = false;
+
+      if(drawEl){
+        drawEl.remove();
+        drawEl = null;
+      }
+      if(!imgEl) return;
+
+      const p = clientToImagePixels(e.clientX, e.clientY);
+
+      const x = Math.min(startX, p.x);
+      const y = Math.min(startY, p.y);
+      const w = Math.abs(p.x - startX);
+      const h = Math.abs(p.y - startY);
+
+      if(w < 6 || h < 6){
+        setStatus("Box too small (try again).", "bad");
+        boxPill.textContent = "Box: —";
+        return;
+      }
+
+      hotspots.push({
+        id: uid(),
+        label: currentName,
+        box: {x, y, w, h}
+      });
+
+      setStatus(`Added hotspot: ${currentName}`, "good");
+      boxPill.textContent = "Box: —";
+      renderAll();
+    });
+
+    // Undo last
+    window.addEventListener("keydown", (e)=>{
+      const key = e.key.toLowerCase();
+      if((e.ctrlKey || e.metaKey) && key === "z"){
+        if(hotspots.length > 0){
+          hotspots.pop();
+          renderAll();
+          setStatus("Undid last hotspot.", "neutral");
+        }
+      }
+    });
+
+    // If image loaded via file but you later set path, update pill only
+    imgPathInput.addEventListener("input", ()=>{
+      imgPath = (imgPathInput.value || "").trim();
+      setPills();
+    });
+
+    // Initialize
+    setPills();
+    setStatus("No image loaded");
+    toggleLabelsBtn.textContent = "Show Labels: ON";
+    toggleRectsBtn.textContent = "Show Boxes: ON";
+  </script>
+</body>
+</html>
