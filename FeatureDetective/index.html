@@ -8,13 +8,12 @@
     :root {
       --bg1: #7dd3fc;
       --bg2: #c4b5fd;
-      --card: rgba(255,255,255,0.92);
+      --card: rgba(255,255,255,0.94);
       --text: #1f2937;
       --accent: #2563eb;
       --accent2: #7c3aed;
       --good: #16a34a;
       --bad: #dc2626;
-      --gold: #fbbf24;
       --shadow: 0 12px 30px rgba(0,0,0,0.16);
       --radius: 24px;
     }
@@ -29,416 +28,87 @@
       overflow-x: hidden;
     }
 
-    .app {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 18px;
-    }
+    .app { max-width: 1100px; margin: 0 auto; padding: 18px; }
+    .topbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .title-box { display: flex; align-items: center; gap: 14px; background: var(--card); padding: 14px 18px; border-radius: 20px; box-shadow: var(--shadow); }
+    .title-emoji { font-size: 2rem; }
+    .title-text h1 { margin: 0; font-size: 1.8rem; }
+    .title-text p { margin: 3px 0 0; font-size: 0.95rem; color: #475569; }
+    .hud { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
+    .pill { background: var(--card); padding: 10px 14px; border-radius: 999px; box-shadow: var(--shadow); font-weight: 700; }
 
-    .topbar {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
+    .toggle-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .toggle-card { background: var(--card); border-radius: 18px; box-shadow: var(--shadow); padding: 12px 16px; display: flex; align-items: center; gap: 10px; font-weight: 700; }
 
-    .title-box {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--card);
-      padding: 14px 18px;
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-    }
-
-    .title-emoji {
-      font-size: 2rem;
-    }
-
-    .title-text h1 {
-      margin: 0;
-      font-size: 1.8rem;
-    }
-
-    .title-text p {
-      margin: 3px 0 0;
-      font-size: 0.95rem;
-      color: #475569;
-    }
-
-    .hud {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    .pill {
-      background: var(--card);
-      padding: 10px 14px;
-      border-radius: 999px;
-      box-shadow: var(--shadow);
-      font-weight: 700;
-    }
-
-    .toggle-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .toggle-card {
-      background: var(--card);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-    }
-
-    .main-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px;
-      min-height: 70vh;
-      position: relative;
-      overflow: hidden;
-    }
-
+    .main-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; min-height: 70vh; position: relative; overflow: hidden; }
     .screen { display: none; }
     .screen.active { display: block; }
 
-    .home-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-top: 18px;
-    }
+    .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 18px; }
+    .set-btn, .choice-btn, .yesno-btn, .action-btn, .multi-btn, .image-choice-btn, .speak-btn { border: none; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
+    .set-btn:hover, .choice-btn:hover, .yesno-btn:hover, .action-btn:hover, .multi-btn:hover, .image-choice-btn:hover, .speak-btn:hover { transform: translateY(-2px) scale(1.01); }
 
-    .set-btn, .choice-btn, .yesno-btn, .action-btn, .multi-btn, .image-choice-btn {
-      border: none;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
+    .set-btn { background: linear-gradient(135deg, #ffffff, #e0f2fe); border-radius: 22px; padding: 18px; box-shadow: var(--shadow); text-align: left; }
+    .set-btn h3 { margin: 0 0 8px; font-size: 1.2rem; }
+    .set-items { font-size: 0.95rem; color: #475569; line-height: 1.5; }
 
-    .set-btn:hover, .choice-btn:hover, .yesno-btn:hover, .action-btn:hover, .multi-btn:hover, .image-choice-btn:hover {
-      transform: translateY(-2px) scale(1.01);
-    }
+    .progress-wrap { margin: 10px 0 16px; }
+    .progress-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; font-weight: 700; }
+    .progress-bar { height: 18px; width: 100%; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #facc15); transition: width 0.35s ease; }
 
-    .set-btn {
-      background: linear-gradient(135deg, #ffffff, #e0f2fe);
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      text-align: left;
-    }
+    .question-layout { display: grid; grid-template-columns: 1fr; gap: 18px; align-items: center; }
+    .stimulus-box { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; min-height: 190px; background: linear-gradient(135deg, #eff6ff, #f5f3ff); border-radius: 22px; padding: 18px; }
+    .emoji-stimulus { font-size: 5rem; line-height: 1; }
+    .real-stimulus { width: min(330px, 90%); max-height: 260px; object-fit: contain; border-radius: 20px; background: #fff; padding: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+    .question-box { text-align: center; padding: 6px; }
+    .round-badge { display: inline-block; padding: 8px 14px; border-radius: 999px; font-weight: 700; background: #dbeafe; color: #1d4ed8; margin-bottom: 8px; }
+    .question-text { font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 800; margin: 8px 0; }
+    .support-text { font-size: 1rem; color: #64748b; margin: 0; }
 
-    .set-btn h3 {
-      margin: 0 0 8px;
-      font-size: 1.2rem;
-    }
+    .mini-prompt-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    .mini-prompt-chip { background: linear-gradient(135deg, #dbeafe, #ede9fe); border-radius: 999px; padding: 8px 12px; font-weight: 800; color: #334155; box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
+    .speak-btn { background: linear-gradient(135deg, #0ea5e9, #6366f1); color: white; border-radius: 999px; padding: 10px 14px; font-weight: 800; box-shadow: var(--shadow); }
 
-    .set-items {
-      font-size: 0.95rem;
-      color: #475569;
-      line-height: 1.5;
-    }
+    .choices-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 8px; }
+    .choice-btn, .multi-btn { background: linear-gradient(135deg, #ffffff, #eef2ff); border-radius: 20px; padding: 18px 14px; font-size: 1.2rem; font-weight: 800; box-shadow: var(--shadow); min-height: 86px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .choice-visual { font-size: 1.5rem; line-height: 1; flex: 0 0 auto; }
+    .choice-text { display: inline-block; }
 
-    .progress-wrap {
-      margin: 10px 0 16px;
-    }
-
-    .progress-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    .progress-bar {
-      height: 18px;
-      width: 100%;
-      background: #e2e8f0;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #22c55e, #facc15);
-      transition: width 0.35s ease;
-    }
-
-    .question-layout {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
-      align-items: center;
-    }
-
-    .stimulus-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      text-align: center;
-      min-height: 190px;
-      background: linear-gradient(135deg, #eff6ff, #f5f3ff);
-      border-radius: 22px;
-      padding: 18px;
-    }
-
-    .emoji-stimulus {
-      font-size: 5rem;
-      line-height: 1;
-    }
-
-    .real-stimulus {
-      width: min(330px, 90%);
-      max-height: 260px;
-      object-fit: contain;
-      border-radius: 20px;
-      background: #fff;
-      padding: 8px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    }
-
-    .question-box {
-      text-align: center;
-      padding: 6px;
-    }
-
-    .round-badge {
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-weight: 700;
-      background: #dbeafe;
-      color: #1d4ed8;
-      margin-bottom: 8px;
-    }
-
-    .question-text {
-      font-size: clamp(1.4rem, 2.5vw, 2rem);
-      font-weight: 800;
-      margin: 8px 0;
-    }
-
-    .support-text {
-      font-size: 1rem;
-      color: #64748b;
-      margin: 0;
-    }
-
-    .choices-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 8px;
-    }
-
-    .choice-btn, .multi-btn {
-      background: linear-gradient(135deg, #ffffff, #eef2ff);
-      border-radius: 20px;
-      padding: 18px 14px;
-      font-size: 1.2rem;
-      font-weight: 800;
-      box-shadow: var(--shadow);
-      min-height: 86px;
-    }
-
-    .yesno-row {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 10px;
-    }
-
-    .yesno-btn {
-      border-radius: 24px;
-      min-height: 100px;
-      font-size: 2rem;
-      font-weight: 900;
-      box-shadow: var(--shadow);
-      color: white;
-    }
-
+    .yesno-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 10px; }
+    .yesno-btn { border-radius: 24px; min-height: 100px; font-size: 2rem; font-weight: 900; box-shadow: var(--shadow); color: white; display: flex; align-items: center; justify-content: center; gap: 12px; }
     .yes-btn { background: linear-gradient(135deg, #16a34a, #4ade80); }
     .no-btn { background: linear-gradient(135deg, #dc2626, #fb7185); }
 
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 10px;
-    }
+    .image-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 10px; }
+    .image-choice-btn { background: linear-gradient(135deg, #ffffff, #f8fafc); border-radius: 22px; padding: 10px; box-shadow: var(--shadow); min-height: 220px; display: flex; flex-direction: column; gap: 8px; align-items: center; justify-content: center; font-weight: 800; }
+    .image-choice-btn img { width: 100%; max-height: 145px; object-fit: contain; border-radius: 14px; }
+    .image-label { font-size: 1rem; color: #475569; }
 
-    .image-choice-btn {
-      background: linear-gradient(135deg, #ffffff, #f8fafc);
-      border-radius: 22px;
-      padding: 10px;
-      box-shadow: var(--shadow);
-      min-height: 220px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-    }
+    .selected { outline: 5px solid #60a5fa; background: linear-gradient(135deg, #dbeafe, #ede9fe); }
+    .correct { outline: 5px solid #4ade80 !important; background: linear-gradient(135deg, #dcfce7, #f0fdf4) !important; }
+    .incorrect { outline: 5px solid #f87171 !important; background: linear-gradient(135deg, #fee2e2, #fff1f2) !important; }
 
-    .image-choice-btn img {
-      width: 100%;
-      max-height: 145px;
-      object-fit: contain;
-      border-radius: 14px;
-    }
-
-    .image-label {
-      font-size: 1rem;
-      color: #475569;
-    }
-
-    .selected {
-      outline: 5px solid #60a5fa;
-      background: linear-gradient(135deg, #dbeafe, #ede9fe);
-    }
-
-    .correct {
-      outline: 5px solid #4ade80 !important;
-      background: linear-gradient(135deg, #dcfce7, #f0fdf4) !important;
-    }
-
-    .incorrect {
-      outline: 5px solid #f87171 !important;
-      background: linear-gradient(135deg, #fee2e2, #fff1f2) !important;
-    }
-
-    .feedback {
-      min-height: 46px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: 800;
-      margin-top: 14px;
-    }
-
+    .feedback { min-height: 46px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 1.2rem; font-weight: 800; margin-top: 14px; }
     .feedback.good { color: var(--good); }
     .feedback.bad { color: var(--bad); }
 
-    .action-row {
-      margin-top: 14px;
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    .action-row { margin-top: 14px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .action-btn { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; border-radius: 999px; padding: 14px 22px; font-size: 1rem; font-weight: 800; box-shadow: var(--shadow); }
+    .action-btn.secondary { background: linear-gradient(135deg, #475569, #64748b); }
 
-    .action-btn {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: white;
-      border-radius: 999px;
-      padding: 14px 22px;
-      font-size: 1rem;
-      font-weight: 800;
-      box-shadow: var(--shadow);
-    }
+    .summary-box { max-width: 740px; margin: 0 auto; text-align: center; padding: 10px 0 20px; }
+    .big-celebrate { font-size: 4rem; margin-bottom: 6px; }
+    .summary-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 18px 0; }
+    .stat-card { background: linear-gradient(135deg, #ffffff, #eef2ff); border-radius: 20px; padding: 18px; box-shadow: var(--shadow); }
+    .stat-card .label { color: #64748b; font-weight: 700; margin-bottom: 6px; }
+    .stat-card .value { font-size: 2rem; font-weight: 900; }
+    .small-note { color: #64748b; font-size: 0.95rem; margin-top: 8px; }
 
-    .action-btn.secondary {
-      background: linear-gradient(135deg, #475569, #64748b);
-    }
-
-    .summary-box {
-      max-width: 740px;
-      margin: 0 auto;
-      text-align: center;
-      padding: 10px 0 20px;
-    }
-
-    .big-celebrate {
-      font-size: 4rem;
-      margin-bottom: 6px;
-    }
-
-    .summary-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-      margin: 18px 0;
-    }
-
-    .stat-card {
-      background: linear-gradient(135deg, #ffffff, #eef2ff);
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .stat-card .label {
-      color: #64748b;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .stat-card .value {
-      font-size: 2rem;
-      font-weight: 900;
-    }
-
-    .small-note {
-      color: #64748b;
-      font-size: 0.95rem;
-      margin-top: 8px;
-    }
-
-    .confetti-piece {
-      position: fixed;
-      top: -20px;
-      width: 10px;
-      height: 18px;
-      opacity: 0.9;
-      pointer-events: none;
-      animation: fall linear forwards;
-      z-index: 9999;
-    }
-
-    @keyframes fall {
-      0% { transform: translateY(-10px) rotate(0deg); }
-      100% { transform: translateY(110vh) rotate(720deg); }
-    }
-
-    .streak-pop {
-      position: absolute;
-      top: 12px;
-      right: 14px;
-      background: linear-gradient(135deg, #fde68a, #f59e0b);
-      color: #78350f;
-      border-radius: 999px;
-      padding: 10px 16px;
-      font-weight: 900;
-      box-shadow: var(--shadow);
-      animation: pulse 1s ease 1;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(0.7); opacity: 0; }
-      50% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
-    }
+    .confetti-piece { position: fixed; top: -20px; width: 10px; height: 18px; opacity: 0.9; pointer-events: none; animation: fall linear forwards; z-index: 9999; }
+    @keyframes fall { 0% { transform: translateY(-10px) rotate(0deg); } 100% { transform: translateY(110vh) rotate(720deg); } }
+    .streak-pop { position: absolute; top: 12px; right: 14px; background: linear-gradient(135deg, #fde68a, #f59e0b); color: #78350f; border-radius: 999px; padding: 10px 16px; font-weight: 900; box-shadow: var(--shadow); animation: pulse 1s ease 1; }
+    @keyframes pulse { 0% { transform: scale(0.7); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
 
     @media (max-width: 700px) {
       .choices-grid, .image-grid, .yesno-row { grid-template-columns: 1fr; }
@@ -467,6 +137,7 @@
     <div class="toggle-row">
       <label class="toggle-card"><input type="checkbox" id="showNumbersToggle" checked /> Show score + accuracy</label>
       <label class="toggle-card"><input type="checkbox" id="soundToggle" checked /> Sound effects</label>
+      <label class="toggle-card"><input type="checkbox" id="voiceToggle" checked /> Speak directions</label>
       <label class="toggle-card"><input type="checkbox" id="labelImagesToggle" checked /> Show picture labels</label>
     </div>
 
@@ -477,7 +148,7 @@
         <h2>Choose a Set</h2>
         <p>Each set has 5 mixed items from different categories. The BT can choose any set to play.</p>
         <div id="homeGrid" class="home-grid"></div>
-        <p class="small-note">Tip: Keep the labels on at first. Later you can turn them off for harder discrimination.</p>
+        <p class="small-note">Tip: Keep labels on at first. Later you can turn them off and keep speech on for harder discrimination.</p>
       </section>
 
       <section id="gameScreen" class="screen">
@@ -498,6 +169,7 @@
             <div id="roundBadge" class="round-badge">Round</div>
             <div id="questionText" class="question-text">Question goes here.</div>
             <p id="supportText" class="support-text"></p>
+            <div id="miniPromptRow" class="mini-prompt-row"></div>
           </div>
 
           <div id="responseArea"></div>
@@ -518,18 +190,9 @@
           <h2>Set Complete!</h2>
           <p id="summaryTitle">Great job, detective.</p>
           <div class="summary-stats">
-            <div class="stat-card">
-              <div class="label">Stars</div>
-              <div class="value" id="summaryStars">0</div>
-            </div>
-            <div class="stat-card">
-              <div class="label">Correct</div>
-              <div class="value" id="summaryCorrect">0</div>
-            </div>
-            <div class="stat-card">
-              <div class="label">Accuracy</div>
-              <div class="value" id="summaryAccuracy">0%</div>
-            </div>
+            <div class="stat-card"><div class="label">Stars</div><div class="value" id="summaryStars">0</div></div>
+            <div class="stat-card"><div class="label">Correct</div><div class="value" id="summaryCorrect">0</div></div>
+            <div class="stat-card"><div class="label">Accuracy</div><div class="value" id="summaryAccuracy">0%</div></div>
           </div>
           <div class="action-row">
             <button class="action-btn" id="playAgainBtn">Play This Set Again</button>
@@ -542,368 +205,96 @@
 
   <script>
     const ITEM_BANK = {
-      apple: {
-        label: 'apple', emoji: '🍎', category: 'food',
-        features: {
-          color: 'red', size: 'small', function: 'eat', category: 'fruit', location: 'tree', part: 'stem'
-        },
-        statements: [
-          { text: 'The apple is red.', answer: true },
-          { text: 'You can eat an apple.', answer: true },
-          { text: 'An apple is a fruit.', answer: true },
-          { text: 'An apple is bigger than a bus.', answer: false },
-          { text: 'An apple grows on a tree.', answer: true }
-        ],
-        imageOptions: ['apple_1.png','apple_2.png','apple_3.png']
-      },
-      banana: {
-        label: 'banana', emoji: '🍌', category: 'food',
-        features: { color: 'yellow', size: 'small', function: 'eat', category: 'fruit', location: 'tree', part: 'peel' },
-        statements: [
-          { text: 'The banana is yellow.', answer: true },
-          { text: 'You can drive a banana.', answer: false },
-          { text: 'A banana is a fruit.', answer: true },
-          { text: 'A banana has a peel.', answer: true },
-          { text: 'A banana is usually found in the sky.', answer: false }
-        ],
-        imageOptions: ['banana_1.png','banana_2.png','banana_3.png']
-      },
-      ball: {
-        label: 'ball', emoji: '🏀', category: 'toy',
-        features: { color: 'orange', size: 'medium', function: 'play', category: 'toy', location: 'court', part: 'round shape' },
-        statements: [
-          { text: 'The ball is used to play.', answer: true },
-          { text: 'A ball is a kind of food.', answer: false },
-          { text: 'A ball is round.', answer: true },
-          { text: 'A ball can be orange.', answer: true },
-          { text: 'A ball is worn on your feet.', answer: false }
-        ],
-        imageOptions: ['ball_1.png','ball_2.png','ball_3.png']
-      },
-      car: {
-        label: 'car', emoji: '🚗', category: 'vehicle',
-        features: { color: 'blue', size: 'medium', function: 'drive', category: 'vehicle', location: 'road', part: 'wheels' },
-        statements: [
-          { text: 'A car drives on the road.', answer: true },
-          { text: 'A car is a vehicle.', answer: true },
-          { text: 'A car has wheels.', answer: true },
-          { text: 'A car is something you eat.', answer: false },
-          { text: 'A car is smaller than a pencil.', answer: false }
-        ],
-        imageOptions: ['car_1.png','car_2.png','car_3.png']
-      },
-      shirt: {
-        label: 'shirt', emoji: '👕', category: 'clothing',
-        features: { color: 'pink', size: 'medium', function: 'wear', category: 'clothing', location: 'body', part: 'sleeves' },
-        statements: [
-          { text: 'You wear a shirt.', answer: true },
-          { text: 'A shirt is clothing.', answer: true },
-          { text: 'A shirt goes on your body.', answer: true },
-          { text: 'A shirt is a kind of animal.', answer: false },
-          { text: 'A shirt can have sleeves.', answer: true }
-        ],
-        imageOptions: ['shirt_1.png','shirt_2.png','shirt_3.png']
-      },
-      spoon: {
-        label: 'spoon', emoji: '🥄', category: 'utensil',
-        features: { color: 'silver', size: 'small', function: 'eat', category: 'utensil', location: 'kitchen', part: 'handle' },
-        statements: [
-          { text: 'A spoon helps you eat.', answer: true },
-          { text: 'A spoon is found in the kitchen.', answer: true },
-          { text: 'A spoon is clothing.', answer: false },
-          { text: 'A spoon has a handle.', answer: true },
-          { text: 'A spoon is as big as a bus.', answer: false }
-        ],
-        imageOptions: ['spoon_1.png','spoon_2.png','spoon_3.png']
-      },
-      bus: {
-        label: 'bus', emoji: '🚌', category: 'vehicle',
-        features: { color: 'yellow', size: 'big', function: 'drive', category: 'vehicle', location: 'road', part: 'wheels' },
-        statements: [
-          { text: 'A bus is a vehicle.', answer: true },
-          { text: 'A bus can be yellow.', answer: true },
-          { text: 'A bus drives on the road.', answer: true },
-          { text: 'A bus is tiny.', answer: false },
-          { text: 'A bus has wheels.', answer: true }
-        ],
-        imageOptions: ['bus_1.png','bus_2.png','bus_3.png']
-      },
-      chair: {
-        label: 'chair', emoji: '🪑', category: 'furniture',
-        features: { color: 'yellow', size: 'medium', function: 'sit', category: 'furniture', location: 'house', part: 'legs' },
-        statements: [
-          { text: 'You can sit on a chair.', answer: true },
-          { text: 'A chair is furniture.', answer: true },
-          { text: 'A chair usually has legs.', answer: true },
-          { text: 'A chair is food.', answer: false },
-          { text: 'A chair is found in a house or classroom.', answer: true }
-        ],
-        imageOptions: ['chair_1.png','chair_2.png','chair_3.png']
-      },
-      socks: {
-        label: 'socks', emoji: '🧦', category: 'clothing',
-        features: { color: 'striped', size: 'small', function: 'wear', category: 'clothing', location: 'feet', part: 'pair' },
-        statements: [
-          { text: 'You wear socks on your feet.', answer: true },
-          { text: 'Socks are clothing.', answer: true },
-          { text: 'Socks are usually worn as a pair.', answer: true },
-          { text: 'Socks are used to eat soup.', answer: false },
-          { text: 'Socks are usually small.', answer: true }
-        ],
-        imageOptions: ['socks_1.png','socks_2.png','socks_3.png']
-      },
-      book: {
-        label: 'book', emoji: '📘', category: 'school',
-        features: { color: 'blue', size: 'medium', function: 'read', category: 'book', location: 'school', part: 'pages' },
-        statements: [
-          { text: 'You can read a book.', answer: true },
-          { text: 'A book has pages.', answer: true },
-          { text: 'A book is something you wear.', answer: false },
-          { text: 'A book can be found at school.', answer: true },
-          { text: 'A book is alive.', answer: false }
-        ],
-        imageOptions: ['book_1.png','book_2.png','book_3.png']
-      },
-      cookie: {
-        label: 'cookie', emoji: '🍪', category: 'food',
-        features: { color: 'brown', size: 'small', function: 'eat', category: 'food', location: 'kitchen', part: 'chips' },
-        statements: [
-          { text: 'A cookie is food.', answer: true },
-          { text: 'You can eat a cookie.', answer: true },
-          { text: 'A cookie can have chips.', answer: true },
-          { text: 'A cookie is used to drive to school.', answer: false },
-          { text: 'A cookie is usually small.', answer: true }
-        ],
-        imageOptions: ['cookie_1.png','cookie_2.png','cookie_3.png']
-      },
-      train: {
-        label: 'train', emoji: '🚆', category: 'vehicle',
-        features: { color: 'blue', size: 'big', function: 'ride', category: 'vehicle', location: 'tracks', part: 'cars' },
-        statements: [
-          { text: 'A train rides on tracks.', answer: true },
-          { text: 'A train is a vehicle.', answer: true },
-          { text: 'A train is usually big.', answer: true },
-          { text: 'A train is something you drink.', answer: false },
-          { text: 'A train has train cars.', answer: true }
-        ],
-        imageOptions: ['train_1.png','train_2.png','train_3.png']
-      },
-      jacket: {
-        label: 'jacket', emoji: '🧥', category: 'clothing',
-        features: { color: 'yellow', size: 'medium', function: 'wear', category: 'clothing', location: 'body', part: 'hood' },
-        statements: [
-          { text: 'You wear a jacket.', answer: true },
-          { text: 'A jacket is clothing.', answer: true },
-          { text: 'A jacket can keep you warm.', answer: true },
-          { text: 'A jacket is a fruit.', answer: false },
-          { text: 'Some jackets have a hood.', answer: true }
-        ],
-        imageOptions: ['jacket_1.png','jacket_2.png','jacket_3.png']
-      },
-      plate: {
-        label: 'plate', emoji: '🍽️', category: 'household',
-        features: { color: 'white', size: 'medium', function: 'hold food', category: 'dish', location: 'kitchen', part: 'rim' },
-        statements: [
-          { text: 'A plate can hold food.', answer: true },
-          { text: 'A plate is found in the kitchen.', answer: true },
-          { text: 'A plate is a kind of clothing.', answer: false },
-          { text: 'A plate can be white.', answer: true },
-          { text: 'A plate is usually round.', answer: true }
-        ],
-        imageOptions: ['plate_1.png','plate_2.png','plate_3.png']
-      },
-      pencil: {
-        label: 'pencil', emoji: '✏️', category: 'school',
-        features: { color: 'yellow', size: 'small', function: 'write', category: 'school item', location: 'school', part: 'eraser' },
-        statements: [
-          { text: 'You can write with a pencil.', answer: true },
-          { text: 'A pencil is used at school.', answer: true },
-          { text: 'A pencil is usually small.', answer: true },
-          { text: 'A pencil is something you wear on your feet.', answer: false },
-          { text: 'A pencil can have an eraser.', answer: true }
-        ],
-        imageOptions: ['pencil_1.png','pencil_2.png','pencil_3.png']
-      },
-      orange: {
-        label: 'orange', emoji: '🍊', category: 'food',
-        features: { color: 'orange', size: 'small', function: 'eat', category: 'fruit', location: 'tree', part: 'peel' },
-        statements: [
-          { text: 'An orange is a fruit.', answer: true },
-          { text: 'An orange can be orange.', answer: true },
-          { text: 'You can eat an orange.', answer: true },
-          { text: 'An orange is a vehicle.', answer: false },
-          { text: 'An orange has a peel.', answer: true }
-        ],
-        imageOptions: ['orange_1.png','orange_2.png','orange_3.png']
-      },
-      airplane: {
-        label: 'airplane', emoji: '✈️', category: 'vehicle',
-        features: { color: 'white', size: 'big', function: 'fly', category: 'vehicle', location: 'sky', part: 'wings' },
-        statements: [
-          { text: 'An airplane can fly.', answer: true },
-          { text: 'An airplane is a vehicle.', answer: true },
-          { text: 'An airplane is found in the sky.', answer: true },
-          { text: 'An airplane has wings.', answer: true },
-          { text: 'An airplane is tiny like an ant.', answer: false }
-        ],
-        imageOptions: ['airplane_1.png','airplane_2.png','airplane_3.png']
-      },
-      pants: {
-        label: 'pants', emoji: '👖', category: 'clothing',
-        features: { color: 'blue', size: 'medium', function: 'wear', category: 'clothing', location: 'legs', part: 'legs' },
-        statements: [
-          { text: 'You wear pants.', answer: true },
-          { text: 'Pants go on your legs.', answer: true },
-          { text: 'Pants are clothing.', answer: true },
-          { text: 'Pants are used to eat cereal.', answer: false },
-          { text: 'Pants can be blue.', answer: true }
-        ],
-        imageOptions: ['pants_1.png','pants_2.png','pants_3.png']
-      },
-      cup: {
-        label: 'cup', emoji: '🥤', category: 'household',
-        features: { color: 'red', size: 'small', function: 'drink', category: 'dish', location: 'kitchen', part: 'rim' },
-        statements: [
-          { text: 'A cup can hold a drink.', answer: true },
-          { text: 'A cup is found in the kitchen.', answer: true },
-          { text: 'A cup is clothing.', answer: false },
-          { text: 'A cup can be small.', answer: true },
-          { text: 'You drink from a cup.', answer: true }
-        ],
-        imageOptions: ['cup_1.png','cup_2.png','cup_3.png']
-      },
-      fork: {
-        label: 'fork', emoji: '🍴', category: 'utensil',
-        features: { color: 'silver', size: 'small', function: 'eat', category: 'utensil', location: 'kitchen', part: 'prongs' },
-        statements: [
-          { text: 'A fork helps you eat.', answer: true },
-          { text: 'A fork is a utensil.', answer: true },
-          { text: 'A fork has prongs.', answer: true },
-          { text: 'A fork is used to sleep.', answer: false },
-          { text: 'A fork can be found in the kitchen.', answer: true }
-        ],
-        imageOptions: ['fork_1.png','fork_2.png','fork_3.png']
-      },
-      cracker: {
-        label: 'cracker', emoji: '🟨', category: 'food',
-        features: { color: 'yellow', size: 'small', function: 'eat', category: 'food', location: 'kitchen', part: 'square shape' },
-        statements: [
-          { text: 'A cracker is food.', answer: true },
-          { text: 'You can eat a cracker.', answer: true },
-          { text: 'A cracker is usually small.', answer: true },
-          { text: 'A cracker is a kind of car.', answer: false },
-          { text: 'A cracker can be square.', answer: true }
-        ],
-        imageOptions: ['cracker_1.png','cracker_2.png','cracker_3.png']
-      },
-      truck: {
-        label: 'truck', emoji: '🚚', category: 'vehicle',
-        features: { color: 'blue', size: 'big', function: 'drive', category: 'vehicle', location: 'road', part: 'tires' },
-        statements: [
-          { text: 'A truck is a vehicle.', answer: true },
-          { text: 'A truck drives on the road.', answer: true },
-          { text: 'A truck is usually big.', answer: true },
-          { text: 'A truck is a kind of fruit.', answer: false },
-          { text: 'A truck has tires.', answer: true }
-        ],
-        imageOptions: ['truck_1.png','truck_2.png','truck_3.png']
-      },
-      bed: {
-        label: 'bed', emoji: '🛏️', category: 'furniture',
-        features: { color: 'blue', size: 'big', function: 'sleep', category: 'furniture', location: 'bedroom', part: 'blanket' },
-        statements: [
-          { text: 'You sleep in a bed.', answer: true },
-          { text: 'A bed is furniture.', answer: true },
-          { text: 'A bed is usually found in a bedroom.', answer: true },
-          { text: 'A bed is small like a spoon.', answer: false },
-          { text: 'A bed can have a blanket.', answer: true }
-        ],
-        imageOptions: ['bed_1.png','bed_2.png','bed_3.png']
-      },
-      hat: {
-        label: 'hat', emoji: '🧢', category: 'clothing',
-        features: { color: 'blue', size: 'small', function: 'wear', category: 'clothing', location: 'head', part: 'brim' },
-        statements: [
-          { text: 'You wear a hat on your head.', answer: true },
-          { text: 'A hat is clothing.', answer: true },
-          { text: 'A hat can have a brim.', answer: true },
-          { text: 'A hat is used to drive a bus.', answer: false },
-          { text: 'A hat is usually smaller than a bed.', answer: true }
-        ],
-        imageOptions: ['hat_1.png','hat_2.png','hat_3.png']
-      },
-      phone: {
-        label: 'phone', emoji: '📱', category: 'object',
-        features: { color: 'black', size: 'small', function: 'call', category: 'device', location: 'house', part: 'screen' },
-        statements: [
-          { text: 'A phone can be used to call.', answer: true },
-          { text: 'A phone has a screen.', answer: true },
-          { text: 'A phone is something to eat.', answer: false },
-          { text: 'A phone is usually small enough to hold.', answer: true },
-          { text: 'A phone is a kind of animal.', answer: false }
-        ],
-        imageOptions: ['phone_1.png','phone_2.png','phone_3.png']
-      },
-      bottle: {
-        label: 'bottle', emoji: '🍼', category: 'household',
-        features: { color: 'blue', size: 'small', function: 'drink', category: 'container', location: 'kitchen', part: 'cap' },
-        statements: [
-          { text: 'A bottle can hold a drink.', answer: true },
-          { text: 'A bottle can have a cap.', answer: true },
-          { text: 'A bottle is usually small enough to hold.', answer: true },
-          { text: 'A bottle is clothing.', answer: false },
-          { text: 'You may find a bottle in the kitchen.', answer: true }
-        ],
-        imageOptions: ['bottle_1.png','bottle_2.png','bottle_3.png']
-      },
-      glasses: {
-        label: 'glasses', emoji: '👓', category: 'object',
-        features: { color: 'black', size: 'small', function: 'see', category: 'accessory', location: 'face', part: 'lenses' },
-        statements: [
-          { text: 'Glasses help some people see.', answer: true },
-          { text: 'Glasses go on your face.', answer: true },
-          { text: 'Glasses have lenses.', answer: true },
-          { text: 'Glasses are something to eat.', answer: false },
-          { text: 'Glasses are usually small.', answer: true }
-        ],
-        imageOptions: ['glasses_1.png','glasses_2.png','glasses_3.png']
-      },
-      door: {
-        label: 'door', emoji: '🚪', category: 'household',
-        features: { color: 'brown', size: 'big', function: 'open', category: 'house part', location: 'house', part: 'handle' },
-        statements: [
-          { text: 'A door can open and close.', answer: true },
-          { text: 'A door is part of a house or building.', answer: true },
-          { text: 'A door can have a handle.', answer: true },
-          { text: 'A door is a kind of food.', answer: false },
-          { text: 'A door is usually big.', answer: true }
-        ],
-        imageOptions: ['door_1.png','door_2.png','door_3.png']
-      },
-      shoes: {
-        label: 'shoes', emoji: '👟', category: 'clothing',
-        features: { color: 'red', size: 'medium', function: 'wear', category: 'clothing', location: 'feet', part: 'laces' },
-        statements: [
-          { text: 'You wear shoes on your feet.', answer: true },
-          { text: 'Shoes are clothing.', answer: true },
-          { text: 'Some shoes have laces.', answer: true },
-          { text: 'Shoes are used to eat dinner.', answer: false },
-          { text: 'Shoes are usually bigger than socks.', answer: true }
-        ],
-        imageOptions: ['shoes_1.png','shoes_2.png','shoes_3.png']
-      },
-      crayon: {
-        label: 'crayon', emoji: '🖍️', category: 'school',
-        features: { color: 'blue', size: 'small', function: 'color', category: 'school item', location: 'school', part: 'tip' },
-        statements: [
-          { text: 'A crayon is used to color.', answer: true },
-          { text: 'A crayon is a school item.', answer: true },
-          { text: 'A crayon is usually small.', answer: true },
-          { text: 'A crayon is something you drink.', answer: false },
-          { text: 'A crayon has a tip.', answer: true }
-        ],
-        imageOptions: ['crayon_1.png','crayon_2.png','crayon_3.png']
-      }
+      apple: { label: 'apple', emoji: '🍎', features: { color: 'red', size: 'small', function: 'eat', category: 'fruit', location: 'tree', part: 'stem' }, statements: [
+        { text: 'The apple is red.', answer: true }, { text: 'You can eat an apple.', answer: true }, { text: 'An apple is a fruit.', answer: true }, { text: 'An apple is bigger than a bus.', answer: false }, { text: 'An apple grows on a tree.', answer: true }
+      ], imageOptions: ['apple_1.png','apple_2.png','apple_3.png'] },
+      banana: { label: 'banana', emoji: '🍌', features: { color: 'yellow', size: 'small', function: 'eat', category: 'fruit', location: 'tree', part: 'peel' }, statements: [
+        { text: 'The banana is yellow.', answer: true }, { text: 'You can drive a banana.', answer: false }, { text: 'A banana is a fruit.', answer: true }, { text: 'A banana has a peel.', answer: true }, { text: 'A banana is usually found in the sky.', answer: false }
+      ], imageOptions: ['banana_1.png','banana_2.png','banana_3.png'] },
+      ball: { label: 'ball', emoji: '🏀', features: { color: 'orange', size: 'medium', function: 'play', category: 'toy', location: 'court', part: 'round shape' }, statements: [
+        { text: 'The ball is used to play.', answer: true }, { text: 'A ball is a kind of food.', answer: false }, { text: 'A ball is round.', answer: true }, { text: 'A ball can be orange.', answer: true }, { text: 'A ball is worn on your feet.', answer: false }
+      ], imageOptions: ['ball_1.png','ball_2.png','ball_3.png'] },
+      car: { label: 'car', emoji: '🚗', features: { color: 'blue', size: 'medium', function: 'drive', category: 'vehicle', location: 'road', part: 'wheels' }, statements: [
+        { text: 'A car drives on the road.', answer: true }, { text: 'A car is a vehicle.', answer: true }, { text: 'A car has wheels.', answer: true }, { text: 'A car is something you eat.', answer: false }, { text: 'A car is smaller than a pencil.', answer: false }
+      ], imageOptions: ['car_1.png','car_2.png','car_3.png'] },
+      shirt: { label: 'shirt', emoji: '👕', features: { color: 'pink', size: 'medium', function: 'wear', category: 'clothing', location: 'body', part: 'sleeves' }, statements: [
+        { text: 'You wear a shirt.', answer: true }, { text: 'A shirt is clothing.', answer: true }, { text: 'A shirt goes on your body.', answer: true }, { text: 'A shirt is a kind of animal.', answer: false }, { text: 'A shirt can have sleeves.', answer: true }
+      ], imageOptions: ['shirt_1.png','shirt_2.png','shirt_3.png'] },
+      spoon: { label: 'spoon', emoji: '🥄', features: { color: 'silver', size: 'small', function: 'eat', category: 'utensil', location: 'kitchen', part: 'handle' }, statements: [
+        { text: 'A spoon helps you eat.', answer: true }, { text: 'A spoon is found in the kitchen.', answer: true }, { text: 'A spoon is clothing.', answer: false }, { text: 'A spoon has a handle.', answer: true }, { text: 'A spoon is as big as a bus.', answer: false }
+      ], imageOptions: ['spoon_1.png','spoon_2.png','spoon_3.png'] },
+      bus: { label: 'bus', emoji: '🚌', features: { color: 'yellow', size: 'big', function: 'drive', category: 'vehicle', location: 'road', part: 'wheels' }, statements: [
+        { text: 'A bus is a vehicle.', answer: true }, { text: 'A bus can be yellow.', answer: true }, { text: 'A bus drives on the road.', answer: true }, { text: 'A bus is tiny.', answer: false }, { text: 'A bus has wheels.', answer: true }
+      ], imageOptions: ['bus_1.png','bus_2.png','bus_3.png'] },
+      chair: { label: 'chair', emoji: '🪑', features: { color: 'yellow', size: 'medium', function: 'sit', category: 'furniture', location: 'house', part: 'legs' }, statements: [
+        { text: 'You can sit on a chair.', answer: true }, { text: 'A chair is furniture.', answer: true }, { text: 'A chair usually has legs.', answer: true }, { text: 'A chair is food.', answer: false }, { text: 'A chair is found in a house or classroom.', answer: true }
+      ], imageOptions: ['chair_1.png','chair_2.png','chair_3.png'] },
+      socks: { label: 'socks', emoji: '🧦', features: { color: 'striped', size: 'small', function: 'wear', category: 'clothing', location: 'feet', part: 'pair' }, statements: [
+        { text: 'You wear socks on your feet.', answer: true }, { text: 'Socks are clothing.', answer: true }, { text: 'Socks are usually worn as a pair.', answer: true }, { text: 'Socks are used to eat soup.', answer: false }, { text: 'Socks are usually small.', answer: true }
+      ], imageOptions: ['socks_1.png','socks_2.png','socks_3.png'] },
+      book: { label: 'book', emoji: '📘', features: { color: 'blue', size: 'medium', function: 'read', category: 'book', location: 'school', part: 'pages' }, statements: [
+        { text: 'You can read a book.', answer: true }, { text: 'A book has pages.', answer: true }, { text: 'A book is something you wear.', answer: false }, { text: 'A book can be found at school.', answer: true }, { text: 'A book is alive.', answer: false }
+      ], imageOptions: ['book_1.png','book_2.png','book_3.png'] },
+      cookie: { label: 'cookie', emoji: '🍪', features: { color: 'brown', size: 'small', function: 'eat', category: 'food', location: 'kitchen', part: 'chips' }, statements: [
+        { text: 'A cookie is food.', answer: true }, { text: 'You can eat a cookie.', answer: true }, { text: 'A cookie can have chips.', answer: true }, { text: 'A cookie is used to drive to school.', answer: false }, { text: 'A cookie is usually small.', answer: true }
+      ], imageOptions: ['cookie_1.png','cookie_2.png','cookie_3.png'] },
+      train: { label: 'train', emoji: '🚆', features: { color: 'blue', size: 'big', function: 'ride', category: 'vehicle', location: 'tracks', part: 'cars' }, statements: [
+        { text: 'A train rides on tracks.', answer: true }, { text: 'A train is a vehicle.', answer: true }, { text: 'A train is usually big.', answer: true }, { text: 'A train is something you drink.', answer: false }, { text: 'A train has train cars.', answer: true }
+      ], imageOptions: ['train_1.png','train_2.png','train_3.png'] },
+      jacket: { label: 'jacket', emoji: '🧥', features: { color: 'yellow', size: 'medium', function: 'wear', category: 'clothing', location: 'body', part: 'hood' }, statements: [
+        { text: 'You wear a jacket.', answer: true }, { text: 'A jacket is clothing.', answer: true }, { text: 'A jacket can keep you warm.', answer: true }, { text: 'A jacket is a fruit.', answer: false }, { text: 'Some jackets have a hood.', answer: true }
+      ], imageOptions: ['jacket_1.png','jacket_2.png','jacket_3.png'] },
+      plate: { label: 'plate', emoji: '🍽️', features: { color: 'white', size: 'medium', function: 'hold food', category: 'dish', location: 'kitchen', part: 'rim' }, statements: [
+        { text: 'A plate can hold food.', answer: true }, { text: 'A plate is found in the kitchen.', answer: true }, { text: 'A plate is a kind of clothing.', answer: false }, { text: 'A plate can be white.', answer: true }, { text: 'A plate is usually round.', answer: true }
+      ], imageOptions: ['plate_1.png','plate_2.png','plate_3.png'] },
+      pencil: { label: 'pencil', emoji: '✏️', features: { color: 'yellow', size: 'small', function: 'write', category: 'school item', location: 'school', part: 'eraser' }, statements: [
+        { text: 'You can write with a pencil.', answer: true }, { text: 'A pencil is used at school.', answer: true }, { text: 'A pencil is usually small.', answer: true }, { text: 'A pencil is something you wear on your feet.', answer: false }, { text: 'A pencil can have an eraser.', answer: true }
+      ], imageOptions: ['pencil_1.png','pencil_2.png','pencil_3.png'] },
+      orange: { label: 'orange', emoji: '🍊', features: { color: 'orange', size: 'small', function: 'eat', category: 'fruit', location: 'tree', part: 'peel' }, statements: [
+        { text: 'An orange is a fruit.', answer: true }, { text: 'An orange can be orange.', answer: true }, { text: 'You can eat an orange.', answer: true }, { text: 'An orange is a vehicle.', answer: false }, { text: 'An orange has a peel.', answer: true }
+      ], imageOptions: ['orange_1.png','orange_2.png','orange_3.png'] },
+      airplane: { label: 'airplane', emoji: '✈️', features: { color: 'white', size: 'big', function: 'fly', category: 'vehicle', location: 'sky', part: 'wings' }, statements: [
+        { text: 'An airplane can fly.', answer: true }, { text: 'An airplane is a vehicle.', answer: true }, { text: 'An airplane is found in the sky.', answer: true }, { text: 'An airplane has wings.', answer: true }, { text: 'An airplane is tiny like an ant.', answer: false }
+      ], imageOptions: ['airplane_1.png','airplane_2.png','airplane_3.png'] },
+      pants: { label: 'pants', emoji: '👖', features: { color: 'blue', size: 'medium', function: 'wear', category: 'clothing', location: 'legs', part: 'legs' }, statements: [
+        { text: 'You wear pants.', answer: true }, { text: 'Pants go on your legs.', answer: true }, { text: 'Pants are clothing.', answer: true }, { text: 'Pants are used to eat cereal.', answer: false }, { text: 'Pants can be blue.', answer: true }
+      ], imageOptions: ['pants_1.png','pants_2.png','pants_3.png'] },
+      cup: { label: 'cup', emoji: '🥤', features: { color: 'red', size: 'small', function: 'drink', category: 'dish', location: 'kitchen', part: 'rim' }, statements: [
+        { text: 'A cup can hold a drink.', answer: true }, { text: 'A cup is found in the kitchen.', answer: true }, { text: 'A cup is clothing.', answer: false }, { text: 'A cup can be small.', answer: true }, { text: 'You drink from a cup.', answer: true }
+      ], imageOptions: ['cup_1.png','cup_2.png','cup_3.png'] },
+      fork: { label: 'fork', emoji: '🍴', features: { color: 'silver', size: 'small', function: 'eat', category: 'utensil', location: 'kitchen', part: 'prongs' }, statements: [
+        { text: 'A fork helps you eat.', answer: true }, { text: 'A fork is a utensil.', answer: true }, { text: 'A fork has prongs.', answer: true }, { text: 'A fork is used to sleep.', answer: false }, { text: 'A fork can be found in the kitchen.', answer: true }
+      ], imageOptions: ['fork_1.png','fork_2.png','fork_3.png'] },
+      cracker: { label: 'cracker', emoji: '🟨', features: { color: 'yellow', size: 'small', function: 'eat', category: 'food', location: 'kitchen', part: 'square shape' }, statements: [
+        { text: 'A cracker is food.', answer: true }, { text: 'You can eat a cracker.', answer: true }, { text: 'A cracker is usually small.', answer: true }, { text: 'A cracker is a kind of car.', answer: false }, { text: 'A cracker can be square.', answer: true }
+      ], imageOptions: ['cracker_1.png','cracker_2.png','cracker_3.png'] },
+      truck: { label: 'truck', emoji: '🚚', features: { color: 'blue', size: 'big', function: 'drive', category: 'vehicle', location: 'road', part: 'tires' }, statements: [
+        { text: 'A truck is a vehicle.', answer: true }, { text: 'A truck drives on the road.', answer: true }, { text: 'A truck is usually big.', answer: true }, { text: 'A truck is a kind of fruit.', answer: false }, { text: 'A truck has tires.', answer: true }
+      ], imageOptions: ['truck_1.png','truck_2.png','truck_3.png'] },
+      bed: { label: 'bed', emoji: '🛏️', features: { color: 'blue', size: 'big', function: 'sleep', category: 'furniture', location: 'bedroom', part: 'blanket' }, statements: [
+        { text: 'You sleep in a bed.', answer: true }, { text: 'A bed is furniture.', answer: true }, { text: 'A bed is usually found in a bedroom.', answer: true }, { text: 'A bed is small like a spoon.', answer: false }, { text: 'A bed can have a blanket.', answer: true }
+      ], imageOptions: ['bed_1.png','bed_2.png','bed_3.png'] },
+      hat: { label: 'hat', emoji: '🧢', features: { color: 'blue', size: 'small', function: 'wear', category: 'clothing', location: 'head', part: 'brim' }, statements: [
+        { text: 'You wear a hat on your head.', answer: true }, { text: 'A hat is clothing.', answer: true }, { text: 'A hat can have a brim.', answer: true }, { text: 'A hat is used to drive a bus.', answer: false }, { text: 'A hat is usually smaller than a bed.', answer: true }
+      ], imageOptions: ['hat_1.png','hat_2.png','hat_3.png'] },
+      phone: { label: 'phone', emoji: '📱', features: { color: 'black', size: 'small', function: 'call', category: 'device', location: 'house', part: 'screen' }, statements: [
+        { text: 'A phone can be used to call.', answer: true }, { text: 'A phone has a screen.', answer: true }, { text: 'A phone is something to eat.', answer: false }, { text: 'A phone is usually small enough to hold.', answer: true }, { text: 'A phone is a kind of animal.', answer: false }
+      ], imageOptions: ['phone_1.png','phone_2.png','phone_3.png'] },
+      bottle: { label: 'bottle', emoji: '🍼', features: { color: 'blue', size: 'small', function: 'drink', category: 'container', location: 'kitchen', part: 'cap' }, statements: [
+        { text: 'A bottle can hold a drink.', answer: true }, { text: 'A bottle can have a cap.', answer: true }, { text: 'A bottle is usually small enough to hold.', answer: true }, { text: 'A bottle is clothing.', answer: false }, { text: 'You may find a bottle in the kitchen.', answer: true }
+      ], imageOptions: ['bottle_1.png','bottle_2.png','bottle_3.png'] },
+      glasses: { label: 'glasses', emoji: '👓', features: { color: 'black', size: 'small', function: 'see', category: 'accessory', location: 'face', part: 'lenses' }, statements: [
+        { text: 'Glasses help some people see.', answer: true }, { text: 'Glasses go on your face.', answer: true }, { text: 'Glasses have lenses.', answer: true }, { text: 'Glasses are something to eat.', answer: false }, { text: 'Glasses are usually small.', answer: true }
+      ], imageOptions: ['glasses_1.png','glasses_2.png','glasses_3.png'] },
+      door: { label: 'door', emoji: '🚪', features: { color: 'brown', size: 'big', function: 'open', category: 'house part', location: 'house', part: 'handle' }, statements: [
+        { text: 'A door can open and close.', answer: true }, { text: 'A door is part of a house or building.', answer: true }, { text: 'A door can have a handle.', answer: true }, { text: 'A door is a kind of food.', answer: false }, { text: 'A door is usually big.', answer: true }
+      ], imageOptions: ['door_1.png','door_2.png','door_3.png'] },
+      shoes: { label: 'shoes', emoji: '👟', features: { color: 'red', size: 'medium', function: 'wear', category: 'clothing', location: 'feet', part: 'laces' }, statements: [
+        { text: 'You wear shoes on your feet.', answer: true }, { text: 'Shoes are clothing.', answer: true }, { text: 'Some shoes have laces.', answer: true }, { text: 'Shoes are used to eat dinner.', answer: false }, { text: 'Shoes are usually bigger than socks.', answer: true }
+      ], imageOptions: ['shoes_1.png','shoes_2.png','shoes_3.png'] },
+      crayon: { label: 'crayon', emoji: '🖍️', features: { color: 'blue', size: 'small', function: 'color', category: 'school item', location: 'school', part: 'tip' }, statements: [
+        { text: 'A crayon is used to color.', answer: true }, { text: 'A crayon is a school item.', answer: true }, { text: 'A crayon is usually small.', answer: true }, { text: 'A crayon is something you drink.', answer: false }, { text: 'A crayon has a tip.', answer: true }
+      ], imageOptions: ['crayon_1.png','crayon_2.png','crayon_3.png'] }
     };
 
     const SETS = [
@@ -917,74 +308,38 @@
 
     const DISTRACTOR_POOL = Object.keys(ITEM_BANK);
     const FEATURE_TYPES = ['color', 'function', 'category', 'location'];
-
-    const state = {
-      setIndex: null,
-      trials: [],
-      currentIndex: 0,
-      score: 0,
-      stars: 0,
-      correct: 0,
-      total: 0,
-      streak: 0,
-      selectedMulti: new Set(),
-      awaitingNext: false,
-      currentCorrectAnswer: null,
-      selectedSingleButton: null,
-      currentImageCorrectName: null
+    const FEATURE_VISUALS = { color: '🎨', function: '⚙️', category: '🗂️', location: '📍', yes: '✅', no: '❌', image: '🖼️', multi: '⭐' };
+    const VALUE_VISUALS = {
+      red:'🔴', blue:'🔵', green:'🟢', yellow:'🟡', orange:'🟠', pink:'🩷', white:'⚪', brown:'🟤', black:'⚫', silver:'🔘', striped:'🧦',
+      eat:'🍽️', drink:'🥤', play:'🎲', drive:'🚗', wear:'👕', sit:'🪑', read:'📖', ride:'🚆', write:'✏️', fly:'✈️', sleep:'😴', call:'📞', see:'👀', color:'🖍️', 'hold food':'🍽️',
+      fruit:'🍎', food:'🍪', toy:'🧸', vehicle:'🚌', clothing:'👕', furniture:'🪑', utensil:'🍴', book:'📘', dish:'🍽️', 'school item':'🏫', device:'📱', container:'🍼', accessory:'👓', 'house part':'🚪',
+      tree:'🌳', road:'🛣️', court:'🏀', body:'🧍', kitchen:'🍴', feet:'🦶', school:'🏫', tracks:'🛤️', sky:'☁️', legs:'🦵', house:'🏠', bedroom:'🛏️', head:'🙂', face:'😊', small:'🤏', medium:'📏', big:'🦕'
     };
+
+    const state = { setIndex: null, trials: [], currentIndex: 0, score: 0, stars: 0, correct: 0, total: 0, streak: 0, selectedMulti: new Set(), awaitingNext: false };
 
     const el = {
-      homeScreen: document.getElementById('homeScreen'),
-      gameScreen: document.getElementById('gameScreen'),
-      summaryScreen: document.getElementById('summaryScreen'),
-      homeGrid: document.getElementById('homeGrid'),
-      stimulusContainer: document.getElementById('stimulusContainer'),
-      roundBadge: document.getElementById('roundBadge'),
-      questionText: document.getElementById('questionText'),
-      supportText: document.getElementById('supportText'),
-      responseArea: document.getElementById('responseArea'),
-      feedback: document.getElementById('feedback'),
-      nextBtn: document.getElementById('nextBtn'),
-      checkBtn: document.getElementById('checkBtn'),
-      backHomeBtn: document.getElementById('backHomeBtn'),
-      playAgainBtn: document.getElementById('playAgainBtn'),
-      chooseSetBtn: document.getElementById('chooseSetBtn'),
-      showNumbersToggle: document.getElementById('showNumbersToggle'),
-      soundToggle: document.getElementById('soundToggle'),
-      labelImagesToggle: document.getElementById('labelImagesToggle'),
-      setTitle: document.getElementById('setTitle'),
-      roundCounter: document.getElementById('roundCounter'),
-      progressFill: document.getElementById('progressFill'),
-      starPill: document.getElementById('starPill'),
-      scorePill: document.getElementById('scorePill'),
-      summaryTitle: document.getElementById('summaryTitle'),
-      summaryStars: document.getElementById('summaryStars'),
-      summaryCorrect: document.getElementById('summaryCorrect'),
-      summaryAccuracy: document.getElementById('summaryAccuracy'),
-      streakBadge: document.getElementById('streakBadge')
+      homeScreen: document.getElementById('homeScreen'), gameScreen: document.getElementById('gameScreen'), summaryScreen: document.getElementById('summaryScreen'),
+      homeGrid: document.getElementById('homeGrid'), stimulusContainer: document.getElementById('stimulusContainer'), roundBadge: document.getElementById('roundBadge'),
+      questionText: document.getElementById('questionText'), supportText: document.getElementById('supportText'), miniPromptRow: document.getElementById('miniPromptRow'),
+      responseArea: document.getElementById('responseArea'), feedback: document.getElementById('feedback'), nextBtn: document.getElementById('nextBtn'), checkBtn: document.getElementById('checkBtn'),
+      backHomeBtn: document.getElementById('backHomeBtn'), playAgainBtn: document.getElementById('playAgainBtn'), chooseSetBtn: document.getElementById('chooseSetBtn'),
+      showNumbersToggle: document.getElementById('showNumbersToggle'), soundToggle: document.getElementById('soundToggle'), voiceToggle: document.getElementById('voiceToggle'),
+      labelImagesToggle: document.getElementById('labelImagesToggle'), setTitle: document.getElementById('setTitle'), roundCounter: document.getElementById('roundCounter'),
+      progressFill: document.getElementById('progressFill'), starPill: document.getElementById('starPill'), scorePill: document.getElementById('scorePill'),
+      summaryTitle: document.getElementById('summaryTitle'), summaryStars: document.getElementById('summaryStars'), summaryCorrect: document.getElementById('summaryCorrect'),
+      summaryAccuracy: document.getElementById('summaryAccuracy'), streakBadge: document.getElementById('streakBadge')
     };
 
-    function shuffle(arr) {
-      const copy = [...arr];
-      for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-      }
-      return copy;
-    }
-
-    function sample(arr, n) {
-      return shuffle(arr).slice(0, n);
-    }
-
-    function randomOf(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
+    function shuffle(arr) { const copy = [...arr]; for (let i = copy.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [copy[i], copy[j]] = [copy[j], copy[i]]; } return copy; }
+    function sample(arr, n) { return shuffle(arr).slice(0, n); }
+    function randomOf(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
     function showScreen(screen) {
       [el.homeScreen, el.gameScreen, el.summaryScreen].forEach(s => s.classList.remove('active'));
       screen.classList.add('active');
+      stopSpeaking();
     }
 
     function buildHome() {
@@ -992,17 +347,10 @@
       SETS.forEach((set, index) => {
         const btn = document.createElement('button');
         btn.className = 'set-btn';
-        btn.innerHTML = `
-          <h3>${set.name}</h3>
-          <div class="set-items">${set.items.map(k => capitalize(ITEM_BANK[k].label)).join(' • ')}</div>
-        `;
+        btn.innerHTML = `<h3>${set.name}</h3><div class="set-items">${set.items.map(k => capitalize(ITEM_BANK[k].label)).join(' • ')}</div>`;
         btn.addEventListener('click', () => startSet(index));
         el.homeGrid.appendChild(btn);
       });
-    }
-
-    function capitalize(str) {
-      return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     function startSet(index) {
@@ -1023,24 +371,11 @@
       const trials = [];
       set.items.forEach(itemKey => {
         const item = ITEM_BANK[itemKey];
-
-        item.statements.forEach(st => {
-          trials.push({
-            type: 'yesno',
-            itemKey,
-            prompt: st.text,
-            answer: st.answer
-          });
-        });
-
-        FEATURE_TYPES.forEach(featureType => {
-          trials.push(buildFeatureChoiceTrial(itemKey, featureType));
-        });
-
-        trials.push(buildImageChoiceTrial(itemKey, set.items));
+        item.statements.forEach(st => trials.push({ type:'yesno', itemKey, prompt: st.text, answer: st.answer }));
+        FEATURE_TYPES.forEach(featureType => trials.push(buildFeatureChoiceTrial(itemKey, featureType)));
+        trials.push(buildImageChoiceTrial(itemKey));
         trials.push(buildMultiSelectTrial(itemKey));
       });
-
       return trials;
     }
 
@@ -1050,37 +385,19 @@
       const allValues = [...new Set(Object.values(ITEM_BANK).map(v => v.features[featureType]).filter(Boolean))];
       const distractors = sample(allValues.filter(v => v !== correct), 3);
       const options = shuffle([correct, ...distractors]);
-
       const prompts = {
         color: `What color is the ${item.label}?`,
         function: `What do you do with the ${item.label}?`,
         category: `${capitalize(item.label)} is a...`,
         location: `Where do you find the ${item.label}?`
       };
-
-      return {
-        type: 'featureChoice',
-        itemKey,
-        featureType,
-        prompt: prompts[featureType],
-        answer: correct,
-        options
-      };
+      return { type:'featureChoice', itemKey, featureType, prompt: prompts[featureType], answer: correct, options };
     }
 
-    function buildImageChoiceTrial(itemKey, setItems) {
+    function buildImageChoiceTrial(itemKey) {
       const otherKeys = shuffle(DISTRACTOR_POOL.filter(k => k !== itemKey)).slice(0, 3);
-      const options = shuffle([itemKey, ...otherKeys]).map(key => {
-        const img = randomOf(ITEM_BANK[key].imageOptions);
-        return { key, src: `assets/${img}`, label: ITEM_BANK[key].label };
-      });
-      return {
-        type: 'imageChoice',
-        itemKey,
-        prompt: `Which one is the ${ITEM_BANK[itemKey].label}?`,
-        answer: itemKey,
-        options
-      };
+      const options = shuffle([itemKey, ...otherKeys]).map(key => ({ key, src: `assets/${randomOf(ITEM_BANK[key].imageOptions)}`, label: ITEM_BANK[key].label }));
+      return { type:'imageChoice', itemKey, prompt: `Which one is the ${ITEM_BANK[itemKey].label}?`, answer: itemKey, options };
     }
 
     function buildMultiSelectTrial(itemKey) {
@@ -1091,47 +408,35 @@
         ...Object.values(ITEM_BANK).map(v => v.features.category),
         ...Object.values(ITEM_BANK).map(v => v.features.function)
       ])].filter(Boolean);
-      const distractorPool = allFeatureValues.filter(v => !corrects.includes(v));
-      const distractor = randomOf(distractorPool);
-      return {
-        type: 'multiSelect',
-        itemKey,
-        prompt: `Which choices are true about the ${item.label}?`,
-        answers: new Set(corrects),
-        options: shuffle([...corrects, distractor])
-      };
+      const distractor = randomOf(allFeatureValues.filter(v => !corrects.includes(v)));
+      return { type:'multiSelect', itemKey, prompt: `Which choices are true about the ${item.label}?`, answers: new Set(corrects), options: shuffle([...corrects, distractor]) };
     }
 
     function renderTrial() {
-      resetInteractionState();
+      state.awaitingNext = false;
+      state.selectedMulti = new Set();
       const trial = state.trials[state.currentIndex];
       const item = ITEM_BANK[trial.itemKey];
 
       el.setTitle.textContent = `${SETS[state.setIndex].name} • ${SETS[state.setIndex].items.map(k => capitalize(ITEM_BANK[k].label)).join(', ')}`;
       el.roundCounter.textContent = `Round ${state.currentIndex + 1} / ${state.trials.length}`;
-      el.progressFill.style.width = `${((state.currentIndex) / state.trials.length) * 100}%`;
+      el.progressFill.style.width = `${(state.currentIndex / state.trials.length) * 100}%`;
       el.questionText.textContent = trial.prompt;
+      el.supportText.textContent = supportTextForType(trial.type);
+      el.responseArea.innerHTML = '';
       el.feedback.textContent = '';
       el.feedback.className = 'feedback';
       el.nextBtn.style.display = 'none';
       el.checkBtn.style.display = 'none';
-      el.supportText.textContent = supportTextForType(trial.type);
-      el.responseArea.innerHTML = '';
-      renderStimulus(trial, item);
 
+      renderStimulus(trial, item);
+      renderMiniPromptRow(trial);
       if (trial.type === 'yesno') renderYesNo(trial);
       if (trial.type === 'featureChoice') renderFeatureChoice(trial);
       if (trial.type === 'imageChoice') renderImageChoice(trial);
       if (trial.type === 'multiSelect') renderMultiSelect(trial);
       updateHud();
-    }
-
-    function resetInteractionState() {
-      state.awaitingNext = false;
-      state.currentCorrectAnswer = null;
-      state.selectedMulti = new Set();
-      state.selectedSingleButton = null;
-      state.currentImageCorrectName = null;
+      speakPrompt(trial);
     }
 
     function supportTextForType(type) {
@@ -1143,46 +448,43 @@
     }
 
     function renderStimulus(trial, item) {
-      if (trial.type === 'imageChoice') {
-        const img = document.createElement('img');
-        img.className = 'real-stimulus';
-        img.src = `assets/${randomOf(item.imageOptions)}`;
-        img.alt = item.label;
-        el.stimulusContainer.innerHTML = '';
-        el.stimulusContainer.appendChild(img);
-      } else {
-        el.stimulusContainer.innerHTML = `
-          <div class="emoji-stimulus">${item.emoji}</div>
-          <div style="font-size:1.2rem;font-weight:800;">${capitalize(item.label)}</div>
-        `;
-      }
-
-      const badgeMap = {
-        yesno: 'True or False',
-        featureChoice: 'Name the Feature',
-        imageChoice: 'Find the Picture',
-        multiSelect: 'Pick All That Match'
-      };
+      const badgeMap = { yesno:'True or False', featureChoice:'Name the Feature', imageChoice:'Find the Picture', multiSelect:'Pick All That Match' };
       el.roundBadge.textContent = badgeMap[trial.type] || 'Round';
+      if (trial.type === 'imageChoice') {
+        el.stimulusContainer.innerHTML = `<img class="real-stimulus" src="assets/${randomOf(item.imageOptions)}" alt="${item.label}"><div style="font-size:1.2rem;font-weight:800;">${capitalize(item.label)}</div>`;
+      } else {
+        el.stimulusContainer.innerHTML = `<div class="emoji-stimulus">${item.emoji}</div><div style="font-size:1.2rem;font-weight:800;">${capitalize(item.label)}</div>`;
+      }
+    }
+
+    function renderMiniPromptRow(trial) {
+      const item = ITEM_BANK[trial.itemKey];
+      const chips = [];
+      if (trial.type === 'yesno') chips.push(`${FEATURE_VISUALS.yes} or ${FEATURE_VISUALS.no}`);
+      if (trial.type === 'featureChoice') chips.push(`${FEATURE_VISUALS[trial.featureType]} ${capitalize(trial.featureType)}`);
+      if (trial.type === 'imageChoice') chips.push(`${FEATURE_VISUALS.image} Find ${capitalize(item.label)}`);
+      if (trial.type === 'multiSelect') chips.push(`${FEATURE_VISUALS.multi} Pick all true answers`);
+      el.miniPromptRow.innerHTML = chips.map(c => `<span class="mini-prompt-chip">${c}</span>`).join('') + `<button class="speak-btn" id="speakBtn">🔊 Say It Again</button>`;
+      document.getElementById('speakBtn').addEventListener('click', () => speakPrompt(trial, true));
+    }
+
+    function makeChoiceContent(text) {
+      const visual = VALUE_VISUALS[text] || '✨';
+      return `<span class="choice-visual">${visual}</span><span class="choice-text">${capitalize(text)}</span>`;
     }
 
     function renderYesNo(trial) {
       const wrap = document.createElement('div');
       wrap.className = 'yesno-row';
-
       const yesBtn = document.createElement('button');
       yesBtn.className = 'yesno-btn yes-btn';
-      yesBtn.textContent = 'YES';
-      yesBtn.addEventListener('click', () => handleSingleAnswer(yesBtn, true, trial.answer));
-
+      yesBtn.innerHTML = '<span class="choice-visual">✅</span><span class="choice-text">YES</span>';
+      yesBtn.addEventListener('click', () => handleSingleAnswer(yesBtn, true, trial.answer, trial));
       const noBtn = document.createElement('button');
       noBtn.className = 'yesno-btn no-btn';
-      noBtn.textContent = 'NO';
-      noBtn.addEventListener('click', () => handleSingleAnswer(noBtn, false, trial.answer));
-
-      wrap.appendChild(yesBtn);
-      wrap.appendChild(noBtn);
-      el.responseArea.appendChild(wrap);
+      noBtn.innerHTML = '<span class="choice-visual">❌</span><span class="choice-text">NO</span>';
+      noBtn.addEventListener('click', () => handleSingleAnswer(noBtn, false, trial.answer, trial));
+      wrap.appendChild(yesBtn); wrap.appendChild(noBtn); el.responseArea.appendChild(wrap);
     }
 
     function renderFeatureChoice(trial) {
@@ -1191,8 +493,9 @@
       trial.options.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
-        btn.textContent = capitalize(opt);
-        btn.addEventListener('click', () => handleSingleAnswer(btn, opt, trial.answer));
+        btn.dataset.value = opt;
+        btn.innerHTML = makeChoiceContent(opt);
+        btn.addEventListener('click', () => handleSingleAnswer(btn, opt, trial.answer, trial));
         wrap.appendChild(btn);
       });
       el.responseArea.appendChild(wrap);
@@ -1204,11 +507,9 @@
       trial.options.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'image-choice-btn';
-        btn.innerHTML = `
-          <img src="${opt.src}" alt="${opt.label}">
-          <div class="image-label" style="display:${el.labelImagesToggle.checked ? 'block' : 'none'}">${capitalize(opt.label)}</div>
-        `;
-        btn.addEventListener('click', () => handleSingleAnswer(btn, opt.key, trial.answer));
+        btn.dataset.value = opt.key;
+        btn.innerHTML = `<img src="${opt.src}" alt="${opt.label}"><div class="image-label" style="display:${el.labelImagesToggle.checked ? 'block' : 'none'}">${capitalize(opt.label)}</div>`;
+        btn.addEventListener('click', () => handleSingleAnswer(btn, opt.key, trial.answer, trial));
         wrap.appendChild(btn);
       });
       el.responseArea.appendChild(wrap);
@@ -1220,17 +521,12 @@
       trial.options.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'multi-btn';
-        btn.textContent = capitalize(opt);
         btn.dataset.value = opt;
+        btn.innerHTML = makeChoiceContent(opt);
         btn.addEventListener('click', () => {
           if (state.awaitingNext) return;
-          if (state.selectedMulti.has(opt)) {
-            state.selectedMulti.delete(opt);
-            btn.classList.remove('selected');
-          } else {
-            state.selectedMulti.add(opt);
-            btn.classList.add('selected');
-          }
+          if (state.selectedMulti.has(opt)) { state.selectedMulti.delete(opt); btn.classList.remove('selected'); }
+          else { state.selectedMulti.add(opt); btn.classList.add('selected'); }
         });
         wrap.appendChild(btn);
       });
@@ -1238,28 +534,21 @@
       el.checkBtn.style.display = 'inline-block';
     }
 
-    function handleSingleAnswer(button, selected, correctAnswer) {
+    function handleSingleAnswer(button, selected, correctAnswer, trial) {
       if (state.awaitingNext) return;
       state.awaitingNext = true;
       state.total += 1;
       const isCorrect = selected === correctAnswer;
-      markSingleFeedback(button, correctAnswer);
-      registerOutcome(isCorrect, isCorrect ? 'Correct!' : `Not quite. Correct answer: ${capitalize(String(correctAnswer))}`);
-    }
-
-    function markSingleFeedback(clickedBtn, correctAnswer) {
       const buttons = el.responseArea.querySelectorAll('button');
       buttons.forEach(btn => {
-        const text = btn.textContent.trim().toLowerCase();
-        const datasetValue = (btn.dataset.value || '').toLowerCase();
-        if (btn === clickedBtn) btn.classList.add('selected');
-
-        const matchesText = text === String(correctAnswer).toLowerCase();
-        const matchesData = datasetValue === String(correctAnswer).toLowerCase();
-        if (matchesText || matchesData) btn.classList.add('correct');
+        const val = btn.dataset.value;
+        const txt = btn.textContent.trim().toLowerCase();
+        if (btn === button) btn.classList.add('selected');
+        if (trial.type === 'imageChoice' && val === String(correctAnswer)) btn.classList.add('correct');
+        if (trial.type !== 'imageChoice' && (val === String(correctAnswer) || txt === String(correctAnswer).toLowerCase())) btn.classList.add('correct');
       });
-
-      if (!clickedBtn.classList.contains('correct')) clickedBtn.classList.add('incorrect');
+      if (!button.classList.contains('correct')) button.classList.add('incorrect');
+      registerOutcome(isCorrect, isCorrect ? 'Correct!' : feedbackForTrial(trial));
     }
 
     function handleMultiCheck() {
@@ -1275,31 +564,25 @@
         if (isCorrectOption) btn.classList.add('correct');
         if (wasSelected && !isCorrectOption) btn.classList.add('incorrect');
       });
-
       const isCorrect = sameSet(state.selectedMulti, trial.answers);
       registerOutcome(isCorrect, isCorrect ? 'Great job! You found all the true features.' : 'Check the highlighted answers.');
     }
 
-    function sameSet(a, b) {
-      if (a.size !== b.size) return false;
-      for (const val of a) if (!b.has(val)) return false;
-      return true;
+    function feedbackForTrial(trial) {
+      if (trial.type === 'yesno') return `Not quite. The correct answer is ${trial.answer ? 'YES' : 'NO'}.`;
+      if (trial.type === 'imageChoice') return `Not quite. Find the picture of the ${ITEM_BANK[trial.answer].label}.`;
+      return `Not quite. Correct answer: ${capitalize(String(trial.answer))}.`;
     }
+
+    function sameSet(a, b) { if (a.size !== b.size) return false; for (const val of a) if (!b.has(val)) return false; return true; }
 
     function registerOutcome(isCorrect, message) {
       if (isCorrect) {
-        state.correct += 1;
-        state.score += 1;
-        state.stars += 1;
-        state.streak += 1;
-        el.feedback.className = 'feedback good';
-        playTone('good');
-        makeConfetti(18);
+        state.correct += 1; state.score += 1; state.stars += 1; state.streak += 1;
+        el.feedback.className = 'feedback good'; playTone('good'); makeConfetti(18);
         if (state.streak > 0 && state.streak % 3 === 0) showStreak();
       } else {
-        state.streak = 0;
-        el.feedback.className = 'feedback bad';
-        playTone('bad');
+        state.streak = 0; el.feedback.className = 'feedback bad'; playTone('bad');
       }
       el.feedback.textContent = message;
       el.nextBtn.style.display = 'inline-block';
@@ -1318,10 +601,7 @@
     }
 
     function nextTrial() {
-      if (state.currentIndex >= state.trials.length - 1) {
-        finishSet();
-        return;
-      }
+      if (state.currentIndex >= state.trials.length - 1) return finishSet();
       state.currentIndex += 1;
       renderTrial();
     }
@@ -1350,7 +630,6 @@
         piece.style.left = Math.random() * 100 + 'vw';
         piece.style.background = colors[Math.floor(Math.random() * colors.length)];
         piece.style.animationDuration = (1.8 + Math.random() * 1.6) + 's';
-        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
         document.body.appendChild(piece);
         setTimeout(() => piece.remove(), 3500);
       }
@@ -1362,45 +641,68 @@
       try {
         audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
         const now = audioCtx.currentTime;
-        if (kind === 'good') {
-          beep(523.25, now, 0.12, 0.03);
-          beep(659.25, now + 0.12, 0.12, 0.03);
-          beep(783.99, now + 0.24, 0.16, 0.03);
-        } else {
-          beep(220, now, 0.15, 0.05);
-          beep(185, now + 0.12, 0.18, 0.05);
-        }
-      } catch (err) {
-        console.log('Audio unavailable', err);
-      }
+        if (kind === 'good') { beep(523.25, now, 0.12); beep(659.25, now + 0.12, 0.12); beep(783.99, now + 0.24, 0.16); }
+        else { beep(220, now, 0.15); beep(185, now + 0.12, 0.18); }
+      } catch (err) { console.log('Audio unavailable', err); }
     }
 
-    function beep(freq, start, duration, fade) {
+    function beep(freq, start, duration) {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
+      osc.type = 'sine'; osc.frequency.value = freq;
       gain.gain.setValueAtTime(0.0001, start);
       gain.gain.exponentialRampToValueAtTime(0.18, start + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(start);
-      osc.stop(start + duration + fade);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(start); osc.stop(start + duration + 0.03);
+    }
+
+    let availableVoices = [];
+    function loadVoices() {
+      availableVoices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+    }
+    loadVoices();
+    if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = loadVoices;
+
+    function chooseVoice() {
+      if (!availableVoices.length) return null;
+      const preferred = availableVoices.find(v => /Samantha|Google US English|Jenny|Aria|Ava|Joanna|Emma/i.test(v.name));
+      return preferred || availableVoices.find(v => /en-US|en_US/i.test(v.lang)) || availableVoices[0];
+    }
+
+    function promptSpeechText(trial) {
+      if (trial.type === 'yesno') return `${trial.prompt} Choose yes or no.`;
+      if (trial.type === 'featureChoice') return trial.prompt;
+      if (trial.type === 'imageChoice') return `${trial.prompt} Point to the correct picture.`;
+      if (trial.type === 'multiSelect') return `${trial.prompt} Pick all that are true, then press check answers.`;
+      return trial.prompt;
+    }
+
+    function stopSpeaking() {
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+    }
+
+    function speakPrompt(trial, fromButton = false) {
+      if (!el.voiceToggle.checked || !('speechSynthesis' in window)) return;
+      stopSpeaking();
+      const utterance = new SpeechSynthesisUtterance(promptSpeechText(trial));
+      const voice = chooseVoice();
+      if (voice) utterance.voice = voice;
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+      utterance.volume = 1;
+      if (fromButton) utterance.rate = 0.92;
+      speechSynthesis.speak(utterance);
     }
 
     el.nextBtn.addEventListener('click', nextTrial);
     el.checkBtn.addEventListener('click', handleMultiCheck);
-    el.backHomeBtn.addEventListener('click', () => {
-      showScreen(el.homeScreen);
-      updateHud();
-    });
+    el.backHomeBtn.addEventListener('click', () => { showScreen(el.homeScreen); updateHud(); });
     el.playAgainBtn.addEventListener('click', () => startSet(state.setIndex));
     el.chooseSetBtn.addEventListener('click', () => showScreen(el.homeScreen));
     el.showNumbersToggle.addEventListener('change', updateHud);
-    el.labelImagesToggle.addEventListener('change', () => {
-      if (el.gameScreen.classList.contains('active')) renderTrial();
-    });
+    el.labelImagesToggle.addEventListener('change', () => { if (el.gameScreen.classList.contains('active')) renderTrial(); });
+    el.voiceToggle.addEventListener('change', () => { if (!el.voiceToggle.checked) stopSpeaking(); });
 
     buildHome();
     updateHud();
