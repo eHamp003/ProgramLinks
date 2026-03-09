@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hotspot Builder (Rectangles)</title>
+  <title>Hotspot Builder (Scavenger + Prepositions)</title>
   <style>
     :root{
       --bg1:#7dd3fc; --bg2:#a7f3d0; --card:#ffffffee; --ink:#0f172a; --muted:#475569;
-      --accent:#7c3aed; --accent2:#f97316; --good:#16a34a; --bad:#ef4444;
+      --accent:#7c3aed; --accent2:#f97316; --good:#16a34a; --bad:#ef4444; --info:#2563eb;
       --shadow: 0 18px 40px rgba(2,6,23,.18);
     }
     *{box-sizing:border-box}
@@ -22,7 +22,7 @@
         linear-gradient(135deg, var(--bg1), var(--bg2));
       overflow-x:hidden;
     }
-    .wrap{max-width:1200px;margin:0 auto;padding:18px 14px 28px;}
+    .wrap{max-width:1380px;margin:0 auto;padding:18px 14px 28px;}
     header{
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
       margin-bottom:12px;
@@ -48,11 +48,11 @@
     }
     .grid{
       display:grid;
-      grid-template-columns: 1.4fr .6fr;
+      grid-template-columns: 1.2fr .8fr;
       gap:14px;
       align-items:start;
     }
-    @media (max-width: 980px){ .grid{grid-template-columns:1fr;} }
+    @media (max-width: 1080px){ .grid{grid-template-columns:1fr;} }
 
     .panel{
       padding:12px; border-radius:18px; border:2px solid #e2e8f0; background:#fff;
@@ -61,18 +61,20 @@
     .panel h2{margin:0 0 8px 0; font-size:16px;}
     .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
     .row > *{flex:0 0 auto;}
+    .stack{display:flex; flex-direction:column; gap:10px;}
     label{font-size:12px;color:var(--muted);font-weight:800}
-    input[type="text"], input[type="number"]{
+    input[type="text"], input[type="number"], select, textarea{
       padding:10px 10px;
       border-radius:12px;
       border:2px solid #e2e8f0;
       outline:none;
       font-weight:700;
       width: 100%;
-      max-width: 320px;
       background:#fff;
     }
+    input[type="text"]{max-width:320px;}
     input[type="number"]{max-width:140px;}
+    select{max-width:320px;}
     .btn{
       border:0; cursor:pointer;
       padding:11px 14px; border-radius:999px;
@@ -88,11 +90,17 @@
       box-shadow: 0 12px 18px rgba(2,6,23,.10);
       user-select:none;
     }
-    .btn:disabled,.btn2:disabled{opacity:.6;cursor:not-allowed}
+    .btn3{
+      border:2px solid #bfdbfe; cursor:pointer;
+      padding:10px 12px; border-radius:999px;
+      background:#eff6ff; color:#1d4ed8; font-weight:900;
+      box-shadow: 0 12px 18px rgba(2,6,23,.08);
+      user-select:none;
+    }
+    .btn:disabled,.btn2:disabled,.btn3:disabled{opacity:.6;cursor:not-allowed}
     small{color:var(--muted)}
     .tip{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4}
 
-    /* Canvas stage */
     .stageWrap{
       padding:12px; border-radius:18px; border:2px solid #ffffffcc; background:#fff;
       box-shadow: 0 14px 26px rgba(2,6,23,.12);
@@ -116,21 +124,36 @@
       min-height: 260px;
       user-select:none;
     }
-    .stage img{
+    .stage img.baseImage, .stage img.fgImage{
       width:100%;
       height:auto;
       display:block;
       user-select:none;
       -webkit-user-drag:none;
+      pointer-events:none;
+    }
+    .fgImage{
+      position:absolute;
+      inset:0;
+    }
+    .previewItem{
+      position:absolute;
+      object-fit:contain;
+      pointer-events:none;
+      filter: drop-shadow(0 8px 14px rgba(2,6,23,.20));
+      opacity:.95;
     }
 
-    /* Hotspot rectangles */
     .rect{
       position:absolute;
       border: 3px solid rgba(124,58,237,.85);
       background: rgba(124,58,237,.18);
       border-radius: 12px;
       box-shadow: 0 10px 18px rgba(2,6,23,.10);
+    }
+    .rect.mode-zone{
+      border-color: rgba(37,99,235,.92);
+      background: rgba(37,99,235,.16);
     }
     .rect .tag{
       position:absolute;
@@ -144,6 +167,9 @@
       font-size: 12px;
       white-space: nowrap;
       transform: translateY(-2px);
+      max-width: calc(100% - 110px);
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .rect .actions{
       position:absolute;
@@ -167,7 +193,6 @@
     .mini:hover{filter:saturate(1.05)}
     .mini.danger{color:#fff;background:rgba(239,68,68,.95);border-color:rgba(239,68,68,.95)}
 
-    /* Drawing overlay (current drag) */
     .drawRect{
       position:absolute;
       border: 3px dashed rgba(249,115,22,.95);
@@ -176,12 +201,11 @@
       pointer-events:none;
     }
 
-    /* List */
     .list{
       display:flex;
       flex-direction:column;
       gap:10px;
-      max-height: 420px;
+      max-height: 520px;
       overflow:auto;
       padding-right: 4px;
     }
@@ -205,18 +229,13 @@
     }
     .pill.good{background:#f0fdf4;border-color:#bbf7d0}
     .pill.bad{background:#fff1f2;border-color:#fecaca}
+    .pill.info{background:#eff6ff;border-color:#bfdbfe}
     textarea{
-      width:100%;
-      min-height: 180px;
+      min-height: 210px;
       resize: vertical;
-      padding: 10px;
-      border-radius: 16px;
-      border: 2px solid #e2e8f0;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
       line-height: 1.35;
-      outline:none;
-      background:#fff;
     }
     kbd{ background:#0f172a; color:white; padding:2px 6px; border-radius:6px; font-weight:900; font-size:11px; }
 
@@ -228,6 +247,9 @@
     }
     .ok{color: var(--good); font-weight:900;}
     .warn{color: var(--bad); font-weight:900;}
+    .subgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+    @media (max-width: 700px){ .subgrid{grid-template-columns:1fr;} }
+    .hidden{display:none!important;}
   </style>
 </head>
 <body>
@@ -236,44 +258,135 @@
       <div class="title">
         <div class="logo">🎯</div>
         <div>
-          <div style="font-weight:900;">Hotspot Builder (Rectangles)</div>
-          <div style="font-size:12px;color:var(--muted);">Drag to draw boxes. Export {x,y,w,h} in image pixels.</div>
+          <div style="font-weight:900;">Hotspot Builder (Scavenger + Prepositions)</div>
+          <div style="font-size:12px;color:var(--muted);">One tool for regular target hotspots and preposition zone exports.</div>
         </div>
       </div>
       <div class="row">
         <span class="badge" id="statusBadge">No image loaded</span>
         <button class="btn2" id="toggleLabelsBtn" type="button">Show Labels: ON</button>
         <button class="btn2" id="toggleRectsBtn" type="button">Show Boxes: ON</button>
+        <button class="btn2" id="togglePreviewBtn" type="button">Preview: ON</button>
         <button class="btn2" id="clearBtn" type="button">Clear All</button>
       </div>
     </header>
 
     <div class="grid">
-      <!-- LEFT: stage -->
       <div class="card">
         <div class="stageHeader">
           <div class="row" style="gap:8px; align-items:flex-end;">
             <div>
-              <label>Scene ID (optional)</label><br>
-              <input id="sceneId" type="text" placeholder="kitchen" />
+              <label>Scene ID</label><br>
+              <input id="sceneId" type="text" placeholder="living_room" />
             </div>
             <div>
-              <label>Scene Name (optional)</label><br>
-              <input id="sceneName" type="text" placeholder="Kitchen" />
+              <label>Scene Name</label><br>
+              <input id="sceneName" type="text" placeholder="Living Room" />
+            </div>
+            <div>
+              <label>Mode</label><br>
+              <select id="builderMode">
+                <option value="targets">Scavenger Targets</option>
+                <option value="zones">Preposition Zones</option>
+              </select>
             </div>
           </div>
 
           <div class="row" style="align-items:flex-end;">
             <div>
-              <label>Load Image</label><br>
+              <label>Load Background Image</label><br>
               <input id="fileInput" type="file" accept="image/*" />
             </div>
             <div>
-              <label>Or paste image path (for your game)</label><br>
-              <input id="imgPath" type="text" placeholder="images/scenes/scene_kitchen.png" />
+              <label>Or paste background path</label><br>
+              <input id="imgPath" type="text" placeholder="assets/scenes/living_room_bg.png" />
             </div>
             <button class="btn" id="usePathBtn" type="button">Use Path</button>
           </div>
+        </div>
+
+        <div class="row" style="margin-bottom:12px; align-items:flex-end;">
+          <div>
+            <label>Optional foreground mask path</label><br>
+            <input id="fgPath" type="text" placeholder="assets/scenes/living_room_fg.png" />
+          </div>
+          <button class="btn3" id="useFgBtn" type="button">Use Foreground</button>
+        </div>
+
+        <div class="panel" style="margin-bottom:12px;">
+          <h2>Current Drawing Settings</h2>
+          <div class="subgrid">
+            <div id="targetsControls">
+              <label>Target Name</label><br>
+              <div class="row">
+                <input id="targetName" type="text" placeholder="sink" />
+                <button class="btn" id="setNameBtn" type="button">Use Name</button>
+              </div>
+              <div class="tip">Scavenger mode uses one label per box.</div>
+            </div>
+
+            <div id="zonesControls" class="hidden stack">
+              <div>
+                <label>Reference Object</label><br>
+                <div class="row">
+                  <input id="zoneObjectName" type="text" placeholder="table" />
+                  <button class="btn" id="setZoneObjectBtn" type="button">Use Object</button>
+                </div>
+              </div>
+              <div>
+                <label>Zone Type</label><br>
+                <select id="zoneTypeSelect">
+                  <option value="on">on</option>
+                  <option value="under">under</option>
+                  <option value="next_to_left">next_to_left</option>
+                  <option value="next_to_right">next_to_right</option>
+                  <option value="inside">inside</option>
+                  <option value="outside">outside</option>
+                  <option value="above">above</option>
+                  <option value="below">below</option>
+                  <option value="between">between</option>
+                  <option value="in">in</option>
+                </select>
+              </div>
+              <div>
+                <label>Preview Scale</label><br>
+                <input id="zoneScaleInput" type="number" min="0.1" max="3" step="0.05" value="1" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-bottom:12px;">
+          <h2>Scene Metadata for Export</h2>
+          <div class="subgrid">
+            <div>
+              <label>Objects in Scene (comma separated)</label><br>
+              <input id="sceneObjectsInput" type="text" placeholder="table, chair, couch, lamp, bookshelf, rug" />
+            </div>
+            <div>
+              <label>Between Pairs (one pair per line: objectA|objectB)</label><br>
+              <textarea id="betweenPairsInput" placeholder="chair|table&#10;couch|lamp" style="min-height:96px;"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-bottom:12px;">
+          <h2>Preview Item</h2>
+          <div class="subgrid">
+            <div>
+              <label>Preview item image path</label><br>
+              <input id="previewItemPath" type="text" placeholder="assets/items/ball.png" />
+            </div>
+            <div>
+              <label>Preview item label</label><br>
+              <input id="previewItemLabel" type="text" placeholder="ball" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn3" id="applyPreviewBtn" type="button">Apply Preview Item</button>
+            <button class="btn3" id="clearPreviewBtn" type="button">Clear Preview Item</button>
+          </div>
+          <div class="tip">In zone mode, the preview item snaps into the selected zone using the scale value so you can see whether placement looks natural.</div>
         </div>
 
         <div class="stageWrap">
@@ -289,61 +402,49 @@
             </div>
           </div>
 
-          <div class="stage" id="stage">
-            <!-- Image injected -->
-          </div>
+          <div class="stage" id="stage"></div>
 
           <div class="note">
-            <span class="ok">Coordinates export in ORIGINAL image pixels</span> (not screen pixels).<br>
-            Tip: Name your targets exactly how you want to say them in prompts (e.g., <em>sink</em>, <em>fridge</em>, <em>spoon</em>).
+            <span class="ok">Coordinates export in ORIGINAL image pixels</span> and also as a normalized <span class="ok">0–1000 scale</span> for your preposition game engine.<br>
+            Use scavenger mode for regular hunt targets. Use zone mode for preposition placement data.
           </div>
         </div>
       </div>
 
-      <!-- RIGHT: controls / list / export -->
       <div class="card">
         <div class="panel">
-          <h2>1) Target Name</h2>
-          <div class="row">
-            <input id="targetName" type="text" placeholder="sink" />
-            <button class="btn" id="setNameBtn" type="button">Use Name</button>
-          </div>
-          <div class="tip">
-            Set a name first, then draw a box. Each new box uses the current name.
-            If you forget, you can rename later in the list.
-          </div>
-        </div>
-
-        <div class="panel" style="margin-top:12px;">
-          <h2>2) Hotspots List</h2>
+          <h2>Hotspots / Zones List</h2>
           <div class="row" style="justify-content:space-between;">
             <span class="pill">Count: <span id="count">0</span></span>
-            <span class="pill" id="pathPill">Path: <span id="pathText">—</span></span>
+            <span class="pill" id="pathPill">BG: <span id="pathText">—</span></span>
+            <span class="pill info" id="fgPill">FG: <span id="fgText">—</span></span>
           </div>
           <div class="list" id="list" style="margin-top:10px;"></div>
         </div>
 
         <div class="panel" style="margin-top:12px;">
-          <h2>3) Export</h2>
-          <div class="row" style="gap:8px;">
-            <button class="btn" id="exportBtn" type="button">Export JSON</button>
+          <h2>Export</h2>
+          <div class="row" style="gap:8px; flex-wrap:wrap;">
+            <button class="btn" id="exportTargetsBtn" type="button">Export Scavenger JSON</button>
+            <button class="btn" id="exportSceneBtn" type="button">Export Scene JSON</button>
             <button class="btn2" id="copyBtn" type="button">Copy</button>
             <button class="btn2" id="downloadBtn" type="button">Download .json</button>
           </div>
           <textarea id="exportBox" spellcheck="false" placeholder="Export will appear here..."></textarea>
           <div class="tip">
-            Paste this into your game under a scene’s <code>targets</code>.
-            If you export multiple scenes, keep each scene in its own JSON block/file.
+            <strong>Scavenger JSON</strong> keeps your original format with <code>targets</code>.<br>
+            <strong>Scene JSON</strong> exports the new preposition format: <code>id</code>, <code>name</code>, <code>background</code>, <code>foreground</code>, <code>objects</code>, <code>betweenPairs</code>, and <code>zones</code>.
           </div>
         </div>
 
         <div class="panel" style="margin-top:12px;">
           <h2>Quick Tips</h2>
           <div class="tip">
-            • Draw tight boxes, but leave a little “click room” for kids.<br>
-            • Avoid overlapping boxes when possible.<br>
-            • Use <kbd>Ctrl</kbd>+<kbd>Z</kbd> to undo the last box.<br>
-            • Toggle labels/boxes for clean screenshots if needed.
+            • Draw tight boxes, but leave some room for easier dragging.<br>
+            • In zone mode, use object names exactly as you plan to use them in the scene JSON.<br>
+            • For <code>between</code>, make sure you also enter valid pairs in the Between Pairs field.<br>
+            • Foreground masks help you preview whether an item looks natural under tables or behind furniture.<br>
+            • The preview item is only for visual testing. It is not saved in the scene export.
           </div>
         </div>
       </div>
@@ -351,77 +452,95 @@
   </div>
 
   <script>
-    // --------- State ---------
-    let imgEl = null;
+    let bgImgEl = null;
+    let fgImgEl = null;
+    let previewItemEl = null;
     let imgNaturalW = 0;
     let imgNaturalH = 0;
-    let imgPath = "";
-    let currentName = "";
+    let bgPath = '';
+    let fgPath = '';
+    let currentName = '';
+    let currentZoneObject = '';
     let showLabels = true;
     let showRects = true;
+    let showPreview = true;
+    let builderMode = 'targets';
 
-    // Each hotspot: { id, label, box:{x,y,w,h} }
-    let hotspots = [];
+    let targets = [];
+    let zones = [];
 
-    // Drawing
     let drawing = false;
     let startX = 0, startY = 0;
     let drawEl = null;
 
-    // --------- Elements ---------
-    const stage = document.getElementById("stage");
-    const fileInput = document.getElementById("fileInput");
-    const imgPathInput = document.getElementById("imgPath");
-    const usePathBtn = document.getElementById("usePathBtn");
+    const stage = document.getElementById('stage');
+    const fileInput = document.getElementById('fileInput');
+    const imgPathInput = document.getElementById('imgPath');
+    const usePathBtn = document.getElementById('usePathBtn');
+    const fgPathInput = document.getElementById('fgPath');
+    const useFgBtn = document.getElementById('useFgBtn');
 
-    const targetName = document.getElementById("targetName");
-    const setNameBtn = document.getElementById("setNameBtn");
+    const targetName = document.getElementById('targetName');
+    const setNameBtn = document.getElementById('setNameBtn');
+    const zoneObjectName = document.getElementById('zoneObjectName');
+    const setZoneObjectBtn = document.getElementById('setZoneObjectBtn');
+    const zoneTypeSelect = document.getElementById('zoneTypeSelect');
+    const zoneScaleInput = document.getElementById('zoneScaleInput');
+    const builderModeSelect = document.getElementById('builderMode');
+    const targetsControls = document.getElementById('targetsControls');
+    const zonesControls = document.getElementById('zonesControls');
 
-    const sceneIdInput = document.getElementById("sceneId");
-    const sceneNameInput = document.getElementById("sceneName");
+    const sceneIdInput = document.getElementById('sceneId');
+    const sceneNameInput = document.getElementById('sceneName');
+    const sceneObjectsInput = document.getElementById('sceneObjectsInput');
+    const betweenPairsInput = document.getElementById('betweenPairsInput');
 
-    const statusBadge = document.getElementById("statusBadge");
-    const imgSizePill = document.getElementById("imgSizePill");
-    const mousePill = document.getElementById("mousePill");
-    const boxPill = document.getElementById("boxPill");
-    const countEl = document.getElementById("count");
-    const listEl = document.getElementById("list");
+    const previewItemPath = document.getElementById('previewItemPath');
+    const previewItemLabel = document.getElementById('previewItemLabel');
+    const applyPreviewBtn = document.getElementById('applyPreviewBtn');
+    const clearPreviewBtn = document.getElementById('clearPreviewBtn');
 
-    const toggleLabelsBtn = document.getElementById("toggleLabelsBtn");
-    const toggleRectsBtn = document.getElementById("toggleRectsBtn");
-    const clearBtn = document.getElementById("clearBtn");
+    const statusBadge = document.getElementById('statusBadge');
+    const imgSizePill = document.getElementById('imgSizePill');
+    const mousePill = document.getElementById('mousePill');
+    const boxPill = document.getElementById('boxPill');
+    const countEl = document.getElementById('count');
+    const listEl = document.getElementById('list');
 
-    const exportBtn = document.getElementById("exportBtn");
-    const exportBox = document.getElementById("exportBox");
-    const copyBtn = document.getElementById("copyBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
+    const toggleLabelsBtn = document.getElementById('toggleLabelsBtn');
+    const toggleRectsBtn = document.getElementById('toggleRectsBtn');
+    const togglePreviewBtn = document.getElementById('togglePreviewBtn');
+    const clearBtn = document.getElementById('clearBtn');
 
-    const pathPill = document.getElementById("pathPill");
-    const pathText = document.getElementById("pathText");
+    const exportTargetsBtn = document.getElementById('exportTargetsBtn');
+    const exportSceneBtn = document.getElementById('exportSceneBtn');
+    const exportBox = document.getElementById('exportBox');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const pathText = document.getElementById('pathText');
+    const fgText = document.getElementById('fgText');
 
-    // --------- Helpers ---------
     function uid(){
       return Math.random().toString(16).slice(2) + Date.now().toString(16);
     }
     function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
 
-    // Convert a mouse position (client) into image pixel coords (natural pixels)
     function clientToImagePixels(clientX, clientY){
-      if(!imgEl) return {x:0,y:0};
-      const rect = imgEl.getBoundingClientRect();
+      if(!bgImgEl) return {x:0,y:0};
+      const rect = bgImgEl.getBoundingClientRect();
       const cx = clamp(clientX - rect.left, 0, rect.width);
       const cy = clamp(clientY - rect.top, 0, rect.height);
-
       const sx = imgNaturalW / rect.width;
       const sy = imgNaturalH / rect.height;
-
       return { x: Math.round(cx * sx), y: Math.round(cy * sy) };
     }
 
-    // Convert image pixel box -> stage overlay box (CSS px)
     function imageBoxToCss(box){
-      if(!imgEl) return {left:0,top:0,width:0,height:0};
-      const rect = imgEl.getBoundingClientRect();
+      if(!bgImgEl) return {left:0,top:0,width:0,height:0};
+      const rect = bgImgEl.getBoundingClientRect();
       const sx = rect.width / imgNaturalW;
       const sy = rect.height / imgNaturalH;
       return {
@@ -432,69 +551,87 @@
       };
     }
 
-    function setStatus(msg, type="neutral"){
+    function imagePointToCss(x, y){
+      if(!bgImgEl) return {left:0, top:0};
+      const rect = bgImgEl.getBoundingClientRect();
+      return {
+        left: (x / imgNaturalW) * rect.width,
+        top: (y / imgNaturalH) * rect.height
+      };
+    }
+
+    function pxToNormalized(box){
+      return {
+        x: Math.round((box.x / imgNaturalW) * 1000),
+        y: Math.round((box.y / imgNaturalH) * 1000),
+        w: Math.round((box.w / imgNaturalW) * 1000),
+        h: Math.round((box.h / imgNaturalH) * 1000)
+      };
+    }
+
+    function setStatus(msg, type='neutral'){
       statusBadge.textContent = msg;
-      statusBadge.style.background = type==="good" ? "#dcfce7" : type==="bad" ? "#ffe4e6" : "#eef2ff";
-      statusBadge.style.border = "1px solid " + (type==="good" ? "#bbf7d0" : type==="bad" ? "#fecaca" : "#c7d2fe");
+      statusBadge.style.background = type==='good' ? '#dcfce7' : type==='bad' ? '#ffe4e6' : '#eef2ff';
+      statusBadge.style.border = '1px solid ' + (type==='good' ? '#bbf7d0' : type==='bad' ? '#fecaca' : '#c7d2fe');
+    }
+
+    function activeEntries(){
+      return builderMode === 'targets' ? targets : zones;
     }
 
     function setPills(){
-      imgSizePill.textContent = imgEl ? `Image: ${imgNaturalW}×${imgNaturalH}` : "Image: —";
-      pathText.textContent = imgPath || "—";
-      countEl.textContent = hotspots.length;
+      imgSizePill.textContent = bgImgEl ? `Image: ${imgNaturalW}×${imgNaturalH}` : 'Image: —';
+      pathText.textContent = bgPath || '—';
+      fgText.textContent = fgPath || '—';
+      countEl.textContent = activeEntries().length;
     }
 
-    function renderHotspots(){
-      // Remove old rects
-      [...stage.querySelectorAll(".rect")].forEach(r => r.remove());
+    function renderAll(){
+      setPills();
+      renderEntries();
+      renderList();
+      renderPreviewItem();
+    }
 
-      if(!imgEl) return;
+    function renderEntries(){
+      [...stage.querySelectorAll('.rect')].forEach(r => r.remove());
+      if(!bgImgEl) return;
+      activeEntries().forEach(entry => {
+        const r = document.createElement('div');
+        r.className = `rect ${builderMode === 'zones' ? 'mode-zone' : ''}`;
+        r.dataset.id = entry.id;
+        const css = imageBoxToCss(entry.box);
+        r.style.left = css.left + 'px';
+        r.style.top = css.top + 'px';
+        r.style.width = css.width + 'px';
+        r.style.height = css.height + 'px';
+        r.style.display = showRects ? 'block' : 'none';
 
-      hotspots.forEach(h => {
-        const r = document.createElement("div");
-        r.className = "rect";
-        r.dataset.id = h.id;
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.textContent = builderMode === 'targets'
+          ? entry.label
+          : `${entry.object}.${entry.zone}${entry.scale != null ? ` @${entry.scale}` : ''}`;
+        tag.style.display = showLabels ? 'block' : 'none';
 
-        const css = imageBoxToCss(h.box);
-        r.style.left = css.left + "px";
-        r.style.top = css.top + "px";
-        r.style.width = css.width + "px";
-        r.style.height = css.height + "px";
-        r.style.display = showRects ? "block" : "none";
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        actions.style.display = showRects ? 'flex' : 'none';
 
-        const tag = document.createElement("div");
-        tag.className = "tag";
-        tag.textContent = h.label;
-        tag.style.display = showLabels ? "block" : "none";
+        const editBtn = document.createElement('button');
+        editBtn.className = 'mini';
+        editBtn.type = 'button';
+        editBtn.textContent = builderMode === 'targets' ? 'Rename' : 'Edit';
+        editBtn.onclick = () => editEntry(entry.id);
 
-        const actions = document.createElement("div");
-        actions.className = "actions";
-        actions.style.display = showRects ? "flex" : "none";
+        const delBtn = document.createElement('button');
+        delBtn.className = 'mini danger';
+        delBtn.type = 'button';
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = () => deleteEntry(entry.id);
 
-        const renameBtn = document.createElement("button");
-        renameBtn.className = "mini";
-        renameBtn.type = "button";
-        renameBtn.textContent = "Rename";
-        renameBtn.onclick = () => {
-          const newName = prompt("Rename target:", h.label);
-          if(newName && newName.trim()){
-            h.label = newName.trim();
-            renderAll();
-          }
-        };
-
-        const delBtn = document.createElement("button");
-        delBtn.className = "mini danger";
-        delBtn.type = "button";
-        delBtn.textContent = "Delete";
-        delBtn.onclick = () => {
-          hotspots = hotspots.filter(x => x.id !== h.id);
-          renderAll();
-        };
-
-        actions.appendChild(renameBtn);
+        actions.appendChild(editBtn);
         actions.appendChild(delBtn);
-
         r.appendChild(tag);
         r.appendChild(actions);
         stage.appendChild(r);
@@ -502,44 +639,42 @@
     }
 
     function renderList(){
-      listEl.innerHTML = "";
-      if(hotspots.length === 0){
-        listEl.innerHTML = `<div class="item"><div class="name">No hotspots yet</div><div class="coords">Draw boxes on the image.</div></div>`;
+      listEl.innerHTML = '';
+      const entries = activeEntries();
+      if(entries.length === 0){
+        listEl.innerHTML = `<div class="item"><div class="name">No ${builderMode === 'targets' ? 'hotspots' : 'zones'} yet</div><div class="coords">Draw boxes on the image.</div></div>`;
         return;
       }
-      hotspots.forEach((h, i) => {
-        const div = document.createElement("div");
-        div.className = "item";
-
+      entries.forEach((entry, i) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        const normalized = pxToNormalized(entry.box);
+        const headline = builderMode === 'targets'
+          ? `${i+1}. ${escapeHtml(entry.label)}`
+          : `${i+1}. ${escapeHtml(entry.object)} → ${escapeHtml(entry.zone)}`;
+        const extra = builderMode === 'targets'
+          ? ''
+          : `<div class="coords">scale:${entry.scale} | px {x:${entry.box.x}, y:${entry.box.y}, w:${entry.box.w}, h:${entry.box.h}} | norm {x:${normalized.x}, y:${normalized.y}, w:${normalized.w}, h:${normalized.h}}</div>`;
         div.innerHTML = `
           <div class="itemTop">
             <div>
-              <div class="name">${i+1}. ${escapeHtml(h.label)}</div>
-              <div class="coords">{x:${h.box.x}, y:${h.box.y}, w:${h.box.w}, h:${h.box.h}}</div>
+              <div class="name">${headline}</div>
+              ${builderMode === 'targets'
+                ? `<div class="coords">px {x:${entry.box.x}, y:${entry.box.y}, w:${entry.box.w}, h:${entry.box.h}}</div>`
+                : extra}
             </div>
             <div class="row" style="gap:8px;">
-              <span class="pill good">px</span>
+              <span class="pill ${builderMode === 'targets' ? 'good' : 'info'}">${builderMode === 'targets' ? 'target' : 'zone'}</span>
               <button class="btn2" type="button" data-act="focus">Focus</button>
-              <button class="btn2" type="button" data-act="rename">Rename</button>
+              <button class="btn2" type="button" data-act="edit">${builderMode === 'targets' ? 'Rename' : 'Edit'}</button>
               <button class="btn2" type="button" data-act="delete">Delete</button>
             </div>
           </div>
         `;
-
-        const [focusBtn, renameBtn, delBtn] = div.querySelectorAll("button");
-        focusBtn.onclick = () => focusRect(h.id);
-        renameBtn.onclick = () => {
-          const newName = prompt("Rename target:", h.label);
-          if(newName && newName.trim()){
-            h.label = newName.trim();
-            renderAll();
-          }
-        };
-        delBtn.onclick = () => {
-          hotspots = hotspots.filter(x => x.id !== h.id);
-          renderAll();
-        };
-
+        const [focusBtn, editBtn, delBtn] = div.querySelectorAll('button');
+        focusBtn.onclick = () => focusRect(entry.id);
+        editBtn.onclick = () => editEntry(entry.id);
+        delBtn.onclick = () => deleteEntry(entry.id);
         listEl.appendChild(div);
       });
     }
@@ -547,272 +682,438 @@
     function focusRect(id){
       const rectEl = stage.querySelector(`.rect[data-id="${id}"]`);
       if(!rectEl) return;
-      rectEl.animate([{transform:"scale(1)"},{transform:"scale(1.03)"},{transform:"scale(1)"}], {duration:260});
-      rectEl.style.borderColor = "rgba(249,115,22,.95)";
-      setTimeout(()=> rectEl.style.borderColor = "rgba(124,58,237,.85)", 350);
+      rectEl.animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}], {duration:260});
+      rectEl.style.borderColor = 'rgba(249,115,22,.95)';
+      setTimeout(()=> rectEl.style.borderColor = builderMode === 'zones' ? 'rgba(37,99,235,.92)' : 'rgba(124,58,237,.85)', 350);
     }
 
-    function escapeHtml(s){
-      return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
-
-    function exportJSON(){
-      const sceneId = (sceneIdInput.value || "").trim();
-      const sceneName = (sceneNameInput.value || "").trim();
-
-      const payload = {
-        id: sceneId || "scene_id_here",
-        name: sceneName || "Scene Name",
-        img: imgPath || "images/scenes/scene_file.png",
-        targets: hotspots.map(h => ({ label: h.label, box: {...h.box} }))
-      };
-
-      exportBox.value = JSON.stringify(payload, null, 2);
-    }
-
-    function downloadJSON(){
-      const text = exportBox.value.trim();
-      if(!text){
-        exportJSON();
-      }
-      const blob = new Blob([exportBox.value], {type:"application/json"});
-      const a = document.createElement("a");
-      const safeId = (sceneIdInput.value || "scene").trim().replace(/\s+/g,"_");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${safeId}_hotspots.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-
-    function renderAll(){
-      setPills();
-      renderHotspots();
-      renderList();
-    }
-
-    // Reposition boxes on resize
-    window.addEventListener("resize", ()=>{
-      renderHotspots();
-    });
-
-    // --------- Image Loading ---------
-    function loadImageFromSrc(src){
-      stage.innerHTML = "";
-      hotspots = [];
-      currentName = (targetName.value || "").trim();
-      exportBox.value = "";
-
-      imgEl = document.createElement("img");
-      imgEl.alt = "scene";
-      imgEl.src = src;
-      imgEl.onload = () => {
-        imgNaturalW = imgEl.naturalWidth;
-        imgNaturalH = imgEl.naturalHeight;
-        stage.appendChild(imgEl);
-        setStatus("Image loaded ✓", "good");
-        setPills();
-        renderAll();
-      };
-      imgEl.onerror = () => {
-        setStatus("Could not load image (check path)", "bad");
-        stage.innerHTML = "";
-        imgEl = null;
-        imgNaturalW = 0; imgNaturalH = 0;
-        renderAll();
-      };
-
-      setStatus("Loading image…");
-    }
-
-    fileInput.addEventListener("change", (e)=>{
-      const file = e.target.files && e.target.files[0];
-      if(!file) return;
-      const url = URL.createObjectURL(file);
-      // When using local file upload, we can't know your final path; you can type it in the path box.
-      imgPath = (imgPathInput.value || "").trim();
-      loadImageFromSrc(url);
-    });
-
-    usePathBtn.addEventListener("click", ()=>{
-      const p = (imgPathInput.value || "").trim();
-      if(!p){
-        alert("Paste an image path like: images/scenes/scene_kitchen.png");
-        return;
-      }
-      imgPath = p;
-      loadImageFromSrc(p);
-    });
-
-    // --------- Naming ---------
-    setNameBtn.addEventListener("click", ()=>{
-      currentName = (targetName.value || "").trim();
-      if(!currentName){
-        alert("Type a target name first (e.g., sink).");
-        return;
-      }
-      setStatus(`Current name set: ${currentName}`, "good");
-    });
-
-    targetName.addEventListener("keydown", (e)=>{
-      if(e.key === "Enter") setNameBtn.click();
-    });
-
-    // --------- Toggles / Clear ---------
-    toggleLabelsBtn.addEventListener("click", ()=>{
-      showLabels = !showLabels;
-      toggleLabelsBtn.textContent = `Show Labels: ${showLabels ? "ON" : "OFF"}`;
-      renderHotspots();
-    });
-
-    toggleRectsBtn.addEventListener("click", ()=>{
-      showRects = !showRects;
-      toggleRectsBtn.textContent = `Show Boxes: ${showRects ? "ON" : "OFF"}`;
-      renderHotspots();
-    });
-
-    clearBtn.addEventListener("click", ()=>{
-      if(!confirm("Clear all hotspots?")) return;
-      hotspots = [];
-      exportBox.value = "";
+    function deleteEntry(id){
+      if(builderMode === 'targets') targets = targets.filter(x => x.id !== id);
+      else zones = zones.filter(x => x.id !== id);
       renderAll();
-      setStatus("Cleared.", "neutral");
-    });
+    }
 
-    // --------- Export / Copy / Download ---------
-    exportBtn.addEventListener("click", exportJSON);
-
-    copyBtn.addEventListener("click", async ()=>{
-      const text = exportBox.value.trim() || (exportJSON(), exportBox.value.trim());
-      if(!text) return;
-      try{
-        await navigator.clipboard.writeText(text);
-        setStatus("Copied export to clipboard ✓", "good");
-      }catch(e){
-        // fallback
-        exportBox.select();
-        document.execCommand("copy");
-        setStatus("Copied (fallback) ✓", "good");
+    function editEntry(id){
+      if(builderMode === 'targets'){
+        const entry = targets.find(x => x.id === id);
+        if(!entry) return;
+        const newName = prompt('Rename target:', entry.label);
+        if(newName && newName.trim()){
+          entry.label = newName.trim();
+          renderAll();
+        }
+        return;
       }
-    });
+      const entry = zones.find(x => x.id === id);
+      if(!entry) return;
+      const newObject = prompt('Reference object:', entry.object);
+      if(newObject && newObject.trim()) entry.object = newObject.trim();
+      const newZone = prompt('Zone type:', entry.zone);
+      if(newZone && newZone.trim()) entry.zone = newZone.trim();
+      const newScale = prompt('Scale:', entry.scale);
+      if(newScale && !Number.isNaN(Number(newScale))) entry.scale = Number(newScale);
+      renderAll();
+    }
 
-    downloadBtn.addEventListener("click", downloadJSON);
+    function clearStageImages(){
+      stage.innerHTML = '';
+      bgImgEl = null;
+      fgImgEl = null;
+      previewItemEl = null;
+      imgNaturalW = 0;
+      imgNaturalH = 0;
+    }
 
-    // --------- Drawing logic ---------
-    function ensureReadyToDraw(){
-      if(!imgEl){
-        alert("Load an image first.");
-        return false;
-      }
-      if(!currentName){
-        currentName = (targetName.value || "").trim();
-      }
-      if(!currentName){
-        alert("Set a target name first (e.g., sink), then draw a box.");
+    function ensureBaseImagePresent(){
+      if(!bgImgEl){
+        setStatus('Load a background image first.', 'bad');
         return false;
       }
       return true;
     }
 
-    stage.addEventListener("mousedown", (e)=>{
+    function rebuildStage(){
+      if(!bgImgEl) return;
+      stage.innerHTML = '';
+      stage.appendChild(bgImgEl);
+      if(fgImgEl) stage.appendChild(fgImgEl);
+      renderEntries();
+      renderPreviewItem();
+    }
+
+    function loadBackground(src){
+      clearStageImages();
+      targets = [];
+      zones = [];
+      exportBox.value = '';
+      bgImgEl = document.createElement('img');
+      bgImgEl.className = 'baseImage';
+      bgImgEl.alt = 'scene background';
+      bgImgEl.src = src;
+      bgImgEl.onload = () => {
+        imgNaturalW = bgImgEl.naturalWidth;
+        imgNaturalH = bgImgEl.naturalHeight;
+        stage.appendChild(bgImgEl);
+        setStatus('Background image loaded ✓', 'good');
+        setPills();
+        renderAll();
+        if(fgPath) loadForeground(fgPath, true);
+      };
+      bgImgEl.onerror = () => {
+        clearStageImages();
+        setStatus('Could not load background image (check path)', 'bad');
+        renderAll();
+      };
+      setStatus('Loading background image…');
+    }
+
+    function loadForeground(src, silent=false){
+      if(!ensureBaseImagePresent()) return;
+      const nextFg = document.createElement('img');
+      nextFg.className = 'fgImage';
+      nextFg.alt = 'scene foreground';
+      nextFg.src = src;
+      nextFg.onload = () => {
+        fgImgEl = nextFg;
+        rebuildStage();
+        fgPath = src;
+        setPills();
+        if(!silent) setStatus('Foreground mask loaded ✓', 'good');
+      };
+      nextFg.onerror = () => {
+        fgImgEl = null;
+        fgPath = '';
+        setPills();
+        setStatus('Could not load foreground image', 'bad');
+      };
+    }
+
+    function ensureReadyToDraw(){
+      if(!bgImgEl){
+        alert('Load a background image first.');
+        return false;
+      }
+      if(builderMode === 'targets'){
+        if(!currentName) currentName = (targetName.value || '').trim();
+        if(!currentName){
+          alert('Set a target name first.');
+          return false;
+        }
+      } else {
+        if(!currentZoneObject) currentZoneObject = (zoneObjectName.value || '').trim();
+        if(!currentZoneObject){
+          alert('Set a reference object first.');
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function currentZoneSettings(){
+      return {
+        object: (currentZoneObject || zoneObjectName.value || '').trim(),
+        zone: zoneTypeSelect.value,
+        scale: Number(zoneScaleInput.value || 1)
+      };
+    }
+
+    function renderPreviewItem(){
+      if(previewItemEl){
+        previewItemEl.remove();
+        previewItemEl = null;
+      }
+      if(!showPreview || builderMode !== 'zones' || !bgImgEl) return;
+      const src = (previewItemPath.value || '').trim();
+      if(!src) return;
+      const last = zones[zones.length - 1];
+      if(!last) return;
+      previewItemEl = document.createElement('img');
+      previewItemEl.className = 'previewItem';
+      previewItemEl.src = src;
+      previewItemEl.alt = (previewItemLabel.value || 'preview item').trim();
+      const css = imageBoxToCss(last.box);
+      const rect = bgImgEl.getBoundingClientRect();
+      const base = Math.min(rect.width, rect.height) * 0.12;
+      const size = Math.max(28, base * (last.scale || 1));
+      previewItemEl.style.width = `${size}px`;
+      previewItemEl.style.height = `${size}px`;
+      previewItemEl.style.left = `${css.left + css.width / 2 - size / 2}px`;
+      previewItemEl.style.top = `${css.top + css.height / 2 - size / 2}px`;
+      stage.appendChild(previewItemEl);
+      if(fgImgEl) stage.appendChild(fgImgEl);
+    }
+
+    function parseSceneObjects(){
+      return (sceneObjectsInput.value || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    function parseBetweenPairs(){
+      return (betweenPairsInput.value || '')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => line.split('|').map(s => s.trim()).filter(Boolean))
+        .filter(pair => pair.length === 2);
+    }
+
+    function exportTargetsJSON(){
+      const payload = {
+        id: (sceneIdInput.value || '').trim() || 'scene_id_here',
+        name: (sceneNameInput.value || '').trim() || 'Scene Name',
+        img: bgPath || 'images/scenes/scene_file.png',
+        targets: targets.map(h => ({ label: h.label, box: {...h.box} }))
+      };
+      exportBox.value = JSON.stringify(payload, null, 2);
+    }
+
+    function exportSceneJSON(){
+      const sceneId = (sceneIdInput.value || '').trim() || 'scene_id_here';
+      const sceneName = (sceneNameInput.value || '').trim() || 'Scene Name';
+      const sceneObjects = parseSceneObjects();
+      const betweenPairs = parseBetweenPairs();
+      const zonePayload = {};
+
+      zones.forEach(z => {
+        if(!zonePayload[z.object]) zonePayload[z.object] = {};
+        const normalized = pxToNormalized(z.box);
+        zonePayload[z.object][z.zone] = {
+          ...normalized,
+          scale: Number(z.scale || 1)
+        };
+      });
+
+      const payload = {
+        id: sceneId,
+        name: sceneName,
+        background: bgPath || 'assets/scenes/scene_bg.png',
+        foreground: fgPath || '',
+        objects: sceneObjects,
+        betweenPairs,
+        zones: zonePayload
+      };
+
+      if(!payload.foreground) delete payload.foreground;
+      exportBox.value = JSON.stringify(payload, null, 2);
+    }
+
+    function downloadJSON(){
+      if(!exportBox.value.trim()) exportSceneJSON();
+      const blob = new Blob([exportBox.value], {type:'application/json'});
+      const a = document.createElement('a');
+      const safeId = ((sceneIdInput.value || 'scene').trim().replace(/\s+/g,'_'));
+      a.href = URL.createObjectURL(blob);
+      a.download = `${safeId}_${builderMode === 'targets' ? 'hotspots' : 'scene'}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    fileInput.addEventListener('change', (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      const url = URL.createObjectURL(file);
+      bgPath = (imgPathInput.value || '').trim();
+      loadBackground(url);
+    });
+
+    usePathBtn.addEventListener('click', ()=>{
+      const p = (imgPathInput.value || '').trim();
+      if(!p){
+        alert('Paste a background image path like: assets/scenes/living_room_bg.png');
+        return;
+      }
+      bgPath = p;
+      loadBackground(p);
+    });
+
+    useFgBtn.addEventListener('click', ()=>{
+      const p = (fgPathInput.value || '').trim();
+      if(!p){
+        fgPath = '';
+        fgImgEl = null;
+        rebuildStage();
+        setPills();
+        setStatus('Foreground cleared.', 'neutral');
+        return;
+      }
+      fgPath = p;
+      loadForeground(p);
+    });
+
+    setNameBtn.addEventListener('click', ()=>{
+      currentName = (targetName.value || '').trim();
+      if(!currentName){
+        alert('Type a target name first.');
+        return;
+      }
+      setStatus(`Current target name set: ${currentName}`, 'good');
+    });
+
+    setZoneObjectBtn.addEventListener('click', ()=>{
+      currentZoneObject = (zoneObjectName.value || '').trim();
+      if(!currentZoneObject){
+        alert('Type a reference object first.');
+        return;
+      }
+      setStatus(`Current reference object set: ${currentZoneObject}`, 'good');
+    });
+
+    targetName.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') setNameBtn.click(); });
+    zoneObjectName.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') setZoneObjectBtn.click(); });
+
+    builderModeSelect.addEventListener('change', ()=>{
+      builderMode = builderModeSelect.value;
+      targetsControls.classList.toggle('hidden', builderMode !== 'targets');
+      zonesControls.classList.toggle('hidden', builderMode !== 'zones');
+      exportBox.value = '';
+      renderAll();
+      setStatus(builderMode === 'targets' ? 'Scavenger Targets mode' : 'Preposition Zones mode', 'neutral');
+    });
+
+    toggleLabelsBtn.addEventListener('click', ()=>{
+      showLabels = !showLabels;
+      toggleLabelsBtn.textContent = `Show Labels: ${showLabels ? 'ON' : 'OFF'}`;
+      renderEntries();
+    });
+
+    toggleRectsBtn.addEventListener('click', ()=>{
+      showRects = !showRects;
+      toggleRectsBtn.textContent = `Show Boxes: ${showRects ? 'ON' : 'OFF'}`;
+      renderEntries();
+    });
+
+    togglePreviewBtn.addEventListener('click', ()=>{
+      showPreview = !showPreview;
+      togglePreviewBtn.textContent = `Preview: ${showPreview ? 'ON' : 'OFF'}`;
+      renderPreviewItem();
+    });
+
+    clearBtn.addEventListener('click', ()=>{
+      const label = builderMode === 'targets' ? 'hotspots' : 'zones';
+      if(!confirm(`Clear all ${label}?`)) return;
+      if(builderMode === 'targets') targets = [];
+      else zones = [];
+      exportBox.value = '';
+      renderAll();
+      setStatus('Cleared.', 'neutral');
+    });
+
+    exportTargetsBtn.addEventListener('click', exportTargetsJSON);
+    exportSceneBtn.addEventListener('click', exportSceneJSON);
+
+    copyBtn.addEventListener('click', async ()=>{
+      const text = exportBox.value.trim() || (builderMode === 'targets' ? (exportTargetsJSON(), exportBox.value.trim()) : (exportSceneJSON(), exportBox.value.trim()));
+      if(!text) return;
+      try{
+        await navigator.clipboard.writeText(text);
+        setStatus('Copied export to clipboard ✓', 'good');
+      }catch(e){
+        exportBox.select();
+        document.execCommand('copy');
+        setStatus('Copied (fallback) ✓', 'good');
+      }
+    });
+
+    downloadBtn.addEventListener('click', downloadJSON);
+    applyPreviewBtn.addEventListener('click', renderPreviewItem);
+    clearPreviewBtn.addEventListener('click', ()=>{
+      previewItemPath.value = '';
+      previewItemLabel.value = '';
+      renderPreviewItem();
+    });
+
+    stage.addEventListener('mousedown', (e)=>{
       if(e.button !== 0) return;
       if(!ensureReadyToDraw()) return;
-      if(!imgEl) return;
-
+      if(!bgImgEl) return;
       drawing = true;
-
       const p = clientToImagePixels(e.clientX, e.clientY);
       startX = p.x;
       startY = p.y;
-
-      drawEl = document.createElement("div");
-      drawEl.className = "drawRect";
+      drawEl = document.createElement('div');
+      drawEl.className = 'drawRect';
       stage.appendChild(drawEl);
-
-      boxPill.textContent = "Box: drawing…";
+      boxPill.textContent = 'Box: drawing…';
     });
 
-    window.addEventListener("mousemove", (e)=>{
-      if(!imgEl) return;
+    window.addEventListener('mousemove', (e)=>{
+      if(!bgImgEl) return;
       const p = clientToImagePixels(e.clientX, e.clientY);
       mousePill.textContent = `Mouse: ${p.x}, ${p.y}`;
-
       if(!drawing || !drawEl) return;
-
-      const x1 = startX, y1 = startY;
-      const x2 = p.x, y2 = p.y;
-
-      const x = Math.min(x1, x2);
-      const y = Math.min(y1, y2);
-      const w = Math.abs(x2 - x1);
-      const h = Math.abs(y2 - y1);
-
-      boxPill.textContent = `Box: {x:${x}, y:${y}, w:${w}, h:${h}}`;
-
-      // Convert to CSS for preview
-      const css = imageBoxToCss({x,y,w,h});
-      drawEl.style.left = css.left + "px";
-      drawEl.style.top = css.top + "px";
-      drawEl.style.width = css.width + "px";
-      drawEl.style.height = css.height + "px";
-    });
-
-    window.addEventListener("mouseup", (e)=>{
-      if(!drawing) return;
-      drawing = false;
-
-      if(drawEl){
-        drawEl.remove();
-        drawEl = null;
-      }
-      if(!imgEl) return;
-
-      const p = clientToImagePixels(e.clientX, e.clientY);
-
       const x = Math.min(startX, p.x);
       const y = Math.min(startY, p.y);
       const w = Math.abs(p.x - startX);
       const h = Math.abs(p.y - startY);
+      boxPill.textContent = `Box: {x:${x}, y:${y}, w:${w}, h:${h}}`;
+      const css = imageBoxToCss({x,y,w,h});
+      drawEl.style.left = css.left + 'px';
+      drawEl.style.top = css.top + 'px';
+      drawEl.style.width = css.width + 'px';
+      drawEl.style.height = css.height + 'px';
+    });
 
+    window.addEventListener('mouseup', (e)=>{
+      if(!drawing) return;
+      drawing = false;
+      if(drawEl){ drawEl.remove(); drawEl = null; }
+      if(!bgImgEl) return;
+      const p = clientToImagePixels(e.clientX, e.clientY);
+      const x = Math.min(startX, p.x);
+      const y = Math.min(startY, p.y);
+      const w = Math.abs(p.x - startX);
+      const h = Math.abs(p.y - startY);
       if(w < 6 || h < 6){
-        setStatus("Box too small (try again).", "bad");
-        boxPill.textContent = "Box: —";
+        setStatus('Box too small (try again).', 'bad');
+        boxPill.textContent = 'Box: —';
         return;
       }
 
-      hotspots.push({
-        id: uid(),
-        label: currentName,
-        box: {x, y, w, h}
-      });
-
-      setStatus(`Added hotspot: ${currentName}`, "good");
-      boxPill.textContent = "Box: —";
+      if(builderMode === 'targets'){
+        targets.push({ id: uid(), label: currentName, box: {x,y,w,h} });
+        setStatus(`Added hotspot: ${currentName}`, 'good');
+      } else {
+        const z = currentZoneSettings();
+        zones.push({ id: uid(), object: z.object, zone: z.zone, scale: z.scale, box: {x,y,w,h} });
+        setStatus(`Added zone: ${z.object}.${z.zone}`, 'good');
+      }
+      boxPill.textContent = 'Box: —';
       renderAll();
     });
 
-    // Undo last
-    window.addEventListener("keydown", (e)=>{
+    window.addEventListener('keydown', (e)=>{
       const key = e.key.toLowerCase();
-      if((e.ctrlKey || e.metaKey) && key === "z"){
-        if(hotspots.length > 0){
-          hotspots.pop();
+      if((e.ctrlKey || e.metaKey) && key === 'z'){
+        if(builderMode === 'targets' && targets.length > 0){
+          targets.pop();
           renderAll();
-          setStatus("Undid last hotspot.", "neutral");
+          setStatus('Undid last hotspot.', 'neutral');
+        } else if(builderMode === 'zones' && zones.length > 0){
+          zones.pop();
+          renderAll();
+          setStatus('Undid last zone.', 'neutral');
         }
       }
     });
 
-    // If image loaded via file but you later set path, update pill only
-    imgPathInput.addEventListener("input", ()=>{
-      imgPath = (imgPathInput.value || "").trim();
+    imgPathInput.addEventListener('input', ()=>{
+      bgPath = (imgPathInput.value || '').trim();
       setPills();
     });
 
-    // Initialize
+    fgPathInput.addEventListener('input', ()=>{
+      fgPath = (fgPathInput.value || '').trim();
+      setPills();
+    });
+
+    zoneScaleInput.addEventListener('input', ()=> renderPreviewItem());
+    previewItemPath.addEventListener('input', ()=> renderPreviewItem());
+    window.addEventListener('resize', ()=> renderAll());
+
     setPills();
-    setStatus("No image loaded");
-    toggleLabelsBtn.textContent = "Show Labels: ON";
-    toggleRectsBtn.textContent = "Show Boxes: ON";
+    setStatus('No image loaded');
   </script>
 </body>
 </html>
