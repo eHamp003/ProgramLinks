@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Non-Identical Matching Game</title>
+  <title>Non-Identical Matching Game - Nouns Only</title>
   <style>
     :root{
       --bg1:#eef6ff;
@@ -249,11 +249,11 @@
     <section class="panel topbar">
       <div class="title-wrap">
         <h1>Non-Identical Matching</h1>
-        <p>Match the picture to the same item or action shown in a different way.</p>
+        <p>Nouns only. Targets will rotate through the set before repeating.</p>
       </div>
 
       <div class="controls">
-        <select id="setSelect" aria-label="Choose set"></select>
+        <select id="setSelect" aria-label="Choose noun set"></select>
         <button id="speakBtn" type="button">🔊 Read Direction</button>
         <button id="nextBtn" class="primary" type="button">Next</button>
       </div>
@@ -263,7 +263,7 @@
       <div class="pill" id="trialPill">Trial: 1</div>
       <div class="pill" id="scorePill">Score: 0</div>
       <div class="pill" id="correctPill">Correct: 0</div>
-      <div class="pill" id="categoryPill">Category: Nouns</div>
+      <div class="pill" id="setPill">Set: Nouns Set 1</div>
     </section>
 
     <section class="panel game">
@@ -289,8 +289,7 @@
     <section class="panel footer">
       <div class="status" id="status"></div>
       <div class="tiny">
-        This version uses your <strong>assets/nouns</strong> and <strong>assets/actions</strong> folders.
-        Put this file in the same project level where your <strong>assets</strong> folder lives.
+        This version uses only <strong>assets/nouns</strong>. It is set up so every item in the chosen set is shown once before any target repeats.
       </div>
     </section>
   </div>
@@ -300,7 +299,6 @@
       {
         id: "nouns_1",
         name: "Nouns Set 1",
-        category: "Nouns",
         items: [
           { label: "apple", sample: "assets/nouns/apple_1.png", matches: ["assets/nouns/apple_2.png", "assets/nouns/apple_3.png"] },
           { label: "ball", sample: "assets/nouns/ball_1.png", matches: ["assets/nouns/ball_2.png", "assets/nouns/ball_3.png"] },
@@ -312,7 +310,6 @@
       {
         id: "nouns_2",
         name: "Nouns Set 2",
-        category: "Nouns",
         items: [
           { label: "chair", sample: "assets/nouns/chair_1.png", matches: ["assets/nouns/chair_2.png", "assets/nouns/chair_3.png"] },
           { label: "cookie", sample: "assets/nouns/cookie_1.png", matches: ["assets/nouns/cookie_2.png", "assets/nouns/cookie_3.png"] },
@@ -324,49 +321,12 @@
       {
         id: "nouns_3",
         name: "Nouns Set 3",
-        category: "Nouns",
         items: [
           { label: "hat", sample: "assets/nouns/hat_1.png", matches: ["assets/nouns/hat_2.png", "assets/nouns/hat_3.png"] },
           { label: "phone", sample: "assets/nouns/phone_1.png", matches: ["assets/nouns/phone_2.png", "assets/nouns/phone_3.png"] },
           { label: "plate", sample: "assets/nouns/plate_1.png", matches: ["assets/nouns/plate_2.png", "assets/nouns/plate_3.png"] },
           { label: "shirt", sample: "assets/nouns/shirt_1.png", matches: ["assets/nouns/shirt_2.png", "assets/nouns/shirt_3.png"] },
           { label: "truck", sample: "assets/nouns/truck_1.png", matches: ["assets/nouns/truck_2.png", "assets/nouns/truck_3.png"] }
-        ]
-      },
-      {
-        id: "actions_1",
-        name: "Actions Set 1",
-        category: "Actions",
-        items: [
-          { label: "brushing", sample: "assets/actions/brushing_1.gif", matches: ["assets/actions/brushing_2.gif", "assets/actions/brushing_3.gif"] },
-          { label: "clapping", sample: "assets/actions/clapping_1.gif", matches: ["assets/actions/clapping_2.gif", "assets/actions/clapping_3.gif"] },
-          { label: "crying", sample: "assets/actions/crying_1.gif", matches: ["assets/actions/crying_2.gif", "assets/actions/crying_3.gif"] },
-          { label: "drinking", sample: "assets/actions/drinking_1.gif", matches: ["assets/actions/drinking_2.gif", "assets/actions/drinking_3.gif"] },
-          { label: "eating", sample: "assets/actions/eating_1.gif", matches: ["assets/actions/eating_2.gif", "assets/actions/eating_3.gif"] }
-        ]
-      },
-      {
-        id: "actions_2",
-        name: "Actions Set 2",
-        category: "Actions",
-        items: [
-          { label: "jumping", sample: "assets/actions/jumping_1.gif", matches: ["assets/actions/jumping_2.gif", "assets/actions/jumping_3.gif"] },
-          { label: "opening", sample: "assets/actions/opening_1.gif", matches: ["assets/actions/opening_2.gif", "assets/actions/opening_3.gif"] },
-          { label: "reading", sample: "assets/actions/reading_1.gif", matches: ["assets/actions/reading_2.gif", "assets/actions/reading_3.gif"] },
-          { label: "running", sample: "assets/actions/running_1.gif", matches: ["assets/actions/running_2.gif", "assets/actions/running_3.gif"] },
-          { label: "sitting", sample: "assets/actions/sitting_1.gif", matches: ["assets/actions/sitting_2.gif", "assets/actions/sitting_3.gif"] }
-        ]
-      },
-      {
-        id: "actions_3",
-        name: "Actions Set 3",
-        category: "Actions",
-        items: [
-          { label: "sleeping", sample: "assets/actions/sleeping_1.gif", matches: ["assets/actions/sleeping_2.gif", "assets/actions/sleeping_3.gif"] },
-          { label: "standing", sample: "assets/actions/standing_1.gif", matches: ["assets/actions/standing_2.gif", "assets/actions/standing_3.gif"] },
-          { label: "throwing", sample: "assets/actions/throwing_1.gif", matches: ["assets/actions/throwing_2.gif", "assets/actions/throwing_3.gif"] },
-          { label: "walking", sample: "assets/actions/walking_1.gif", matches: ["assets/actions/walking_2.gif", "assets/actions/walking_3.gif"] },
-          { label: "waving", sample: "assets/actions/waving_1.gif", matches: ["assets/actions/waving_2.gif", "assets/actions/waving_3.gif"] }
         ]
       }
     ];
@@ -382,7 +342,7 @@
     const trialPill = document.getElementById("trialPill");
     const scorePill = document.getElementById("scorePill");
     const correctPill = document.getElementById("correctPill");
-    const categoryPill = document.getElementById("categoryPill");
+    const setPill = document.getElementById("setPill");
 
     let currentSetIndex = 0;
     let currentRound = null;
@@ -390,6 +350,9 @@
     let score = 0;
     let correct = 0;
     let locked = false;
+
+    // This queue prevents targets from repeating until the whole set has been used.
+    let remainingTargets = [];
 
     function shuffle(arr){
       const copy = [...arr];
@@ -419,7 +382,7 @@
       trialPill.textContent = `Trial: ${trial}`;
       scorePill.textContent = `Score: ${score}`;
       correctPill.textContent = `Correct: ${correct}`;
-      categoryPill.textContent = `Category: ${activeSet.category}`;
+      setPill.textContent = `Set: ${activeSet.name}`;
     }
 
     function populateSetMenu(){
@@ -433,15 +396,28 @@
       setSelect.value = String(currentSetIndex);
     }
 
+    function refillTargetQueue(){
+      const activeSet = GAME_SETS[currentSetIndex];
+      remainingTargets = shuffle(activeSet.items.map((_, index) => index));
+    }
+
+    function getNextTargetIndex(){
+      if(remainingTargets.length === 0){
+        refillTargetQueue();
+      }
+      return remainingTargets.pop();
+    }
+
     function buildRound(){
       const activeSet = GAME_SETS[currentSetIndex];
       const items = activeSet.items;
 
-      const targetItem = randomFrom(items);
+      const targetIndex = getNextTargetIndex();
+      const targetItem = items[targetIndex];
       const correctChoiceImage = randomFrom(targetItem.matches);
 
       const distractorItems = shuffle(
-        items.filter(item => item.label !== targetItem.label)
+        items.filter((item, index) => index !== targetIndex)
       ).slice(0, 3);
 
       const answers = shuffle([
@@ -469,18 +445,13 @@
       statusEl.textContent = "";
       statusEl.className = "status";
 
-      const { target, answers, set } = currentRound;
+      const { target, answers } = currentRound;
       const pretty = prettyLabel(target.label);
 
       sampleImg.src = target.sample;
       sampleImg.alt = pretty;
       sampleLabel.textContent = pretty;
-
-      if(set.category === "Actions"){
-        instructionText.textContent = `Find ${pretty}.`;
-      } else {
-        instructionText.textContent = `Find ${articleFor(target.label)} ${pretty}.`;
-      }
+      instructionText.textContent = `Find ${articleFor(target.label)} ${pretty}.`;
 
       choicesGrid.innerHTML = "";
 
@@ -512,14 +483,8 @@
 
     function speakDirection(){
       if(!currentRound) return;
-      const { target, set } = currentRound;
-      const pretty = prettyLabel(target.label);
-
-      if(set.category === "Actions"){
-        speak(`Find ${pretty}.`);
-      } else {
-        speak(`Find ${articleFor(target.label)} ${pretty}.`);
-      }
+      const pretty = prettyLabel(currentRound.target.label);
+      speak(`Find ${articleFor(currentRound.target.label)} ${pretty}.`);
     }
 
     function handleAnswer(button, answer){
@@ -559,6 +524,8 @@
       trial = 1;
       score = 0;
       correct = 0;
+      locked = false;
+      refillTargetQueue();
       buildRound();
       renderRound();
     }
@@ -572,8 +539,7 @@
     speakBtn.addEventListener("click", speakDirection);
 
     populateSetMenu();
-    buildRound();
-    renderRound();
+    resetGame();
   </script>
 </body>
 </html>
