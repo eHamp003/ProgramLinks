@@ -1,64 +1,290 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PrograLinks - Tacting Games</title>
-<style>
-body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:#fef9c3;
-  color:#1e293b;
-}
-.wrap{
-  max-width:900px;
-  margin:auto;
-  padding:30px 20px;
-}
-.card{
-  background:white;
-  border:2px solid #93c5fd;
-  border-radius:18px;
-  padding:24px;
-}
-h1{margin-top:0}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:16px;
-  margin-top:20px;
-}
-a{
-  display:block;
-  text-decoration:none;
-  background:#e0f2fe;
-  color:#1e293b;
-  padding:18px;
-  border-radius:16px;
-  border:2px solid #93c5fd;
-  font-weight:bold;
-  text-align:center;
-}
-a:hover{
-  background:#bae6fd;
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tacting Games</title>
+  <style>
+    :root{
+      --bg:#d9a66a;
+      --board:#b9804f;
+      --frame:#f5deb3;
+      --title:#a31212;
+      --card:#fffdf8;
+      --pin:#ef4444;
+      --shadow:0 12px 30px rgba(0,0,0,.18);
+      --ink:#1447a6;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: "Trebuchet MS", "Comic Sans MS", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255,255,255,.12), transparent 15%),
+        radial-gradient(circle at 70% 30%, rgba(255,255,255,.10), transparent 18%),
+        radial-gradient(circle at 40% 75%, rgba(255,255,255,.08), transparent 14%),
+        linear-gradient(180deg, #d7a26a, #c38753);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .board{
+      width:min(1400px, 96vw);
+      min-height:820px;
+      border:18px solid var(--frame);
+      border-radius:10px;
+      background:
+        radial-gradient(circle at 12px 12px, rgba(0,0,0,.04) 1px, transparent 1px) 0 0 / 14px 14px,
+        linear-gradient(180deg, #c58a54, #b87a45);
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+      padding:34px 42px 42px;
+    }
+
+    .title{
+      text-align:center;
+      font-size:clamp(52px, 7vw, 116px);
+      line-height:1;
+      margin:0 0 28px;
+      font-weight:900;
+      letter-spacing:2px;
+      color:var(--title);
+      text-transform:uppercase;
+    }
+
+    .menu-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:34px 48px;
+      justify-items:center;
+      align-items:start;
+      margin-top:14px;
+    }
+
+    .menu-grid.bottom{
+      grid-template-columns: repeat(2, 1fr);
+      width:72%;
+      margin:8px auto 0;
+    }
+
+    a.polaroid{
+      text-decoration:none;
+      color:inherit;
+      display:block;
+      width:min(320px, 90%);
+      transform-origin:center;
+      transition: transform .15s ease, filter .15s ease;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,.18));
+    }
+
+    a.polaroid:hover{
+      transform: translateY(-4px) scale(1.02);
+    }
+
+    .pin{
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      margin:0 auto -10px;
+      background: radial-gradient(circle at 35% 35%, #ff8c8c, var(--pin) 62%, #b91c1c 100%);
+      box-shadow: 0 6px 10px rgba(0,0,0,.18);
+      position:relative;
+      z-index:3;
+    }
+
+    .photo{
+      background:var(--card);
+      border:1px solid #d1d5db;
+      padding:12px 12px 20px;
+      border-radius:2px;
+      position:relative;
+    }
+
+    .photo-inner{
+      aspect-ratio: 1 / 1;
+      border:1px solid #cbd5e1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      font-size:58px;
+      font-weight:700;
+      color:#1f2937;
+      text-align:center;
+      padding:10px;
+    }
+
+    .photo-inner.nouns{
+      background:#f8de59;
+    }
+
+    .photo-inner.actions{
+      background:#e8a4a3;
+    }
+
+    .photo-inner.prepositions{
+      background:#26c6e0;
+      color:#fff;
+    }
+
+    .photo-inner.pronouns{
+      background:#b987eb;
+      color:#fff;
+    }
+
+    .photo-inner.combos{
+      background:#78d856;
+    }
+
+    .label{
+      text-align:center;
+      margin-top:8px;
+      font-size:clamp(24px, 2.6vw, 42px);
+      color:var(--ink);
+      font-weight:700;
+      font-family: "Brush Script MT", "Segoe Script", cursive;
+      line-height:1.05;
+    }
+
+    .tilt-left{ transform: rotate(-10deg); }
+    .tilt-right{ transform: rotate(11deg); }
+    .tilt-soft-left{ transform: rotate(-2deg); }
+    .tilt-soft-right{ transform: rotate(3deg); }
+
+    .art{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      font-size:56px;
+    }
+
+    .art span{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .subline{
+      position:absolute;
+      right:22px;
+      bottom:14px;
+      font-size:13px;
+      color:rgba(255,255,255,.8);
+    }
+
+    @media (max-width: 980px){
+      .menu-grid{
+        grid-template-columns:1fr;
+        gap:28px;
+      }
+      .menu-grid.bottom{
+        grid-template-columns:1fr;
+        width:100%;
+      }
+      .board{
+        padding:24px 20px 34px;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <h1>🎉 PrograLinks Tacting Games</h1>
-    <p>Select a game to begin.</p>
+  <main class="board">
+    <h1 class="title">Tacting Games</h1>
 
-    <div class="grid">
-      <a href="tacting-nouns.html">🎯 Tacting Nouns</a>
-      <a href="tacting-actions.html">🏃 Tacting Actions</a>
-      <a href="tacting-prepositions.html">📍 Tacting Prepositions</a>
-      <a href="tacting-pronouns.html">🧍 Tacting Pronouns</a>
-      <a href="tacting-combos.html">🗣️ Tacting Noun-Verb Combos</a>
-    </div>
-  </div>
-</div>
+    <section class="menu-grid">
+      <a class="polaroid tilt-left" href="tacting-nouns.html">
+        <div class="pin"></div>
+        <div class="photo">
+          <div class="photo-inner nouns">
+            <div class="art">
+              <span>🌼</span>
+              <span>✈️</span>
+              <span>💗</span>
+              <span>🐊</span>
+              <span>🍎</span>
+            </div>
+          </div>
+          <div class="label">Nouns</div>
+        </div>
+      </a>
+
+      <a class="polaroid tilt-soft-left" href="tacting-actions.html">
+        <div class="pin"></div>
+        <div class="photo">
+          <div class="photo-inner actions">
+            <div class="art" style="font-size:52px;">
+              <span>🏃</span>
+              <span>💃</span>
+              <span>🤸</span>
+              <span>⛹️</span>
+              <span>🎬</span>
+            </div>
+          </div>
+          <div class="label">Actions</div>
+        </div>
+      </a>
+
+      <a class="polaroid tilt-right" href="tacting-prepositions.html">
+        <div class="pin"></div>
+        <div class="photo">
+          <div class="photo-inner prepositions">
+            <div class="art" style="font-size:54px;">
+              <span>📦</span>
+              <span>🐧</span>
+              <span>📦</span>
+              <span>🐧</span>
+              <span>📦</span>
+            </div>
+          </div>
+          <div class="label">Prepositions</div>
+        </div>
+      </a>
+    </section>
+
+    <section class="menu-grid bottom">
+      <a class="polaroid tilt-soft-left" href="tacting-pronouns.html">
+        <div class="pin"></div>
+        <div class="photo">
+          <div class="photo-inner pronouns">
+            <div class="art" style="font-size:42px; line-height:1.15; text-align:center;">
+              <span style="width:100%;">She / Her</span>
+              <span style="width:100%;">They</span>
+              <span style="width:100%;">He / Him</span>
+              <span style="width:100%;">Their</span>
+            </div>
+          </div>
+          <div class="label">Pronouns</div>
+        </div>
+      </a>
+
+      <a class="polaroid tilt-soft-right" href="tacting-combos.html">
+        <div class="pin"></div>
+        <div class="photo">
+          <div class="photo-inner combos">
+            <div class="art">
+              <span>🥕</span>
+              <span>🥚</span>
+              <span>🧃</span>
+              <span>🍔</span>
+              <span>🍯</span>
+            </div>
+          </div>
+          <div class="label">Noun-Verb Combos</div>
+        </div>
+      </a>
+    </section>
+
+    <div class="subline">Choose a game to begin.</div>
+  </main>
 </body>
 </html>
