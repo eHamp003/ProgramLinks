@@ -1,468 +1,427 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tacting Nouns</title>
-  <style>
-    :root{
-      --bg:#0f172a;
-      --panel:#111827;
-      --panel2:#1f2937;
-      --text:#f8fafc;
-      --muted:#94a3b8;
-      --good:#16a34a;
-      --bad:#dc2626;
-      --accent:#2563eb;
-      --border:#334155;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Arial, Helvetica, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-    }
-    .wrap{
-      max-width:1000px;
-      margin:0 auto;
-      padding:20px;
-    }
-    .card{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:20px;
-      margin-top:16px;
-    }
-    h1,h2,h3{margin-top:0}
-    .hidden{display:none}
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-    }
-    label{
-      display:block;
-      margin-bottom:6px;
-      color:var(--muted);
-      font-size:14px;
-    }
-    input, select, button{
-      font:inherit;
-    }
-    input, select{
-      width:100%;
-      padding:10px 12px;
-      border-radius:10px;
-      border:1px solid var(--border);
-      background:var(--panel2);
-      color:var(--text);
-    }
-    button{
-      border:none;
-      border-radius:12px;
-      padding:12px 16px;
-      cursor:pointer;
-      color:white;
-    }
-    .btn-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-top:16px;
-    }
-    .btn-primary{background:var(--accent)}
-    .btn-good{background:var(--good)}
-    .btn-bad{background:var(--bad)}
-    .btn-gray{background:#475569}
-    .btn-outline{
-      background:transparent;
-      border:1px solid var(--border);
-    }
-    .top-row{
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      align-items:flex-start;
-      flex-wrap:wrap;
-    }
-    .sd{
-      font-size:30px;
-      font-weight:700;
-      margin-bottom:6px;
-    }
-    .progress{
-      color:var(--muted);
-      font-size:14px;
-    }
-    .image-box{
-      background:white;
-      border-radius:16px;
-      padding:16px;
-      margin:20px 0;
-      min-height:420px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .image-box img{
-      max-width:100%;
-      max-height:520px;
-      object-fit:contain;
-      display:block;
-    }
-    .answers{
-      background:var(--panel2);
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:12px;
-      margin-bottom:12px;
-    }
-    .muted{color:var(--muted)}
-    .summary-box{
-      background:var(--panel2);
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:14px;
-      margin-top:12px;
-    }
-    .mono{
-      font-family:Consolas, monospace;
-      word-break:break-word;
-    }
-    @media (max-width: 700px){
-      .grid{grid-template-columns:1fr}
-      .sd{font-size:24px}
-      .image-box{min-height:300px}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tacting Nouns</title>
+
+<style>
+
+:root{
+  --bg:#fef9c3;
+  --panel:#ffffff;
+  --panel2:#e0f2fe;
+  --text:#1e293b;
+  --muted:#64748b;
+  --accent:#f59e0b;
+  --good:#22c55e;
+  --bad:#ef4444;
+  --border:#93c5fd;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.wrap{
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:var(--panel);
+  border-radius:16px;
+  padding:20px;
+  border:2px solid var(--border);
+  margin-top:20px;
+}
+
+.hidden{display:none}
+
+h1,h2{margin-top:0}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+label{
+  display:block;
+  margin-bottom:6px;
+  color:var(--muted);
+}
+
+input,select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--panel2);
+}
+
+button{
+  padding:12px 16px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  color:white;
+  font-size:16px;
+}
+
+.btn-row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.btn-primary{background:var(--accent)}
+.btn-good{background:var(--good)}
+.btn-bad{background:var(--bad)}
+.btn-gray{background:#60a5fa}
+.btn-outline{
+  background:white;
+  border:2px solid var(--border);
+  color:var(--text);
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.sd{
+  font-size:32px;
+  font-weight:bold;
+}
+
+.progress{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.image-box{
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  margin:20px 0;
+  min-height:420px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.image-box img{
+  max-width:100%;
+  max-height:500px;
+}
+
+.answers{
+  background:var(--panel2);
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+.summary{
+  background:var(--panel2);
+  padding:12px;
+  border-radius:10px;
+  margin-top:10px;
+}
+
+.mono{
+  font-family:monospace;
+}
+
+@media (max-width:700px){
+  .grid{grid-template-columns:1fr}
+}
+
+</style>
 </head>
+
+
 <body>
-  <div class="wrap">
 
-    <div id="startScreen" class="card">
-      <h1>Tacting Nouns</h1>
-      <p class="muted">SD: <strong>What is it?</strong></p>
+<div class="wrap">
 
-      <div class="grid">
-        <div>
-          <label for="clientName">Client name</label>
-          <input id="clientName" type="text" placeholder="Optional" />
-        </div>
+<!-- START SCREEN -->
 
-        <div>
-          <label for="setSelect">Select set</label>
-          <select id="setSelect">
-            <option value="all">All</option>
-            <option value="set_1">Set 1</option>
-            <option value="set_2">Set 2</option>
-            <option value="set_3">Set 3</option>
-          </select>
-        </div>
+<div id="startScreen" class="card">
 
-        <div>
-          <label for="orderSelect">Presentation order</label>
-          <select id="orderSelect">
-            <option value="random">Random</option>
-            <option value="in_order">In Order</option>
-          </select>
-        </div>
-      </div>
+<h1>🎯 Tacting Nouns</h1>
 
-      <div class="btn-row">
-        <button id="startBtn" class="btn-primary">Start Noun Game</button>
-      </div>
+<p><strong>SD:</strong> What is it?</p>
 
-      <div id="startMessage" class="muted" style="margin-top:12px;"></div>
-    </div>
+<div class="grid">
 
-    <div id="gameScreen" class="card hidden">
-      <div class="top-row">
-        <div>
-          <div class="sd">What is it?</div>
-          <div id="progressText" class="progress"></div>
-        </div>
+<div>
+<label>Client Name</label>
+<input id="clientName">
+</div>
 
-        <div class="btn-row" style="margin-top:0;">
-          <button id="backBtn" class="btn-gray">Back</button>
-          <button id="showAnswersBtn" class="btn-outline">Show Acceptable Responses</button>
-          <button id="endBtn" class="btn-outline">End Session</button>
-        </div>
-      </div>
+<div>
+<label>Select Set</label>
+<select id="setSelect">
+<option value="all">All</option>
+<option value="set_1">Set 1</option>
+<option value="set_2">Set 2</option>
+<option value="set_3">Set 3</option>
+</select>
+</div>
 
-      <div id="answersBox" class="answers hidden">
-        <strong>Acceptable responses:</strong>
-        <div id="answersText" class="mono" style="margin-top:8px;"></div>
-      </div>
+<div>
+<label>Presentation Order</label>
+<select id="orderSelect">
+<option value="random">Random</option>
+<option value="ordered">In Order</option>
+</select>
+</div>
 
-      <div class="image-box">
-        <img id="targetImage" src="" alt="noun target" />
-      </div>
+</div>
 
-      <div class="btn-row">
-        <button id="correctBtn" class="btn-good">Correct (Independent)</button>
-        <button id="incorrectBtn" class="btn-bad">Incorrect</button>
-      </div>
+<div class="btn-row">
+<button id="startBtn" class="btn-primary">Start Game</button>
+</div>
 
-      <div id="gameMessage" class="muted" style="margin-top:12px;"></div>
-    </div>
+<div id="startMessage"></div>
 
-    <div id="summaryScreen" class="card hidden">
-      <h2>Session Summary</h2>
+</div>
 
-      <div class="summary-box">
-        <div id="summaryStats"></div>
-      </div>
 
-      <div class="summary-box">
-        <strong>Targets missed:</strong>
-        <div id="missedTargets" class="mono" style="margin-top:8px;"></div>
-      </div>
+<!-- GAME SCREEN -->
 
-      <div class="btn-row">
-        <button id="downloadBtn" class="btn-primary">Download CSV</button>
-        <button id="restartBtn" class="btn-gray">Back to Start</button>
-      </div>
-    </div>
+<div id="gameScreen" class="card hidden">
 
-  </div>
+<div class="top">
 
-  <script>
-    let nounTargets = [];
-    let trials = [];
-    let currentIndex = 0;
-    let responses = [];
-    let sessionId = "";
-    let sessionStartedAt = "";
+<div>
+<div class="sd">What is it?</div>
+<div id="progress" class="progress"></div>
+</div>
 
-    const startScreen = document.getElementById("startScreen");
-    const gameScreen = document.getElementById("gameScreen");
-    const summaryScreen = document.getElementById("summaryScreen");
+<div class="btn-row">
+<button id="backBtn" class="btn-gray">Back</button>
+<button id="answersBtn" class="btn-outline">Show Acceptable Responses</button>
+<button id="endBtn" class="btn-outline">End</button>
+</div>
 
-    const progressText = document.getElementById("progressText");
-    const targetImage = document.getElementById("targetImage");
-    const answersBox = document.getElementById("answersBox");
-    const answersText = document.getElementById("answersText");
-    const gameMessage = document.getElementById("gameMessage");
-    const startMessage = document.getElementById("startMessage");
+</div>
 
-    function showScreen(screen){
-      startScreen.classList.add("hidden");
-      gameScreen.classList.add("hidden");
-      summaryScreen.classList.add("hidden");
-      screen.classList.remove("hidden");
-    }
+<div id="answersBox" class="answers hidden">
+<strong>Acceptable responses:</strong>
+<div id="answersText"></div>
+</div>
 
-    function shuffle(array){
-      const arr = [...array];
-      for(let i = arr.length - 1; i > 0; i--){
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
+<div class="image-box">
+<img id="image">
+</div>
 
-    function makeSessionId(){
-      return "noun_" + Date.now();
-    }
+<div class="btn-row">
+<button id="correctBtn" class="btn-good">Correct (Independent)</button>
+<button id="incorrectBtn" class="btn-bad">Incorrect</button>
+</div>
 
-    async function loadTargets(){
-      try{
-        const res = await fetch("noun_targets.json");
-        nounTargets = await res.json();
-        startMessage.textContent = `Loaded ${nounTargets.length} noun targets.`;
-      } catch (error){
-        startMessage.textContent = "Could not load noun_targets.json";
-        console.error(error);
-      }
-    }
+</div>
 
-    function buildTrials(){
-      const selectedSet = document.getElementById("setSelect").value;
-      const orderType = document.getElementById("orderSelect").value;
 
-      let selectedTargets = nounTargets;
-      if(selectedSet !== "all"){
-        selectedTargets = nounTargets.filter(t => t.set === selectedSet);
-      }
+<!-- SUMMARY -->
 
-      let builtTrials = [];
-      selectedTargets.forEach(target => {
-        target.assets.forEach((asset, idx) => {
-          builtTrials.push({
-            target_id: target.id,
-            label: target.label,
-            set: target.set,
-            acceptable_responses: target.acceptable_responses,
-            asset: asset,
-            exemplar_number: idx + 1
-          });
-        });
-      });
+<div id="summaryScreen" class="card hidden">
 
-      if(orderType === "random"){
-        builtTrials = shuffle(builtTrials);
-      }
+<h2>Session Summary</h2>
 
-      return builtTrials;
-    }
+<div id="summaryStats" class="summary"></div>
 
-    function renderTrial(){
-      const trial = trials[currentIndex];
-      if(!trial){
-        endSession();
-        return;
-      }
+<div class="summary">
+<strong>Targets Missed</strong>
+<div id="missedTargets" class="mono"></div>
+</div>
 
-      progressText.textContent = `Trial ${currentIndex + 1} of ${trials.length} | Target: ${trial.label} | Exemplar ${trial.exemplar_number}`;
-      targetImage.src = trial.asset;
-      targetImage.onerror = () => {
-        gameMessage.textContent = `Missing file: ${trial.asset}`;
-      };
+<div class="btn-row">
+<button id="downloadBtn" class="btn-primary">Download CSV</button>
+<button id="restartBtn" class="btn-gray">Back to Start</button>
+</div>
 
-      answersBox.classList.add("hidden");
-      answersText.textContent = trial.acceptable_responses.join(", ");
-      gameMessage.textContent = "";
-    }
+</div>
 
-    function scoreTrial(result){
-      const trial = trials[currentIndex];
-      responses[currentIndex] = {
-        session_id: sessionId,
-        session_started_at: sessionStartedAt,
-        date_time: new Date().toISOString(),
-        client_name: document.getElementById("clientName").value.trim(),
-        game_type: "tacting_nouns",
-        sd: "What is it?",
-        set_name: document.getElementById("setSelect").value,
-        presentation_order: document.getElementById("orderSelect").value,
-        target_id: trial.target_id,
-        label: trial.label,
-        exemplar_number: trial.exemplar_number,
-        asset: trial.asset,
-        acceptable_responses: trial.acceptable_responses.join(" | "),
-        result: result
-      };
+</div>
 
-      currentIndex++;
-      if(currentIndex < trials.length){
-        renderTrial();
-      } else {
-        endSession();
-      }
-    }
 
-    function goBack(){
-      if(currentIndex === 0) return;
-      currentIndex--;
-      renderTrial();
-    }
+<script>
 
-    function endSession(){
-      showScreen(summaryScreen);
+let targets=[]
+let trials=[]
+let responses=[]
+let index=0
 
-      const completed = responses.filter(Boolean);
-      const total = completed.length;
-      const correct = completed.filter(r => r.result === "correct_independent").length;
-      const incorrect = completed.filter(r => r.result === "incorrect").length;
-      const accuracy = total ? ((correct / total) * 100).toFixed(1) : "0.0";
+async function loadTargets(){
+const res=await fetch("noun_targets.json")
+targets=await res.json()
+}
 
-      document.getElementById("summaryStats").innerHTML = `
-        <div><strong>Total scored trials:</strong> ${total}</div>
-        <div><strong>Correct (Independent):</strong> ${correct}</div>
-        <div><strong>Incorrect:</strong> ${incorrect}</div>
-        <div><strong>Accuracy:</strong> ${accuracy}%</div>
-      `;
+function shuffle(a){
+for(let i=a.length-1;i>0;i--){
+let j=Math.floor(Math.random()*(i+1))
+[a[i],a[j]]=[a[j],a[i]]
+}
+return a
+}
 
-      const missed = completed
-        .filter(r => r.result === "incorrect")
-        .map(r => `${r.label} (exemplar ${r.exemplar_number})`);
+function buildTrials(){
 
-      document.getElementById("missedTargets").textContent = missed.length ? missed.join(", ") : "None";
-    }
+const set=document.getElementById("setSelect").value
+const order=document.getElementById("orderSelect").value
 
-    function downloadCSV(){
-      const rows = responses.filter(Boolean);
-      if(!rows.length) return;
+let selected=targets
 
-      const headers = [
-        "session_id",
-        "session_started_at",
-        "date_time",
-        "client_name",
-        "game_type",
-        "sd",
-        "set_name",
-        "presentation_order",
-        "target_id",
-        "label",
-        "exemplar_number",
-        "asset",
-        "acceptable_responses",
-        "result"
-      ];
+if(set!=="all")
+selected=targets.filter(t=>t.set===set)
 
-      const csvRows = [
-        headers.join(","),
-        ...rows.map(row =>
-          headers.map(header => {
-            const value = row[header] ?? "";
-            const escaped = String(value).replace(/"/g, '""');
-            return `"${escaped}"`;
-          }).join(",")
-        )
-      ];
+let built=[]
 
-      const blob = new Blob([csvRows.join("\\n")], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const clientName = document.getElementById("clientName").value.trim() || "client";
-      a.href = url;
-      a.download = `${clientName}_tacting_nouns_data.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+selected.forEach(t=>{
+t.assets.forEach((asset,i)=>{
+built.push({
+id:t.id,
+label:t.label,
+asset:asset,
+answers:t.acceptable_responses,
+exemplar:i+1
+})
+})
+})
 
-    document.getElementById("startBtn").addEventListener("click", () => {
-      trials = buildTrials();
-      currentIndex = 0;
-      responses = [];
-      sessionId = makeSessionId();
-      sessionStartedAt = new Date().toISOString();
+if(order==="random")
+built=shuffle(built)
 
-      if(!trials.length){
-        startMessage.textContent = "No trials found for that set.";
-        return;
-      }
+return built
+}
 
-      showScreen(gameScreen);
-      renderTrial();
-    });
+function renderTrial(){
 
-    document.getElementById("showAnswersBtn").addEventListener("click", () => {
-      answersBox.classList.toggle("hidden");
-    });
+const trial=trials[index]
 
-    document.getElementById("correctBtn").addEventListener("click", () => {
-      scoreTrial("correct_independent");
-    });
+if(!trial){
+endSession()
+return
+}
 
-    document.getElementById("incorrectBtn").addEventListener("click", () => {
-      scoreTrial("incorrect");
-    });
+document.getElementById("progress").innerText=
+`Trial ${index+1} of ${trials.length} | ${trial.label}`
 
-    document.getElementById("backBtn").addEventListener("click", goBack);
+document.getElementById("image").src=trial.asset
 
-    document.getElementById("endBtn").addEventListener("click", endSession);
+document.getElementById("answersText").innerText=
+trial.answers.join(", ")
 
-    document.getElementById("downloadBtn").addEventListener("click", downloadCSV);
+document.getElementById("answersBox").classList.add("hidden")
 
-    document.getElementById("restartBtn").addEventListener("click", () => {
-      showScreen(startScreen);
-    });
+}
 
-    loadTargets();
-  </script>
+function score(result){
+
+const t=trials[index]
+
+responses.push({
+client:document.getElementById("clientName").value,
+target:t.label,
+asset:t.asset,
+result:result,
+time:new Date().toISOString()
+})
+
+index++
+
+renderTrial()
+
+}
+
+function endSession(){
+
+document.getElementById("gameScreen").classList.add("hidden")
+document.getElementById("summaryScreen").classList.remove("hidden")
+
+const total=responses.length
+const correct=responses.filter(r=>r.result==="correct").length
+const incorrect=responses.filter(r=>r.result==="incorrect").length
+
+const accuracy=((correct/total)*100).toFixed(1)
+
+document.getElementById("summaryStats").innerHTML=
+`Total: ${total}<br>
+Correct: ${correct}<br>
+Incorrect: ${incorrect}<br>
+Accuracy: ${accuracy}%`
+
+const missed=responses
+.filter(r=>r.result==="incorrect")
+.map(r=>r.target)
+
+document.getElementById("missedTargets").innerText=missed.join(", ")
+
+}
+
+function downloadCSV(){
+
+let csv="client,target,asset,result,time\n"
+
+responses.forEach(r=>{
+csv+=`${r.client},${r.target},${r.asset},${r.result},${r.time}\n`
+})
+
+const blob=new Blob([csv])
+const url=URL.createObjectURL(blob)
+
+const a=document.createElement("a")
+a.href=url
+a.download="tacting_nouns_data.csv"
+a.click()
+
+}
+
+document.getElementById("startBtn").onclick=()=>{
+trials=buildTrials()
+index=0
+responses=[]
+document.getElementById("startScreen").classList.add("hidden")
+document.getElementById("gameScreen").classList.remove("hidden")
+renderTrial()
+}
+
+document.getElementById("correctBtn").onclick=()=>score("correct")
+document.getElementById("incorrectBtn").onclick=()=>score("incorrect")
+
+document.getElementById("answersBtn").onclick=()=>{
+document.getElementById("answersBox").classList.toggle("hidden")
+}
+
+document.getElementById("backBtn").onclick=()=>{
+if(index>0) index--
+renderTrial()
+}
+
+document.getElementById("endBtn").onclick=endSession
+
+document.getElementById("downloadBtn").onclick=downloadCSV
+
+document.getElementById("restartBtn").onclick=()=>{
+location.reload()
+}
+
+loadTargets()
+
+</script>
+
 </body>
 </html>
