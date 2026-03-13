@@ -1,12 +1,5 @@
 [
   {
-    "id": "ball_in_box",
-    "label": "in",
-    "set": "set_1",
-    "acceptable_responses": ["in", "in the box"],
-    "asset": "assets/prepositions/ball_in_box.png"
-  },
-  {
     "id": "ball_in_bag",
     "label": "in",
     "set": "set_1",
@@ -14,10 +7,80 @@
     "asset": "assets/prepositions/ball_in_bag.png"
   },
   {
+    "id": "ball_in_box",
+    "label": "in",
+    "set": "set_1",
+    "acceptable_responses": ["in", "in the box"],
+    "asset": "assets/prepositions/ball_in_box.png"
+  },
+  {
     "id": "ball_in_bucket",
     "label": "in",
     "set": "set_1",
     "acceptable_responses": ["in", "in the bucket"],
     "asset": "assets/prepositions/ball_in_bucket.png"
+  },
+  {
+    "id": "ball_on_bed",
+    "label": "on",
+    "set": "set_2",
+    "acceptable_responses": ["on", "on the bed"],
+    "asset": "assets/prepositions/ball_on_bed.png"
+  },
+  {
+    "id": "ball_on_chair",
+    "label": "on",
+    "set": "set_2",
+    "acceptable_responses": ["on", "on the chair"],
+    "asset": "assets/prepositions/ball_on_chair.png"
+  },
+  {
+    "id": "ball_on_table",
+    "label": "on",
+    "set": "set_2",
+    "acceptable_responses": ["on", "on the table"],
+    "asset": "assets/prepositions/ball_on_table.png"
+  },
+  {
+    "id": "ball_under_bed",
+    "label": "under",
+    "set": "set_3",
+    "acceptable_responses": ["under", "under the bed"],
+    "asset": "assets/prepositions/ball_under_bed.png"
+  },
+  {
+    "id": "ball_under_chair",
+    "label": "under",
+    "set": "set_3",
+    "acceptable_responses": ["under", "under the chair"],
+    "asset": "assets/prepositions/ball_under_chair.png"
+  },
+  {
+    "id": "ball_under_table",
+    "label": "under",
+    "set": "set_3",
+    "acceptable_responses": ["under", "under the table"],
+    "asset": "assets/prepositions/ball_under_table.png"
+  },
+  {
+    "id": "ball_behind_box",
+    "label": "behind",
+    "set": "set_4",
+    "acceptable_responses": ["behind", "behind the box"],
+    "asset": "assets/prepositions/ball_behind_box.png"
+  },
+  {
+    "id": "ball_behind_chair",
+    "label": "behind",
+    "set": "set_4",
+    "acceptable_responses": ["behind", "behind the chair"],
+    "asset": "assets/prepositions/ball_behind_chair.png"
+  },
+  {
+    "id": "ball_behind_couch",
+    "label": "behind",
+    "set": "set_4",
+    "acceptable_responses": ["behind", "behind the couch"],
+    "asset": "assets/prepositions/ball_behind_couch.png"
   }
 ]
