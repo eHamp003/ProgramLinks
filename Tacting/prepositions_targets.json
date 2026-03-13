@@ -1,0 +1,23 @@
+[
+  {
+    "id": "ball_in_box",
+    "label": "in",
+    "set": "set_1",
+    "acceptable_responses": ["in", "in the box"],
+    "asset": "assets/prepositions/ball_in_box.png"
+  },
+  {
+    "id": "ball_in_bag",
+    "label": "in",
+    "set": "set_1",
+    "acceptable_responses": ["in", "in the bag"],
+    "asset": "assets/prepositions/ball_in_bag.png"
+  },
+  {
+    "id": "ball_in_bucket",
+    "label": "in",
+    "set": "set_1",
+    "acceptable_responses": ["in", "in the bucket"],
+    "asset": "assets/prepositions/ball_in_bucket.png"
+  }
+]
