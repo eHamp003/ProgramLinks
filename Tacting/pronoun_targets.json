@@ -1,0 +1,24 @@
+[
+  {
+    "id": "he",
+    "label": "he",
+    "set": "set_1",
+    "acceptable_responses": ["he"],
+    "assets": [
+      "assets/pronouns/he_1.gif",
+      "assets/pronouns/he_2.gif",
+      "assets/pronouns/he_3.gif"
+    ]
+  },
+  {
+    "id": "her",
+    "label": "her",
+    "set": "set_2",
+    "acceptable_responses": ["her"],
+    "assets": [
+      "assets/pronouns/her_1.png",
+      "assets/pronouns/her_2.png",
+      "assets/pronouns/her_3.png"
+    ]
+  }
+]
