@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Non-Identical Matching Game</title>
+  <style>
+    :root{
+      --bg1:#eef6ff;
+      --bg2:#fdf2f8;
+      --card:#ffffffee;
+      --ink:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --accent:#7c3aed;
+      --accent2:#ec4899;
+      --good:#16a34a;
+      --bad:#dc2626;
+      --shadow:0 18px 40px rgba(2,6,23,.12);
+      --radius:24px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--ink);
+      min-height:100vh;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      padding:20px;
+    }
+
+    .app{
+      max-width:1180px;
+      margin:0 auto;
+      display:grid;
+      gap:18px;
+    }
+
+    .panel{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .topbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .title-wrap h1{
+      margin:0;
+      font-size:clamp(1.5rem,2.6vw,2.2rem);
+    }
+
+    .title-wrap p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:1rem;
+    }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+
+    select, button{
+      height:46px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#fff;
+      padding:0 14px;
+      font-size:1rem;
+    }
+
+    button{
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    button:hover{
+      transform:translateY(-1px);
+    }
+
+    .primary{
+      border:none;
+      color:#fff;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+    }
+
+    .stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .pill{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:700;
+    }
+
+    .game{
+      display:grid;
+      grid-template-columns:1fr 1.2fr;
+      gap:18px;
+    }
+
+    .section-label{
+      font-size:.95rem;
+      font-weight:800;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      margin-bottom:10px;
+    }
+
+    .sample-card{
+      min-height:430px;
+      border:2px dashed #ddd6fe;
+      border-radius:24px;
+      background:linear-gradient(180deg,#faf5ff,#ffffff);
+      display:grid;
+      place-items:center;
+      padding:18px;
+      text-align:center;
+    }
+
+    .instruction{
+      font-size:1.15rem;
+      font-weight:800;
+      color:#4c1d95;
+      margin-bottom:14px;
+    }
+
+    .sample-image{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:290px;
+    }
+
+    .sample-image img{
+      max-width:100%;
+      max-height:300px;
+      object-fit:contain;
+      display:block;
+    }
+
+    .sample-label{
+      margin-top:14px;
+      font-size:1.15rem;
+      font-weight:800;
+    }
+
+    .choices-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .choice{
+      border:2px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      min-height:200px;
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      text-align:center;
+      box-shadow:0 8px 18px rgba(0,0,0,.05);
+      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+
+    .choice:hover{
+      border-color:#c4b5fd;
+      box-shadow:0 14px 26px rgba(124,58,237,.10);
+    }
+
+    .choice img{
+      max-width:100%;
+      max-height:120px;
+      object-fit:contain;
+      pointer-events:none;
+    }
+
+    .choice span{
+      font-size:1rem;
+      font-weight:800;
+      pointer-events:none;
+    }
+
+    .choice.correct{
+      border-color:var(--good);
+      box-shadow:0 0 0 4px rgba(22,163,74,.13);
+    }
+
+    .choice.wrong{
+      border-color:var(--bad);
+      box-shadow:0 0 0 4px rgba(220,38,38,.10);
+    }
+
+    .footer{
+      display:grid;
+      gap:8px;
+    }
+
+    .status{
+      min-height:28px;
+      font-size:1.05rem;
+      font-weight:800;
+    }
+
+    .status.good{ color:var(--good); }
+    .status.bad{ color:var(--bad); }
+
+    .tiny{
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.45;
+    }
+
+    @media (max-width: 900px){
+      .game{
+        grid-template-columns:1fr;
+      }
+
+      .sample-card{
+        min-height:320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="panel topbar">
+      <div class="title-wrap">
+        <h1>Non-Identical Matching</h1>
+        <p>Match the picture to the same item or action shown in a different way.</p>
+      </div>
+
+      <div class="controls">
+        <select id="setSelect" aria-label="Choose set"></select>
+        <button id="speakBtn" type="button">🔊 Read Direction</button>
+        <button id="nextBtn" class="primary" type="button">Next</button>
+      </div>
+    </section>
+
+    <section class="panel stats">
+      <div class="pill" id="trialPill">Trial: 1</div>
+      <div class="pill" id="scorePill">Score: 0</div>
+      <div class="pill" id="correctPill">Correct: 0</div>
+      <div class="pill" id="categoryPill">Category: Nouns</div>
+    </section>
+
+    <section class="panel game">
+      <div>
+        <div class="section-label">Sample</div>
+        <div class="sample-card">
+          <div>
+            <div class="instruction" id="instructionText">Find the same one.</div>
+            <div class="sample-image">
+              <img id="sampleImg" alt="Sample stimulus">
+            </div>
+            <div class="sample-label" id="sampleLabel"></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Choices</div>
+        <div class="choices-grid" id="choicesGrid"></div>
+      </div>
+    </section>
+
+    <section class="panel footer">
+      <div class="status" id="status"></div>
+      <div class="tiny">
+        This version uses your <strong>assets/nouns</strong> and <strong>assets/actions</strong> folders.
+        Put this file in the same project level where your <strong>assets</strong> folder lives.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const GAME_SETS = [
+      {
+        id: "nouns_1",
+        name: "Nouns Set 1",
+        category: "Nouns",
+        items: [
+          { label: "apple", sample: "assets/nouns/apple_1.png", matches: ["assets/nouns/apple_2.png", "assets/nouns/apple_3.png"] },
+          { label: "ball", sample: "assets/nouns/ball_1.png", matches: ["assets/nouns/ball_2.png", "assets/nouns/ball_3.png"] },
+          { label: "book", sample: "assets/nouns/book_1.png", matches: ["assets/nouns/book_2.png", "assets/nouns/book_3.png"] },
+          { label: "cup", sample: "assets/nouns/cup_1.png", matches: ["assets/nouns/cup_2.png", "assets/nouns/cup_3.png"] },
+          { label: "spoon", sample: "assets/nouns/spoon_1.png", matches: ["assets/nouns/spoon_2.png", "assets/nouns/spoon_3.png"] }
+        ]
+      },
+      {
+        id: "nouns_2",
+        name: "Nouns Set 2",
+        category: "Nouns",
+        items: [
+          { label: "chair", sample: "assets/nouns/chair_1.png", matches: ["assets/nouns/chair_2.png", "assets/nouns/chair_3.png"] },
+          { label: "cookie", sample: "assets/nouns/cookie_1.png", matches: ["assets/nouns/cookie_2.png", "assets/nouns/cookie_3.png"] },
+          { label: "cracker", sample: "assets/nouns/cracker_1.png", matches: ["assets/nouns/cracker_2.png", "assets/nouns/cracker_3.png"] },
+          { label: "fork", sample: "assets/nouns/fork_1.png", matches: ["assets/nouns/fork_2.png", "assets/nouns/fork_3.png"] },
+          { label: "glasses", sample: "assets/nouns/glasses_1.png", matches: ["assets/nouns/glasses_2.png", "assets/nouns/glasses_3.png"] }
+        ]
+      },
+      {
+        id: "nouns_3",
+        name: "Nouns Set 3",
+        category: "Nouns",
+        items: [
+          { label: "hat", sample: "assets/nouns/hat_1.png", matches: ["assets/nouns/hat_2.png", "assets/nouns/hat_3.png"] },
+          { label: "phone", sample: "assets/nouns/phone_1.png", matches: ["assets/nouns/phone_2.png", "assets/nouns/phone_3.png"] },
+          { label: "plate", sample: "assets/nouns/plate_1.png", matches: ["assets/nouns/plate_2.png", "assets/nouns/plate_3.png"] },
+          { label: "shirt", sample: "assets/nouns/shirt_1.png", matches: ["assets/nouns/shirt_2.png", "assets/nouns/shirt_3.png"] },
+          { label: "truck", sample: "assets/nouns/truck_1.png", matches: ["assets/nouns/truck_2.png", "assets/nouns/truck_3.png"] }
+        ]
+      },
+      {
+        id: "actions_1",
+        name: "Actions Set 1",
+        category: "Actions",
+        items: [
+          { label: "brushing", sample: "assets/actions/brushing_1.gif", matches: ["assets/actions/brushing_2.gif", "assets/actions/brushing_3.gif"] },
+          { label: "clapping", sample: "assets/actions/clapping_1.gif", matches: ["assets/actions/clapping_2.gif", "assets/actions/clapping_3.gif"] },
+          { label: "crying", sample: "assets/actions/crying_1.gif", matches: ["assets/actions/crying_2.gif", "assets/actions/crying_3.gif"] },
+          { label: "drinking", sample: "assets/actions/drinking_1.gif", matches: ["assets/actions/drinking_2.gif", "assets/actions/drinking_3.gif"] },
+          { label: "eating", sample: "assets/actions/eating_1.gif", matches: ["assets/actions/eating_2.gif", "assets/actions/eating_3.gif"] }
+        ]
+      },
+      {
+        id: "actions_2",
+        name: "Actions Set 2",
+        category: "Actions",
+        items: [
+          { label: "jumping", sample: "assets/actions/jumping_1.gif", matches: ["assets/actions/jumping_2.gif", "assets/actions/jumping_3.gif"] },
+          { label: "opening", sample: "assets/actions/opening_1.gif", matches: ["assets/actions/opening_2.gif", "assets/actions/opening_3.gif"] },
+          { label: "reading", sample: "assets/actions/reading_1.gif", matches: ["assets/actions/reading_2.gif", "assets/actions/reading_3.gif"] },
+          { label: "running", sample: "assets/actions/running_1.gif", matches: ["assets/actions/running_2.gif", "assets/actions/running_3.gif"] },
+          { label: "sitting", sample: "assets/actions/sitting_1.gif", matches: ["assets/actions/sitting_2.gif", "assets/actions/sitting_3.gif"] }
+        ]
+      },
+      {
+        id: "actions_3",
+        name: "Actions Set 3",
+        category: "Actions",
+        items: [
+          { label: "sleeping", sample: "assets/actions/sleeping_1.gif", matches: ["assets/actions/sleeping_2.gif", "assets/actions/sleeping_3.gif"] },
+          { label: "standing", sample: "assets/actions/standing_1.gif", matches: ["assets/actions/standing_2.gif", "assets/actions/standing_3.gif"] },
+          { label: "throwing", sample: "assets/actions/throwing_1.gif", matches: ["assets/actions/throwing_2.gif", "assets/actions/throwing_3.gif"] },
+          { label: "walking", sample: "assets/actions/walking_1.gif", matches: ["assets/actions/walking_2.gif", "assets/actions/walking_3.gif"] },
+          { label: "waving", sample: "assets/actions/waving_1.gif", matches: ["assets/actions/waving_2.gif", "assets/actions/waving_3.gif"] }
+        ]
+      }
+    ];
+
+    const setSelect = document.getElementById("setSelect");
+    const sampleImg = document.getElementById("sampleImg");
+    const sampleLabel = document.getElementById("sampleLabel");
+    const instructionText = document.getElementById("instructionText");
+    const choicesGrid = document.getElementById("choicesGrid");
+    const statusEl = document.getElementById("status");
+    const nextBtn = document.getElementById("nextBtn");
+    const speakBtn = document.getElementById("speakBtn");
+    const trialPill = document.getElementById("trialPill");
+    const scorePill = document.getElementById("scorePill");
+    const correctPill = document.getElementById("correctPill");
+    const categoryPill = document.getElementById("categoryPill");
+
+    let currentSetIndex = 0;
+    let currentRound = null;
+    let trial = 1;
+    let score = 0;
+    let correct = 0;
+    let locked = false;
+
+    function shuffle(arr){
+      const copy = [...arr];
+      for(let i = copy.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function randomFrom(arr){
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function articleFor(word){
+      return /^[aeiou]/i.test(word) ? "an" : "a";
+    }
+
+    function prettyLabel(label){
+      return label
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, ch => ch.toUpperCase());
+    }
+
+    function updateStats(){
+      const activeSet = GAME_SETS[currentSetIndex];
+      trialPill.textContent = `Trial: ${trial}`;
+      scorePill.textContent = `Score: ${score}`;
+      correctPill.textContent = `Correct: ${correct}`;
+      categoryPill.textContent = `Category: ${activeSet.category}`;
+    }
+
+    function populateSetMenu(){
+      setSelect.innerHTML = "";
+      GAME_SETS.forEach((set, index) => {
+        const opt = document.createElement("option");
+        opt.value = index;
+        opt.textContent = set.name;
+        setSelect.appendChild(opt);
+      });
+      setSelect.value = String(currentSetIndex);
+    }
+
+    function buildRound(){
+      const activeSet = GAME_SETS[currentSetIndex];
+      const items = activeSet.items;
+
+      const targetItem = randomFrom(items);
+      const correctChoiceImage = randomFrom(targetItem.matches);
+
+      const distractorItems = shuffle(
+        items.filter(item => item.label !== targetItem.label)
+      ).slice(0, 3);
+
+      const answers = shuffle([
+        {
+          label: targetItem.label,
+          image: correctChoiceImage,
+          correct: true
+        },
+        ...distractorItems.map(item => ({
+          label: item.label,
+          image: randomFrom(item.matches),
+          correct: false
+        }))
+      ]);
+
+      currentRound = {
+        target: targetItem,
+        answers,
+        set: activeSet
+      };
+    }
+
+    function renderRound(){
+      locked = false;
+      statusEl.textContent = "";
+      statusEl.className = "status";
+
+      const { target, answers, set } = currentRound;
+      const pretty = prettyLabel(target.label);
+
+      sampleImg.src = target.sample;
+      sampleImg.alt = pretty;
+      sampleLabel.textContent = pretty;
+
+      if(set.category === "Actions"){
+        instructionText.textContent = `Find ${pretty}.`;
+      } else {
+        instructionText.textContent = `Find ${articleFor(target.label)} ${pretty}.`;
+      }
+
+      choicesGrid.innerHTML = "";
+
+      answers.forEach(answer => {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.type = "button";
+        btn.setAttribute("aria-label", prettyLabel(answer.label));
+        btn.innerHTML = `
+          <img src="${answer.image}" alt="${prettyLabel(answer.label)}">
+          <span>${prettyLabel(answer.label)}</span>
+        `;
+        btn.addEventListener("click", () => handleAnswer(btn, answer));
+        choicesGrid.appendChild(btn);
+      });
+
+      updateStats();
+      speakDirection();
+    }
+
+    function speak(text){
+      if(!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.95;
+      utter.pitch = 1;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function speakDirection(){
+      if(!currentRound) return;
+      const { target, set } = currentRound;
+      const pretty = prettyLabel(target.label);
+
+      if(set.category === "Actions"){
+        speak(`Find ${pretty}.`);
+      } else {
+        speak(`Find ${articleFor(target.label)} ${pretty}.`);
+      }
+    }
+
+    function handleAnswer(button, answer){
+      if(locked) return;
+      locked = true;
+
+      const buttons = Array.from(document.querySelectorAll(".choice"));
+      const correctIndex = currentRound.answers.findIndex(a => a.correct);
+      const correctButton = buttons[correctIndex];
+      const targetPretty = prettyLabel(currentRound.target.label);
+
+      if(answer.correct){
+        button.classList.add("correct");
+        score += 1;
+        correct += 1;
+        statusEl.textContent = "Nice job! That matches.";
+        statusEl.classList.add("good");
+        speak("Nice job! That matches.");
+      } else {
+        button.classList.add("wrong");
+        if(correctButton) correctButton.classList.add("correct");
+        statusEl.textContent = `Try again next one. The correct answer was ${targetPretty}.`;
+        statusEl.classList.add("bad");
+        speak(`Try again. The correct answer was ${targetPretty}.`);
+      }
+
+      updateStats();
+    }
+
+    function nextRound(){
+      trial += 1;
+      buildRound();
+      renderRound();
+    }
+
+    function resetGame(){
+      trial = 1;
+      score = 0;
+      correct = 0;
+      buildRound();
+      renderRound();
+    }
+
+    setSelect.addEventListener("change", () => {
+      currentSetIndex = Number(setSelect.value);
+      resetGame();
+    });
+
+    nextBtn.addEventListener("click", nextRound);
+    speakBtn.addEventListener("click", speakDirection);
+
+    populateSetMenu();
+    buildRound();
+    renderRound();
+  </script>
+</body>
+</html>
