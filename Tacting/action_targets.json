@@ -97,16 +97,3 @@
 "assets/actions/throwing_2.gif",
 "assets/actions/throwing_3.gif"
 ]
-},
-{
-"id":"kicking",
-"label":"kicking",
-"set":"actions",
-"acceptable_responses":["kicking","is kicking"],
-"assets":[
-"assets/actions/kicking_1.gif",
-"assets/actions/kicking_2.gif",
-"assets/actions/kicking_3.gif"
-]
-}
-]
