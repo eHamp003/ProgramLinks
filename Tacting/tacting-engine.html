@@ -427,14 +427,34 @@ function populateSets(){
 
 async function loadTargets(){
   try{
+
+    document.getElementById("startMessage").textContent =
+      `Trying to load ${config.json}...`;
+
     const res = await fetch(config.json);
-    if(!res.ok) throw new Error("Could not load " + config.json);
+
+    if(!res.ok){
+      throw new Error(`Could not load ${config.json} (status ${res.status})`);
+    }
+
     targets = await res.json();
-    document.getElementById("startMessage").textContent = `Loaded ${targets.length} targets.`;
+
+    if(!Array.isArray(targets)){
+      throw new Error(`${config.json} did not load as an array.`);
+    }
+
+    document.getElementById("startMessage").textContent =
+      `Loaded ${targets.length} targets from ${config.json}.`;
+
     populateSets();
+
   }catch(error){
-    document.getElementById("startMessage").textContent = error.message;
+
+    document.getElementById("startMessage").textContent =
+      error.message;
+
     console.error(error);
+
   }
 }
 
