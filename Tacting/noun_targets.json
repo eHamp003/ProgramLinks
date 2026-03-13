@@ -1,0 +1,13 @@
+[
+  {
+    "id": "apple",
+    "label": "apple",
+    "set": "set_1",
+    "acceptable_responses": ["apple"],
+    "assets": [
+      "assets/nouns/apple_1.png",
+      "assets/nouns/apple_2.png",
+      "assets/nouns/apple_3.png"
+    ]
+  }
+]
