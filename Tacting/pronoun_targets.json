@@ -3,6 +3,7 @@
     "id": "he",
     "label": "he",
     "set": "set_1",
+    "sd": "Who is driving in a car?",
     "acceptable_responses": ["he"],
     "assets": [
       "assets/pronouns/he_1.gif",
@@ -14,6 +15,7 @@
     "id": "she",
     "label": "she",
     "set": "set_1",
+    "sd": "Who is reading?",
     "acceptable_responses": ["she"],
     "assets": [
       "assets/pronouns/she_1.gif",
@@ -25,6 +27,7 @@
     "id": "they",
     "label": "they",
     "set": "set_1",
+    "sd": "Who is waving?",
     "acceptable_responses": ["they"],
     "assets": [
       "assets/pronouns/they_1.gif",
@@ -36,7 +39,8 @@
     "id": "her",
     "label": "her",
     "set": "set_2",
-    "acceptable_responses": ["her"],
+    "sd": "Whose book is this?",
+    "acceptable_responses": ["her", "it is hers"],
     "assets": [
       "assets/pronouns/her_1.png",
       "assets/pronouns/her_2.png",
@@ -47,7 +51,8 @@
     "id": "his",
     "label": "his",
     "set": "set_2",
-    "acceptable_responses": ["his"],
+    "sd": "Whose hat is this?",
+    "acceptable_responses": ["his", "it is his"],
     "assets": [
       "assets/pronouns/his_1.png",
       "assets/pronouns/his_2.png",
@@ -58,7 +63,8 @@
     "id": "their",
     "label": "their",
     "set": "set_2",
-    "acceptable_responses": ["their"],
+    "sd": "Whose toys are these?",
+    "acceptable_responses": ["their", "they are theirs"],
     "assets": [
       "assets/pronouns/their_1.png",
       "assets/pronouns/their_2.png",
