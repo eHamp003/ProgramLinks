@@ -1,10 +1,38 @@
 [
   {
-    "id": "dog_eating",
-    "label": "dog eating",
+    "id": "baby_crying",
+    "label": "baby crying",
     "set": "set_1",
-    "acceptable_responses": ["dog eating", "the dog is eating"],
-    "asset": "assets/combos/dog_eating.gif"
+    "acceptable_responses": ["baby crying", "the baby is crying"],
+    "asset": "assets/combos/baby_crying.gif"
+  },
+  {
+    "id": "baby_sleeping",
+    "label": "baby sleeping",
+    "set": "set_1",
+    "acceptable_responses": ["baby sleeping", "the baby is sleeping"],
+    "asset": "assets/combos/baby_sleeping.gif"
+  },
+  {
+    "id": "bird_flying",
+    "label": "bird flying",
+    "set": "set_1",
+    "acceptable_responses": ["bird flying", "the bird is flying"],
+    "asset": "assets/combos/bird_flying.gif"
+  },
+  {
+    "id": "boy_eating",
+    "label": "boy eating",
+    "set": "set_1",
+    "acceptable_responses": ["boy eating", "the boy is eating"],
+    "asset": "assets/combos/boy_eating.gif"
+  },
+  {
+    "id": "boy_jumping",
+    "label": "boy jumping",
+    "set": "set_1",
+    "acceptable_responses": ["boy jumping", "the boy is jumping"],
+    "asset": "assets/combos/boy_jumping.gif"
   },
   {
     "id": "boy_running",
@@ -12,5 +40,103 @@
     "set": "set_1",
     "acceptable_responses": ["boy running", "the boy is running"],
     "asset": "assets/combos/boy_running.gif"
+  },
+  {
+    "id": "car_driving",
+    "label": "car driving",
+    "set": "set_1",
+    "acceptable_responses": ["car driving", "the car is driving"],
+    "asset": "assets/combos/car_driving.gif"
+  },
+  {
+    "id": "cat_eating",
+    "label": "cat eating",
+    "set": "set_1",
+    "acceptable_responses": ["cat eating", "the cat is eating"],
+    "asset": "assets/combos/cat_eating.gif"
+  },
+  {
+    "id": "cat_sleeping",
+    "label": "cat sleeping",
+    "set": "set_1",
+    "acceptable_responses": ["cat sleeping", "the cat is sleeping"],
+    "asset": "assets/combos/cat_sleeping.gif"
+  },
+  {
+    "id": "dog_eating",
+    "label": "dog eating",
+    "set": "set_1",
+    "acceptable_responses": ["dog eating", "the dog is eating"],
+    "asset": "assets/combos/dog_eating.gif"
+  },
+  {
+    "id": "dog_running",
+    "label": "dog running",
+    "set": "set_2",
+    "acceptable_responses": ["dog running", "the dog is running"],
+    "asset": "assets/combos/dog_running.gif"
+  },
+  {
+    "id": "dog_sleeping",
+    "label": "dog sleeping",
+    "set": "set_2",
+    "acceptable_responses": ["dog sleeping", "the dog is sleeping"],
+    "asset": "assets/combos/dog_sleeping.gif"
+  },
+  {
+    "id": "girl_drinking",
+    "label": "girl drinking",
+    "set": "set_2",
+    "acceptable_responses": ["girl drinking", "the girl is drinking"],
+    "asset": "assets/combos/girl_drinking.gif"
+  },
+  {
+    "id": "girl_jumping",
+    "label": "girl jumping",
+    "set": "set_2",
+    "acceptable_responses": ["girl jumping", "the girl is jumping"],
+    "asset": "assets/combos/girl_jumping.gif"
+  },
+  {
+    "id": "girl_running",
+    "label": "girl running",
+    "set": "set_2",
+    "acceptable_responses": ["girl running", "the girl is running"],
+    "asset": "assets/combos/girl_running.gif"
+  },
+  {
+    "id": "kid_clapping",
+    "label": "kid clapping",
+    "set": "set_2",
+    "acceptable_responses": ["kid clapping", "the kid is clapping"],
+    "asset": "assets/combos/kid_clapping.gif"
+  },
+  {
+    "id": "kid_waving",
+    "label": "kid waving",
+    "set": "set_2",
+    "acceptable_responses": ["kid waving", "the kid is waving"],
+    "asset": "assets/combos/kid_waving.gif"
+  },
+  {
+    "id": "man_washing",
+    "label": "man washing",
+    "set": "set_2",
+    "acceptable_responses": ["man washing", "the man is washing"],
+    "asset": "assets/combos/man_washing.gif"
+  },
+  {
+    "id": "person_reading",
+    "label": "person reading",
+    "set": "set_2",
+    "acceptable_responses": ["person reading", "the person is reading"],
+    "asset": "assets/combos/person_reading.gif"
+  },
+  {
+    "id": "woman_writing",
+    "label": "woman writing",
+    "set": "set_2",
+    "acceptable_responses": ["woman writing", "the woman is writing"],
+    "asset": "assets/combos/woman_writing.gif"
   }
 ]
