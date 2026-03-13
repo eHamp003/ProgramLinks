@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tacting Game</title>
+
+<style>
+:root{
+  --bg:#fef9c3;
+  --panel:#ffffff;
+  --panel2:#e0f2fe;
+  --text:#1e293b;
+  --muted:#64748b;
+  --accent:#f59e0b;
+  --good:#22c55e;
+  --bad:#ef4444;
+  --border:#93c5fd;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.wrap{
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:var(--panel);
+  border-radius:16px;
+  padding:20px;
+  border:2px solid var(--border);
+  margin-top:20px;
+}
+
+.hidden{display:none}
+
+h1,h2{margin-top:0}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+label{
+  display:block;
+  margin-bottom:6px;
+  color:var(--muted);
+}
+
+input,select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--panel2);
+}
+
+button{
+  padding:12px 16px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  color:white;
+  font-size:16px;
+}
+
+.btn-row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.btn-primary{background:var(--accent)}
+.btn-good{background:var(--good)}
+.btn-bad{background:var(--bad)}
+.btn-gray{background:#60a5fa}
+.btn-outline{
+  background:white;
+  border:2px solid var(--border);
+  color:var(--text);
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+.sd{
+  font-size:32px;
+  font-weight:bold;
+}
+
+.progress{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.image-box{
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  margin:20px 0;
+  min-height:420px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.image-box img{
+  max-width:100%;
+  max-height:500px;
+  object-fit:contain;
+}
+
+.answers{
+  background:var(--panel2);
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+.summary{
+  background:var(--panel2);
+  padding:12px;
+  border-radius:10px;
+  margin-top:10px;
+}
+
+.mono{
+  font-family:monospace;
+  word-break:break-word;
+}
+
+.small{
+  color:var(--muted);
+  font-size:14px;
+}
+
+@media (max-width:700px){
+  .grid{grid-template-columns:1fr}
+  .sd{font-size:24px}
+  .image-box{min-height:300px}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<div id="startScreen" class="card">
+  <h1 id="gameTitle">Tacting Game</h1>
+  <p><strong>SD:</strong> <span id="sdLabel"></span></p>
+
+  <div class="grid">
+    <div>
+      <label>Client Name</label>
+      <input id="clientName">
+    </div>
+
+    <div>
+      <label>Select Set</label>
+      <select id="setSelect">
+        <option value="all">All</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Presentation Order</label>
+      <select id="orderSelect">
+        <option value="random">Random</option>
+        <option value="ordered">In Order</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button id="startBtn" class="btn-primary">Start Game</button>
+  </div>
+
+  <div id="startMessage" class="small"></div>
+</div>
+
+<div id="gameScreen" class="card hidden">
+  <div class="top">
+    <div>
+      <div id="sdText" class="sd"></div>
+      <div id="progress" class="progress"></div>
+    </div>
+
+    <div class="btn-row" style="margin-top:0;">
+      <button id="backBtn" class="btn-gray">Back</button>
+      <button id="answersBtn" class="btn-outline">Show Acceptable Responses</button>
+      <button id="endBtn" class="btn-outline">End</button>
+    </div>
+  </div>
+
+  <div id="answersBox" class="answers hidden">
+    <strong>Acceptable responses:</strong>
+    <div id="answersText"></div>
+  </div>
+
+  <div class="image-box">
+    <img id="image" alt="target">
+  </div>
+
+  <div class="btn-row">
+    <button id="correctBtn" class="btn-good">Correct (Independent)</button>
+    <button id="incorrectBtn" class="btn-bad">Incorrect</button>
+  </div>
+
+  <div id="gameMessage" class="small"></div>
+</div>
+
+<div id="summaryScreen" class="card hidden">
+  <h2>Session Summary</h2>
+
+  <div id="summaryStats" class="summary"></div>
+
+  <div class="summary">
+    <strong>Targets Missed</strong>
+    <div id="missedTargets" class="mono"></div>
+  </div>
+
+  <div class="btn-row">
+    <button id="downloadBtn" class="btn-primary">Download CSV</button>
+    <button id="restartBtn" class="btn-gray">Back to Start</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const GAME_CONFIG = {
+  nouns: {
+    title: "🎯 Tacting Nouns",
+    sd: "What is it?",
+    json: "noun_targets.json"
+  },
+  actions: {
+    title: "🏃 Tacting Actions",
+    sd: "What are they doing?",
+    json: "action_targets.json"
+  },
+  prepositions: {
+    title: "📍 Tacting Prepositions",
+    sd: "Where is the ball?",
+    json: "preposition_targets.json"
+  },
+  pronouns: {
+    title: "🧍 Tacting Pronouns",
+    sd: "Who is it?",
+    json: "pronoun_targets.json"
+  },
+  combos: {
+    title: "🗣️ Tacting Noun-Verb Combos",
+    sd: "Tell me what's happening?",
+    json: "combo_targets.json"
+  }
+};
+
+let gameType = "";
+let config = null;
+let targets = [];
+let trials = [];
+let responses = [];
+let index = 0;
+
+function getGameType(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("game") || "nouns";
+}
+
+function shuffle(a){
+  const arr = [...a];
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function csvEscape(value){
+  const s = String(value ?? "");
+  return '"' + s.replace(/"/g, '""') + '"';
+}
+
+function showScreen(screenId){
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("summaryScreen").classList.add("hidden");
+  document.getElementById(screenId).classList.remove("hidden");
+}
+
+function populateSets(){
+  const setSelect = document.getElementById("setSelect");
+  const uniqueSets = [...new Set(targets.map(t => t.set).filter(Boolean))];
+  uniqueSets.forEach(setName => {
+    const opt = document.createElement("option");
+    opt.value = setName;
+    opt.textContent = setName.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase());
+    setSelect.appendChild(opt);
+  });
+}
+
+async function loadTargets(){
+  try{
+    const res = await fetch(config.json);
+    if(!res.ok) throw new Error("Could not load " + config.json);
+    targets = await res.json();
+    document.getElementById("startMessage").textContent = `Loaded ${targets.length} targets.`;
+    populateSets();
+  }catch(error){
+    document.getElementById("startMessage").textContent = error.message;
+    console.error(error);
+  }
+}
+
+function buildTrials(){
+  const set = document.getElementById("setSelect").value;
+  const order = document.getElementById("orderSelect").value;
+
+  let selected = targets;
+  if(set !== "all"){
+    selected = targets.filter(t => t.set === set);
+  }
+
+  let built = [];
+
+  selected.forEach(t => {
+    const assetList = Array.isArray(t.assets) ? t.assets : [t.asset];
+    assetList.forEach((asset, i) => {
+      built.push({
+        id: t.id,
+        label: t.label,
+        set: t.set || "",
+        asset: asset,
+        acceptable_responses: t.acceptable_responses || [t.label],
+        exemplar: i + 1
+      });
+    });
+  });
+
+  if(order === "random"){
+    built = shuffle(built);
+  }
+
+  return built;
+}
+
+function renderTrial(){
+  const trial = trials[index];
+  if(!trial){
+    endSession();
+    return;
+  }
+
+  document.getElementById("sdText").textContent = config.sd;
+  document.getElementById("progress").textContent =
+    `Trial ${index + 1} of ${trials.length} | ${trial.label}`;
+
+  document.getElementById("image").src = trial.asset;
+  document.getElementById("answersText").textContent = trial.acceptable_responses.join(", ");
+  document.getElementById("answersBox").classList.add("hidden");
+  document.getElementById("gameMessage").textContent = "";
+
+  document.getElementById("image").onerror = () => {
+    document.getElementById("gameMessage").textContent = `Missing file: ${trial.asset}`;
+  };
+}
+
+function recordResponse(result){
+  const t = trials[index];
+  responses[index] = {
+    client: document.getElementById("clientName").value.trim(),
+    game_type: gameType,
+    sd: config.sd,
+    set_name: document.getElementById("setSelect").value,
+    presentation_order: document.getElementById("orderSelect").value,
+    target_id: t.id,
+    label: t.label,
+    asset: t.asset,
+    exemplar_number: t.exemplar,
+    acceptable_responses: t.acceptable_responses.join(" | "),
+    result: result,
+    time: new Date().toISOString()
+  };
+
+  index++;
+  renderTrial();
+}
+
+function goBack(){
+  if(index > 0){
+    index--;
+    renderTrial();
+  }
+}
+
+function endSession(){
+  showScreen("summaryScreen");
+
+  const completed = responses.filter(Boolean);
+  const total = completed.length;
+  const correct = completed.filter(r => r.result === "correct_independent").length;
+  const incorrect = completed.filter(r => r.result === "incorrect").length;
+  const accuracy = total ? ((correct / total) * 100).toFixed(1) : "0.0";
+
+  document.getElementById("summaryStats").innerHTML = `
+    <div><strong>Total scored trials:</strong> ${total}</div>
+    <div><strong>Correct (Independent):</strong> ${correct}</div>
+    <div><strong>Incorrect:</strong> ${incorrect}</div>
+    <div><strong>Accuracy:</strong> ${accuracy}%</div>
+  `;
+
+  const missed = completed
+    .filter(r => r.result === "incorrect")
+    .map(r => `${r.label}${r.exemplar_number ? ` (exemplar ${r.exemplar_number})` : ""}`);
+
+  document.getElementById("missedTargets").textContent = missed.length ? missed.join(", ") : "None";
+}
+
+function downloadCSV(){
+  const rows = responses.filter(Boolean);
+  if(!rows.length) return;
+
+  const headers = [
+    "client",
+    "game_type",
+    "sd",
+    "set_name",
+    "presentation_order",
+    "target_id",
+    "label",
+    "asset",
+    "exemplar_number",
+    "acceptable_responses",
+    "result",
+    "time"
+  ];
+
+  let csv = headers.join(",") + "\n";
+  rows.forEach(row => {
+    csv += headers.map(h => csvEscape(row[h])).join(",") + "\n";
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const clientName = document.getElementById("clientName").value.trim() || "client";
+  a.download = `${clientName}_${gameType}_data.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function init(){
+  gameType = getGameType();
+  config = GAME_CONFIG[gameType] || GAME_CONFIG.nouns;
+
+  document.getElementById("gameTitle").textContent = config.title;
+  document.getElementById("sdLabel").textContent = config.sd;
+  document.getElementById("sdText").textContent = config.sd;
+
+  document.getElementById("startBtn").onclick = () => {
+    trials = buildTrials();
+    responses = [];
+    index = 0;
+
+    if(!trials.length){
+      document.getElementById("startMessage").textContent = "No trials found for that set.";
+      return;
+    }
+
+    showScreen("gameScreen");
+    renderTrial();
+  };
+
+  document.getElementById("correctBtn").onclick = () => recordResponse("correct_independent");
+  document.getElementById("incorrectBtn").onclick = () => recordResponse("incorrect");
+  document.getElementById("backBtn").onclick = goBack;
+  document.getElementById("endBtn").onclick = endSession;
+  document.getElementById("answersBtn").onclick = () => {
+    document.getElementById("answersBox").classList.toggle("hidden");
+  };
+  document.getElementById("downloadBtn").onclick = downloadCSV;
+  document.getElementById("restartBtn").onclick = () => location.reload();
+
+  loadTargets();
+}
+
+init();
+</script>
+</body>
+</html>
