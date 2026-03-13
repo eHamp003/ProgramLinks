@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Non-Identical Matching Game - Nouns Only</title>
+  <title>Non-Identical Matching Game - Nouns</title>
   <style>
     :root{
       --bg1:#eef6ff;
@@ -72,16 +72,13 @@
       align-items:center;
     }
 
-    select, button{
+    button{
       height:46px;
       border-radius:14px;
       border:1px solid var(--line);
       background:#fff;
       padding:0 14px;
       font-size:1rem;
-    }
-
-    button{
       cursor:pointer;
       font-weight:700;
     }
@@ -90,10 +87,33 @@
       transform:translateY(-1px);
     }
 
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
     .primary{
       border:none;
       color:#fff;
       background:linear-gradient(135deg,var(--accent),var(--accent2));
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      padding:10px 14px;
+      min-height:46px;
+      font-weight:700;
+    }
+
+    .toggle input{
+      width:18px;
+      height:18px;
     }
 
     .stats{
@@ -226,11 +246,17 @@
 
     .status.good{ color:var(--good); }
     .status.bad{ color:var(--bad); }
+    .status.done{ color:#7c3aed; }
 
     .tiny{
       color:var(--muted);
       font-size:.92rem;
       line-height:1.45;
+    }
+
+    .hidden-labels .sample-label,
+    .hidden-labels .choice span{
+      visibility:hidden;
     }
 
     @media (max-width: 900px){
@@ -245,17 +271,21 @@
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="app" id="app">
     <section class="panel topbar">
       <div class="title-wrap">
         <h1>Non-Identical Matching</h1>
-        <p>Nouns only. Targets will rotate through the set before repeating.</p>
+        <p>Nouns only. Every target is different and will not repeat in the session.</p>
       </div>
 
       <div class="controls">
-        <select id="setSelect" aria-label="Choose noun set"></select>
+        <label class="toggle">
+          <input type="checkbox" id="labelToggle" checked />
+          Show Labels
+        </label>
         <button id="speakBtn" type="button">🔊 Read Direction</button>
         <button id="nextBtn" class="primary" type="button">Next</button>
+        <button id="restartBtn" type="button">Restart</button>
       </div>
     </section>
 
@@ -263,7 +293,7 @@
       <div class="pill" id="trialPill">Trial: 1</div>
       <div class="pill" id="scorePill">Score: 0</div>
       <div class="pill" id="correctPill">Correct: 0</div>
-      <div class="pill" id="setPill">Set: Nouns Set 1</div>
+      <div class="pill" id="remainingPill">Remaining: 15</div>
     </section>
 
     <section class="panel game">
@@ -289,69 +319,65 @@
     <section class="panel footer">
       <div class="status" id="status"></div>
       <div class="tiny">
-        This version uses only <strong>assets/nouns</strong>. It is set up so every item in the chosen set is shown once before any target repeats.
+        This version uses one large noun pool. Each target appears one time only per session. When all items are used, the game ends until you press <strong>Restart</strong>.
       </div>
     </section>
   </div>
 
   <script>
-    const GAME_SETS = [
-      {
-        id: "nouns_1",
-        name: "Nouns Set 1",
-        items: [
-          { label: "apple", sample: "assets/nouns/apple_1.png", matches: ["assets/nouns/apple_2.png", "assets/nouns/apple_3.png"] },
-          { label: "ball", sample: "assets/nouns/ball_1.png", matches: ["assets/nouns/ball_2.png", "assets/nouns/ball_3.png"] },
-          { label: "book", sample: "assets/nouns/book_1.png", matches: ["assets/nouns/book_2.png", "assets/nouns/book_3.png"] },
-          { label: "cup", sample: "assets/nouns/cup_1.png", matches: ["assets/nouns/cup_2.png", "assets/nouns/cup_3.png"] },
-          { label: "spoon", sample: "assets/nouns/spoon_1.png", matches: ["assets/nouns/spoon_2.png", "assets/nouns/spoon_3.png"] }
-        ]
-      },
-      {
-        id: "nouns_2",
-        name: "Nouns Set 2",
-        items: [
-          { label: "chair", sample: "assets/nouns/chair_1.png", matches: ["assets/nouns/chair_2.png", "assets/nouns/chair_3.png"] },
-          { label: "cookie", sample: "assets/nouns/cookie_1.png", matches: ["assets/nouns/cookie_2.png", "assets/nouns/cookie_3.png"] },
-          { label: "cracker", sample: "assets/nouns/cracker_1.png", matches: ["assets/nouns/cracker_2.png", "assets/nouns/cracker_3.png"] },
-          { label: "fork", sample: "assets/nouns/fork_1.png", matches: ["assets/nouns/fork_2.png", "assets/nouns/fork_3.png"] },
-          { label: "glasses", sample: "assets/nouns/glasses_1.png", matches: ["assets/nouns/glasses_2.png", "assets/nouns/glasses_3.png"] }
-        ]
-      },
-      {
-        id: "nouns_3",
-        name: "Nouns Set 3",
-        items: [
-          { label: "hat", sample: "assets/nouns/hat_1.png", matches: ["assets/nouns/hat_2.png", "assets/nouns/hat_3.png"] },
-          { label: "phone", sample: "assets/nouns/phone_1.png", matches: ["assets/nouns/phone_2.png", "assets/nouns/phone_3.png"] },
-          { label: "plate", sample: "assets/nouns/plate_1.png", matches: ["assets/nouns/plate_2.png", "assets/nouns/plate_3.png"] },
-          { label: "shirt", sample: "assets/nouns/shirt_1.png", matches: ["assets/nouns/shirt_2.png", "assets/nouns/shirt_3.png"] },
-          { label: "truck", sample: "assets/nouns/truck_1.png", matches: ["assets/nouns/truck_2.png", "assets/nouns/truck_3.png"] }
-        ]
-      }
+    const NOUN_ITEMS = [
+      { label: "airplane", sample: "assets/nouns/airplane_1.png", matches: ["assets/nouns/airplane_2.png", "assets/nouns/airplane_3.png"] },
+      { label: "apple", sample: "assets/nouns/apple_1.png", matches: ["assets/nouns/apple_2.png", "assets/nouns/apple_3.png"] },
+      { label: "ball", sample: "assets/nouns/ball_1.png", matches: ["assets/nouns/ball_2.png", "assets/nouns/ball_3.png"] },
+      { label: "banana", sample: "assets/nouns/banana_1.png", matches: ["assets/nouns/banana_2.png", "assets/nouns/banana_3.png"] },
+      { label: "bed", sample: "assets/nouns/bed_1.png", matches: ["assets/nouns/bed_2.png", "assets/nouns/bed_3.png"] },
+      { label: "book", sample: "assets/nouns/book_1.png", matches: ["assets/nouns/book_2.png", "assets/nouns/book_3.png"] },
+      { label: "bottle", sample: "assets/nouns/bottle_1.png", matches: ["assets/nouns/bottle_2.png", "assets/nouns/bottle_3.png"] },
+      { label: "bus", sample: "assets/nouns/bus_1.png", matches: ["assets/nouns/bus_2.png", "assets/nouns/bus_3.png"] },
+      { label: "car", sample: "assets/nouns/car_1.png", matches: ["assets/nouns/car_2.png", "assets/nouns/car_3.png"] },
+      { label: "chair", sample: "assets/nouns/chair_1.png", matches: ["assets/nouns/chair_2.png", "assets/nouns/chair_3.png"] },
+      { label: "cookie", sample: "assets/nouns/cookie_1.png", matches: ["assets/nouns/cookie_2.png", "assets/nouns/cookie_3.png"] },
+      { label: "cracker", sample: "assets/nouns/cracker_1.png", matches: ["assets/nouns/cracker_2.png", "assets/nouns/cracker_3.png"] },
+      { label: "crayon", sample: "assets/nouns/crayon_1.png", matches: ["assets/nouns/crayon_2.png", "assets/nouns/crayon_3.png"] },
+      { label: "cup", sample: "assets/nouns/cup_1.png", matches: ["assets/nouns/cup_2.png", "assets/nouns/cup_3.png"] },
+      { label: "door", sample: "assets/nouns/door_1.png", matches: ["assets/nouns/door_2.png", "assets/nouns/door_3.png"] },
+      { label: "fork", sample: "assets/nouns/fork_1.png", matches: ["assets/nouns/fork_2.png", "assets/nouns/fork_3.png"] },
+      { label: "glasses", sample: "assets/nouns/glasses_1.png", matches: ["assets/nouns/glasses_2.png", "assets/nouns/glasses_3.png"] },
+      { label: "hat", sample: "assets/nouns/hat_1.png", matches: ["assets/nouns/hat_2.png", "assets/nouns/hat_3.png"] },
+      { label: "jacket", sample: "assets/nouns/jacket_1.png", matches: ["assets/nouns/jacket_2.png", "assets/nouns/jacket_3.png"] },
+      { label: "orange", sample: "assets/nouns/orange_1.png", matches: ["assets/nouns/orange_2.png", "assets/nouns/orange_3.png"] },
+      { label: "pants", sample: "assets/nouns/pants_1.png", matches: ["assets/nouns/pants_2.png", "assets/nouns/pants_3.png"] },
+      { label: "pencil", sample: "assets/nouns/pencil_1.png", matches: ["assets/nouns/pencil_2.png", "assets/nouns/pencil_3.png"] },
+      { label: "phone", sample: "assets/nouns/phone_1.png", matches: ["assets/nouns/phone_2.png", "assets/nouns/phone_3.png"] },
+      { label: "plate", sample: "assets/nouns/plate_1.png", matches: ["assets/nouns/plate_2.png", "assets/nouns/plate_3.png"] },
+      { label: "shirt", sample: "assets/nouns/shirt_1.png", matches: ["assets/nouns/shirt_2.png", "assets/nouns/shirt_3.png"] },
+      { label: "shoes", sample: "assets/nouns/shoes_1.png", matches: ["assets/nouns/shoes_2.png", "assets/nouns/shoes_3.png"] },
+      { label: "socks", sample: "assets/nouns/socks_1.png", matches: ["assets/nouns/socks_2.png", "assets/nouns/socks_3.png"] },
+      { label: "spoon", sample: "assets/nouns/spoon_1.png", matches: ["assets/nouns/spoon_2.png", "assets/nouns/spoon_3.png"] },
+      { label: "train", sample: "assets/nouns/train_1.png", matches: ["assets/nouns/train_2.png", "assets/nouns/train_3.png"] },
+      { label: "truck", sample: "assets/nouns/truck_1.png", matches: ["assets/nouns/truck_2.png", "assets/nouns/truck_3.png"] }
     ];
 
-    const setSelect = document.getElementById("setSelect");
+    const app = document.getElementById("app");
     const sampleImg = document.getElementById("sampleImg");
     const sampleLabel = document.getElementById("sampleLabel");
     const instructionText = document.getElementById("instructionText");
     const choicesGrid = document.getElementById("choicesGrid");
     const statusEl = document.getElementById("status");
     const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
     const speakBtn = document.getElementById("speakBtn");
+    const labelToggle = document.getElementById("labelToggle");
     const trialPill = document.getElementById("trialPill");
     const scorePill = document.getElementById("scorePill");
     const correctPill = document.getElementById("correctPill");
-    const setPill = document.getElementById("setPill");
+    const remainingPill = document.getElementById("remainingPill");
 
-    let currentSetIndex = 0;
     let currentRound = null;
     let trial = 1;
     let score = 0;
     let correct = 0;
     let locked = false;
-
-    // This queue prevents targets from repeating until the whole set has been used.
     let remainingTargets = [];
 
     function shuffle(arr){
@@ -378,46 +404,29 @@
     }
 
     function updateStats(){
-      const activeSet = GAME_SETS[currentSetIndex];
       trialPill.textContent = `Trial: ${trial}`;
       scorePill.textContent = `Score: ${score}`;
       correctPill.textContent = `Correct: ${correct}`;
-      setPill.textContent = `Set: ${activeSet.name}`;
-    }
-
-    function populateSetMenu(){
-      setSelect.innerHTML = "";
-      GAME_SETS.forEach((set, index) => {
-        const opt = document.createElement("option");
-        opt.value = index;
-        opt.textContent = set.name;
-        setSelect.appendChild(opt);
-      });
-      setSelect.value = String(currentSetIndex);
+      remainingPill.textContent = `Remaining: ${remainingTargets.length}`;
     }
 
     function refillTargetQueue(){
-      const activeSet = GAME_SETS[currentSetIndex];
-      remainingTargets = shuffle(activeSet.items.map((_, index) => index));
-    }
-
-    function getNextTargetIndex(){
-      if(remainingTargets.length === 0){
-        refillTargetQueue();
-      }
-      return remainingTargets.pop();
+      remainingTargets = shuffle(NOUN_ITEMS.map((_, index) => index));
     }
 
     function buildRound(){
-      const activeSet = GAME_SETS[currentSetIndex];
-      const items = activeSet.items;
+      if(remainingTargets.length === 0){
+        currentRound = null;
+        finishGame();
+        return;
+      }
 
-      const targetIndex = getNextTargetIndex();
-      const targetItem = items[targetIndex];
+      const targetIndex = remainingTargets.pop();
+      const targetItem = NOUN_ITEMS[targetIndex];
       const correctChoiceImage = randomFrom(targetItem.matches);
 
       const distractorItems = shuffle(
-        items.filter((item, index) => index !== targetIndex)
+        NOUN_ITEMS.filter((item, index) => index !== targetIndex)
       ).slice(0, 3);
 
       const answers = shuffle([
@@ -435,12 +444,13 @@
 
       currentRound = {
         target: targetItem,
-        answers,
-        set: activeSet
+        answers
       };
     }
 
     function renderRound(){
+      if(!currentRound) return;
+
       locked = false;
       statusEl.textContent = "";
       statusEl.className = "status";
@@ -472,6 +482,23 @@
       speakDirection();
     }
 
+    function finishGame(){
+      locked = true;
+      nextBtn.disabled = true;
+
+      sampleImg.removeAttribute("src");
+      sampleImg.alt = "Session complete";
+      sampleLabel.textContent = "All Done!";
+      instructionText.textContent = "Session complete.";
+      choicesGrid.innerHTML = "";
+
+      statusEl.textContent = `Nice work! You finished all ${NOUN_ITEMS.length} targets. Press Restart to play again.`;
+      statusEl.className = "status done";
+
+      updateStats();
+      speak(`Nice work! You finished all ${NOUN_ITEMS.length} targets.`);
+    }
+
     function speak(text){
       if(!("speechSynthesis" in window)) return;
       window.speechSynthesis.cancel();
@@ -488,7 +515,7 @@
     }
 
     function handleAnswer(button, answer){
-      if(locked) return;
+      if(locked || !currentRound) return;
       locked = true;
 
       const buttons = Array.from(document.querySelectorAll(".choice"));
@@ -501,13 +528,13 @@
         score += 1;
         correct += 1;
         statusEl.textContent = "Nice job! That matches.";
-        statusEl.classList.add("good");
+        statusEl.className = "status good";
         speak("Nice job! That matches.");
       } else {
         button.classList.add("wrong");
         if(correctButton) correctButton.classList.add("correct");
         statusEl.textContent = `Try again next one. The correct answer was ${targetPretty}.`;
-        statusEl.classList.add("bad");
+        statusEl.className = "status bad";
         speak(`Try again. The correct answer was ${targetPretty}.`);
       }
 
@@ -515,31 +542,36 @@
     }
 
     function nextRound(){
-      trial += 1;
+      if(currentRound && !locked) return;
+
+      if(currentRound){
+        trial += 1;
+      }
+
       buildRound();
       renderRound();
     }
 
-    function resetGame(){
+    function restartGame(){
       trial = 1;
       score = 0;
       correct = 0;
       locked = false;
+      nextBtn.disabled = false;
       refillTargetQueue();
       buildRound();
       renderRound();
     }
 
-    setSelect.addEventListener("change", () => {
-      currentSetIndex = Number(setSelect.value);
-      resetGame();
+    labelToggle.addEventListener("change", () => {
+      app.classList.toggle("hidden-labels", !labelToggle.checked);
     });
 
     nextBtn.addEventListener("click", nextRound);
+    restartBtn.addEventListener("click", restartGame);
     speakBtn.addEventListener("click", speakDirection);
 
-    populateSetMenu();
-    resetGame();
+    restartGame();
   </script>
 </body>
 </html>
