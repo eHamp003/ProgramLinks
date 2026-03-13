@@ -125,6 +125,15 @@ input:focus, select:focus{
   margin-top:16px;
 }
 
+.score-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:18px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+
 button{
   border:none;
   border-radius:16px;
@@ -308,9 +317,10 @@ button:active{transform:translateY(1px)}
       <img id="image" alt="target">
     </div>
 
-    <div class="btn-row">
+    <div class="score-row">
       <button id="correctBtn" class="btn-good">Correct (Independent)</button>
       <button id="incorrectBtn" class="btn-bad">Incorrect</button>
+      <button id="skipBtn" class="btn-gray">Skip</button>
     </div>
 
     <div id="gameMessage" class="small"></div>
@@ -382,9 +392,9 @@ function getGameType(){
 
 function shuffle(a){
   const arr = [...a];
-  for(let i=arr.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
 }
@@ -507,6 +517,27 @@ function recordResponse(result){
   renderTrial();
 }
 
+function skipTrial(){
+  const t = trials[index];
+  responses[index] = {
+    client: document.getElementById("clientName").value.trim(),
+    game_type: gameType,
+    sd: getTrialSD(t),
+    set_name: document.getElementById("setSelect").value,
+    presentation_order: document.getElementById("orderSelect").value,
+    target_id: t.id,
+    label: t.label,
+    asset: t.asset,
+    exemplar_number: t.exemplar,
+    acceptable_responses: t.acceptable_responses.join(" | "),
+    result: "skipped",
+    time: new Date().toISOString()
+  };
+
+  index++;
+  renderTrial();
+}
+
 function goBack(){
   if(index > 0){
     index--;
@@ -521,12 +552,14 @@ function endSession(){
   const total = completed.length;
   const correct = completed.filter(r => r.result === "correct_independent").length;
   const incorrect = completed.filter(r => r.result === "incorrect").length;
+  const skipped = completed.filter(r => r.result === "skipped").length;
   const accuracy = total ? ((correct / total) * 100).toFixed(1) : "0.0";
 
   document.getElementById("summaryStats").innerHTML = `
     <div><strong>Total scored trials:</strong> ${total}</div>
     <div><strong>Correct (Independent):</strong> ${correct}</div>
     <div><strong>Incorrect:</strong> ${incorrect}</div>
+    <div><strong>Skipped:</strong> ${skipped}</div>
     <div><strong>Accuracy:</strong> ${accuracy}%</div>
   `;
 
@@ -556,9 +589,9 @@ function downloadCSV(){
     "time"
   ];
 
-  let csv = headers.join(",") + "\\n";
+  let csv = headers.join(",") + "\n";
   rows.forEach(row => {
-    csv += headers.map(h => csvEscape(row[h])).join(",") + "\\n";
+    csv += headers.map(h => csvEscape(row[h])).join(",") + "\n";
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
@@ -596,6 +629,7 @@ function init(){
 
   document.getElementById("correctBtn").onclick = () => recordResponse("correct_independent");
   document.getElementById("incorrectBtn").onclick = () => recordResponse("incorrect");
+  document.getElementById("skipBtn").onclick = skipTrial;
   document.getElementById("backBtn").onclick = goBack;
   document.getElementById("endBtn").onclick = endSession;
   document.getElementById("answersBtn").onclick = () => {
