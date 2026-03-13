@@ -11,6 +11,28 @@
     ]
   },
   {
+    "id": "she",
+    "label": "she",
+    "set": "set_1",
+    "acceptable_responses": ["she"],
+    "assets": [
+      "assets/pronouns/she_1.gif",
+      "assets/pronouns/she_2.gif",
+      "assets/pronouns/she_3.gif"
+    ]
+  },
+  {
+    "id": "they",
+    "label": "they",
+    "set": "set_1",
+    "acceptable_responses": ["they"],
+    "assets": [
+      "assets/pronouns/they_1.gif",
+      "assets/pronouns/they_2.gif",
+      "assets/pronouns/they_3.gif"
+    ]
+  },
+  {
     "id": "her",
     "label": "her",
     "set": "set_2",
@@ -19,6 +41,28 @@
       "assets/pronouns/her_1.png",
       "assets/pronouns/her_2.png",
       "assets/pronouns/her_3.png"
+    ]
+  },
+  {
+    "id": "his",
+    "label": "his",
+    "set": "set_2",
+    "acceptable_responses": ["his"],
+    "assets": [
+      "assets/pronouns/his_1.png",
+      "assets/pronouns/his_2.png",
+      "assets/pronouns/his_3.png"
+    ]
+  },
+  {
+    "id": "their",
+    "label": "their",
+    "set": "set_2",
+    "acceptable_responses": ["their"],
+    "assets": [
+      "assets/pronouns/their_1.png",
+      "assets/pronouns/their_2.png",
+      "assets/pronouns/their_3.png"
     ]
   }
 ]
