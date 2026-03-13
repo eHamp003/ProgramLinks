@@ -1,134 +1,332 @@
 [
-{
-"id":"apple",
-"label":"apple",
-"set":"food",
-"acceptable_responses":["apple"],
-"assets":[
-"assets/nouns/apple_1.png",
-"assets/nouns/apple_2.png",
-"assets/nouns/apple_3.png"
-]
-},
-{
-"id":"banana",
-"label":"banana",
-"set":"food",
-"acceptable_responses":["banana"],
-"assets":[
-"assets/nouns/banana_1.png",
-"assets/nouns/banana_2.png",
-"assets/nouns/banana_3.png"
-]
-},
-{
-"id":"orange",
-"label":"orange",
-"set":"food",
-"acceptable_responses":["orange"],
-"assets":[
-"assets/nouns/orange_1.png",
-"assets/nouns/orange_2.png",
-"assets/nouns/orange_3.png"
-]
-},
-{
-"id":"car",
-"label":"car",
-"set":"vehicles",
-"acceptable_responses":["car"],
-"assets":[
-"assets/nouns/car_1.png",
-"assets/nouns/car_2.png",
-"assets/nouns/car_3.png"
-]
-},
-{
-"id":"bus",
-"label":"bus",
-"set":"vehicles",
-"acceptable_responses":["bus"],
-"assets":[
-"assets/nouns/bus_1.png",
-"assets/nouns/bus_2.png",
-"assets/nouns/bus_3.png"
-]
-},
-{
-"id":"train",
-"label":"train",
-"set":"vehicles",
-"acceptable_responses":["train"],
-"assets":[
-"assets/nouns/train_1.png",
-"assets/nouns/train_2.png",
-"assets/nouns/train_3.png"
-]
-},
-{
-"id":"dog",
-"label":"dog",
-"set":"animals",
-"acceptable_responses":["dog"],
-"assets":[
-"assets/nouns/dog_1.png",
-"assets/nouns/dog_2.png",
-"assets/nouns/dog_3.png"
-]
-},
-{
-"id":"cat",
-"label":"cat",
-"set":"animals",
-"acceptable_responses":["cat"],
-"assets":[
-"assets/nouns/cat_1.png",
-"assets/nouns/cat_2.png",
-"assets/nouns/cat_3.png"
-]
-},
-{
-"id":"bird",
-"label":"bird",
-"set":"animals",
-"acceptable_responses":["bird"],
-"assets":[
-"assets/nouns/bird_1.png",
-"assets/nouns/bird_2.png",
-"assets/nouns/bird_3.png"
-]
-},
-{
-"id":"hat",
-"label":"hat",
-"set":"clothing",
-"acceptable_responses":["hat"],
-"assets":[
-"assets/nouns/hat_1.png",
-"assets/nouns/hat_2.png",
-"assets/nouns/hat_3.png"
-]
-},
-{
-"id":"shirt",
-"label":"shirt",
-"set":"clothing",
-"acceptable_responses":["shirt"],
-"assets":[
-"assets/nouns/shirt_1.png",
-"assets/nouns/shirt_2.png",
-"assets/nouns/shirt_3.png"
-]
-},
-{
-"id":"shoes",
-"label":"shoes",
-"set":"clothing",
-"acceptable_responses":["shoes","shoe"],
-"assets":[
-"assets/nouns/shoes_1.png",
-"assets/nouns/shoes_2.png",
-"assets/nouns/shoes_3.png"
-]
-}
+  {
+    "id": "airplane",
+    "label": "airplane",
+    "set": "set_1",
+    "acceptable_responses": ["airplane", "plane"],
+    "assets": [
+      "assets/nouns/airplane_1.png",
+      "assets/nouns/airplane_2.png",
+      "assets/nouns/airplane_3.png"
+    ]
+  },
+  {
+    "id": "apple",
+    "label": "apple",
+    "set": "set_1",
+    "acceptable_responses": ["apple"],
+    "assets": [
+      "assets/nouns/apple_1.png",
+      "assets/nouns/apple_2.png",
+      "assets/nouns/apple_3.png"
+    ]
+  },
+  {
+    "id": "ball",
+    "label": "ball",
+    "set": "set_1",
+    "acceptable_responses": ["ball"],
+    "assets": [
+      "assets/nouns/ball_1.png",
+      "assets/nouns/ball_2.png",
+      "assets/nouns/ball_3.png"
+    ]
+  },
+  {
+    "id": "banana",
+    "label": "banana",
+    "set": "set_1",
+    "acceptable_responses": ["banana"],
+    "assets": [
+      "assets/nouns/banana_1.png",
+      "assets/nouns/banana_2.png",
+      "assets/nouns/banana_3.png"
+    ]
+  },
+  {
+    "id": "bed",
+    "label": "bed",
+    "set": "set_1",
+    "acceptable_responses": ["bed"],
+    "assets": [
+      "assets/nouns/bed_1.png",
+      "assets/nouns/bed_2.png",
+      "assets/nouns/bed_3.png"
+    ]
+  },
+  {
+    "id": "book",
+    "label": "book",
+    "set": "set_1",
+    "acceptable_responses": ["book"],
+    "assets": [
+      "assets/nouns/book_1.png",
+      "assets/nouns/book_2.png",
+      "assets/nouns/book_3.png"
+    ]
+  },
+  {
+    "id": "bottle",
+    "label": "bottle",
+    "set": "set_1",
+    "acceptable_responses": ["bottle"],
+    "assets": [
+      "assets/nouns/bottle_1.png",
+      "assets/nouns/bottle_2.png",
+      "assets/nouns/bottle_3.png"
+    ]
+  },
+  {
+    "id": "bus",
+    "label": "bus",
+    "set": "set_1",
+    "acceptable_responses": ["bus"],
+    "assets": [
+      "assets/nouns/bus_1.png",
+      "assets/nouns/bus_2.png",
+      "assets/nouns/bus_3.png"
+    ]
+  },
+  {
+    "id": "car",
+    "label": "car",
+    "set": "set_1",
+    "acceptable_responses": ["car"],
+    "assets": [
+      "assets/nouns/car_1.png",
+      "assets/nouns/car_2.png",
+      "assets/nouns/car_3.png"
+    ]
+  },
+  {
+    "id": "chair",
+    "label": "chair",
+    "set": "set_1",
+    "acceptable_responses": ["chair"],
+    "assets": [
+      "assets/nouns/chair_1.png",
+      "assets/nouns/chair_2.png",
+      "assets/nouns/chair_3.png"
+    ]
+  },
+  {
+    "id": "cookie",
+    "label": "cookie",
+    "set": "set_2",
+    "acceptable_responses": ["cookie"],
+    "assets": [
+      "assets/nouns/cookie_1.png",
+      "assets/nouns/cookie_2.png",
+      "assets/nouns/cookie_3.png"
+    ]
+  },
+  {
+    "id": "cracker",
+    "label": "cracker",
+    "set": "set_2",
+    "acceptable_responses": ["cracker"],
+    "assets": [
+      "assets/nouns/cracker_1.png",
+      "assets/nouns/cracker_2.png",
+      "assets/nouns/cracker_3.png"
+    ]
+  },
+  {
+    "id": "crayon",
+    "label": "crayon",
+    "set": "set_2",
+    "acceptable_responses": ["crayon"],
+    "assets": [
+      "assets/nouns/crayon_1.png",
+      "assets/nouns/crayon_2.png",
+      "assets/nouns/crayon_3.png"
+    ]
+  },
+  {
+    "id": "cup",
+    "label": "cup",
+    "set": "set_2",
+    "acceptable_responses": ["cup"],
+    "assets": [
+      "assets/nouns/cup_1.png",
+      "assets/nouns/cup_2.png",
+      "assets/nouns/cup_3.png"
+    ]
+  },
+  {
+    "id": "door",
+    "label": "door",
+    "set": "set_2",
+    "acceptable_responses": ["door"],
+    "assets": [
+      "assets/nouns/door_1.png",
+      "assets/nouns/door_2.png",
+      "assets/nouns/door_3.png"
+    ]
+  },
+  {
+    "id": "fork",
+    "label": "fork",
+    "set": "set_2",
+    "acceptable_responses": ["fork"],
+    "assets": [
+      "assets/nouns/fork_1.png",
+      "assets/nouns/fork_2.png",
+      "assets/nouns/fork_3.png"
+    ]
+  },
+  {
+    "id": "glasses",
+    "label": "glasses",
+    "set": "set_2",
+    "acceptable_responses": ["glasses", "eyeglasses"],
+    "assets": [
+      "assets/nouns/glasses_1.png",
+      "assets/nouns/glasses_2.png",
+      "assets/nouns/glasses_3.png"
+    ]
+  },
+  {
+    "id": "hat",
+    "label": "hat",
+    "set": "set_2",
+    "acceptable_responses": ["hat"],
+    "assets": [
+      "assets/nouns/hat_1.png",
+      "assets/nouns/hat_2.png",
+      "assets/nouns/hat_3.png"
+    ]
+  },
+  {
+    "id": "jacket",
+    "label": "jacket",
+    "set": "set_2",
+    "acceptable_responses": ["jacket", "coat"],
+    "assets": [
+      "assets/nouns/jacket_1.png",
+      "assets/nouns/jacket_2.png",
+      "assets/nouns/jacket_3.png"
+    ]
+  },
+  {
+    "id": "orange",
+    "label": "orange",
+    "set": "set_2",
+    "acceptable_responses": ["orange"],
+    "assets": [
+      "assets/nouns/orange_1.png",
+      "assets/nouns/orange_2.png",
+      "assets/nouns/orange_3.png"
+    ]
+  },
+  {
+    "id": "pants",
+    "label": "pants",
+    "set": "set_3",
+    "acceptable_responses": ["pants"],
+    "assets": [
+      "assets/nouns/pants_1.png",
+      "assets/nouns/pants_2.png",
+      "assets/nouns/pants_3.png"
+    ]
+  },
+  {
+    "id": "pencil",
+    "label": "pencil",
+    "set": "set_3",
+    "acceptable_responses": ["pencil"],
+    "assets": [
+      "assets/nouns/pencil_1.png",
+      "assets/nouns/pencil_2.png",
+      "assets/nouns/pencil_3.png"
+    ]
+  },
+  {
+    "id": "phone",
+    "label": "phone",
+    "set": "set_3",
+    "acceptable_responses": ["phone", "telephone"],
+    "assets": [
+      "assets/nouns/phone_1.png",
+      "assets/nouns/phone_2.png",
+      "assets/nouns/phone_3.png"
+    ]
+  },
+  {
+    "id": "plate",
+    "label": "plate",
+    "set": "set_3",
+    "acceptable_responses": ["plate"],
+    "assets": [
+      "assets/nouns/plate_1.png",
+      "assets/nouns/plate_2.png",
+      "assets/nouns/plate_3.png"
+    ]
+  },
+  {
+    "id": "shirt",
+    "label": "shirt",
+    "set": "set_3",
+    "acceptable_responses": ["shirt"],
+    "assets": [
+      "assets/nouns/shirt_1.png",
+      "assets/nouns/shirt_2.png",
+      "assets/nouns/shirt_3.png"
+    ]
+  },
+  {
+    "id": "shoes",
+    "label": "shoes",
+    "set": "set_3",
+    "acceptable_responses": ["shoes", "shoe"],
+    "assets": [
+      "assets/nouns/shoes_1.png",
+      "assets/nouns/shoes_2.png",
+      "assets/nouns/shoes_3.png"
+    ]
+  },
+  {
+    "id": "socks",
+    "label": "socks",
+    "set": "set_3",
+    "acceptable_responses": ["socks", "sock"],
+    "assets": [
+      "assets/nouns/socks_1.png",
+      "assets/nouns/socks_2.png",
+      "assets/nouns/socks_3.png"
+    ]
+  },
+  {
+    "id": "spoon",
+    "label": "spoon",
+    "set": "set_3",
+    "acceptable_responses": ["spoon"],
+    "assets": [
+      "assets/nouns/spoon_1.png",
+      "assets/nouns/spoon_2.png",
+      "assets/nouns/spoon_3.png"
+    ]
+  },
+  {
+    "id": "train",
+    "label": "train",
+    "set": "set_3",
+    "acceptable_responses": ["train"],
+    "assets": [
+      "assets/nouns/train_1.png",
+      "assets/nouns/train_2.png",
+      "assets/nouns/train_3.png"
+    ]
+  },
+  {
+    "id": "truck",
+    "label": "truck",
+    "set": "set_3",
+    "acceptable_responses": ["truck"],
+    "assets": [
+      "assets/nouns/truck_1.png",
+      "assets/nouns/truck_2.png",
+      "assets/nouns/truck_3.png"
+    ]
+  }
 ]
