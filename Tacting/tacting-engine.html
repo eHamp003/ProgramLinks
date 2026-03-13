@@ -1,678 +1,482 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tacting Games</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tacting Games</title>
+  <style>
+    :root{
+      --yellow:#f2cf4c;
+      --panel:#ececec;
+      --teal:#18b9d8;
+      --pink:#f2a7d8;
+      --lav:#d9bff0;
+      --text:#111827;
+      --muted:#374151;
+      --green:#7ed957;
+      --red:#ef4444;
+      --white:#ffffff;
+      --shadow:0 10px 28px rgba(0,0,0,.16);
+      --homeGlow: 0 0 10px rgba(24,185,216,.35);
+    }
 
-<style>
-:root{
-  --bg1:#7dd3fc;
-  --bg2:#a7f3d0;
-  --panel:#ffffffee;
-  --panel2:#f8fafc;
-  --text:#0f172a;
-  --muted:#475569;
-  --accent:#7c3aed;
-  --accent2:#f97316;
-  --good:#16a34a;
-  --bad:#ef4444;
-  --border:#cbd5e1;
-  --shadow:0 18px 40px rgba(2,6,23,.18);
-}
+    *{box-sizing:border-box}
 
-*{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      background:var(--yellow);
+      color:var(--text);
+    }
 
-body{
-  margin:0;
-  font-family:ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color:var(--text);
-  min-height:100vh;
-  background:
-    radial-gradient(circle at top left, rgba(255,255,255,.35), transparent 30%),
-    linear-gradient(135deg, var(--bg1), var(--bg2));
-}
+    .page{
+      max-width:1500px;
+      margin:0 auto;
+      padding:34px 30px 40px;
+    }
 
-.wrap{
-  max-width:1100px;
-  margin:0 auto;
-  padding:24px;
-}
+    .screen{
+      background:var(--panel);
+      border-radius:18px;
+      min-height:820px;
+      padding:28px 34px 34px;
+      box-shadow:var(--shadow);
+      position:relative;
+    }
 
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:16px;
-  margin-bottom:18px;
-}
+    .hidden{display:none}
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
+    .home-btn{
+      position:absolute;
+      top:24px;
+      left:24px;
+      width:56px;
+      height:56px;
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-size:40px;
+      line-height:1;
+      color:var(--teal);
+      text-shadow: 0 0 6px rgba(255,255,255,.8);
+      filter: drop-shadow(0 0 5px rgba(24,185,216,.4));
+    }
 
-.brand-badge{
-  width:52px;
-  height:52px;
-  border-radius:18px;
-  background:linear-gradient(135deg, var(--accent), var(--accent2));
-  box-shadow:var(--shadow);
-}
+    .big-title{
+      margin:0;
+      text-align:center;
+      font-size:clamp(54px, 6vw, 106px);
+      line-height:1;
+      letter-spacing:1px;
+      color:var(--teal);
+      text-transform:uppercase;
+      font-weight:900;
+      text-shadow: 6px 6px 0 var(--pink);
+    }
 
-.brand h1{
-  margin:0;
-  font-size:28px;
-  line-height:1.05;
-}
+    .setup-shell{
+      display:grid;
+      grid-template-columns:180px 1fr;
+      gap:26px;
+      align-items:start;
+      margin-top:28px;
+    }
 
-.brand p{
-  margin:4px 0 0;
-  color:var(--muted);
-  font-size:14px;
-}
+    .flower-col{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:38px;
+      padding-top:14px;
+      color:#eca5d5;
+      font-size:120px;
+      line-height:1;
+      user-select:none;
+    }
 
-.card{
-  background:var(--panel);
-  backdrop-filter: blur(10px);
-  border:1px solid rgba(255,255,255,.55);
-  border-radius:24px;
-  padding:22px;
-  box-shadow:var(--shadow);
-}
+    .setup-form{
+      display:flex;
+      flex-direction:column;
+      gap:28px;
+      padding-top:8px;
+    }
 
-.hidden{display:none}
+    .bubble{
+      background:var(--lav);
+      border-radius:40px;
+      min-height:110px;
+      display:flex;
+      align-items:center;
+      padding:0 34px;
+      font-size:clamp(28px, 3vw, 64px);
+      color:#111;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+    }
 
-h2{
-  margin:0 0 14px;
-  font-size:24px;
-}
+    .bubble input,
+    .bubble select{
+      width:100%;
+      border:none;
+      outline:none;
+      background:transparent;
+      font:inherit;
+      color:#111;
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+    }
 
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-}
+    .bubble select{
+      cursor:pointer;
+      padding-right:42px;
+    }
 
-label{
-  display:block;
-  font-size:14px;
-  color:var(--muted);
-  margin:0 0 6px;
-}
+    .select-wrap{
+      position:relative;
+      width:100%;
+    }
 
-input, select{
-  width:100%;
-  padding:12px 14px;
-  border-radius:16px;
-  border:1px solid var(--border);
-  background:#fff;
-  color:var(--text);
-  font:inherit;
-  outline:none;
-}
+    .select-wrap::after{
+      content:"⌄";
+      position:absolute;
+      right:4px;
+      top:50%;
+      transform:translateY(-52%);
+      font-size:64px;
+      line-height:1;
+      pointer-events:none;
+      color:#111;
+    }
 
-input:focus, select:focus{
-  border-color:var(--accent);
-  box-shadow:0 0 0 4px rgba(124,58,237,.12);
-}
+    .start-row{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:8px;
+    }
 
-.btn-row{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-top:16px;
-}
+    .start-btn{
+      border:none;
+      border-radius:24px;
+      padding:18px 34px;
+      font-size:32px;
+      font-weight:800;
+      background:linear-gradient(90deg, var(--teal), var(--pink));
+      color:#fff;
+      cursor:pointer;
+      box-shadow:var(--shadow);
+    }
 
-.score-row{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:18px;
-  margin-top:10px;
-  flex-wrap:wrap;
-}
+    .msg{
+      margin-top:14px;
+      text-align:center;
+      color:#334155;
+      font-size:18px;
+      min-height:24px;
+    }
 
-button{
-  border:none;
-  border-radius:16px;
-  padding:12px 16px;
-  cursor:pointer;
-  color:#fff;
-  font:inherit;
-  font-weight:700;
-  box-shadow:var(--shadow);
-  transition:transform .08s ease, opacity .12s ease;
-}
+    /* Trial screen */
+    .trial-top{
+      display:grid;
+      grid-template-columns:80px 1fr auto;
+      gap:18px;
+      align-items:start;
+    }
 
-button:hover{opacity:.96}
-button:active{transform:translateY(1px)}
+    .trial-home{
+      width:58px;
+      height:58px;
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-size:42px;
+      color:var(--teal);
+      filter: drop-shadow(0 0 6px rgba(24,185,216,.35));
+    }
 
-.btn-primary{background:linear-gradient(135deg, var(--accent), #9f67ff)}
-.btn-good{background:linear-gradient(135deg, #22c55e, var(--good))}
-.btn-bad{background:linear-gradient(135deg, #fb7185, var(--bad))}
-.btn-gray{background:linear-gradient(135deg, #60a5fa, #3b82f6)}
-.btn-outline{
-  background:#fff;
-  color:var(--text);
-  border:2px solid #dbeafe;
-  box-shadow:none;
-}
+    .sd-text{
+      font-family: Georgia, "Times New Roman", serif;
+      font-size:clamp(38px, 4vw, 92px);
+      line-height:1;
+      color:var(--teal);
+      letter-spacing:1px;
+      text-transform:uppercase;
+      align-self:center;
+    }
 
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:16px;
-  flex-wrap:wrap;
-}
+    .answers-btn{
+      align-self:start;
+      border:none;
+      border-radius:999px;
+      padding:18px 28px;
+      font-size:26px;
+      color:#fff;
+      cursor:pointer;
+      background:linear-gradient(90deg, var(--teal), var(--pink));
+      box-shadow:var(--shadow);
+      white-space:nowrap;
+    }
 
-.sd{
-  font-size:32px;
-  font-weight:900;
-  line-height:1.1;
-  letter-spacing:.2px;
-}
+    .answers-box{
+      margin-top:16px;
+      background:#fff;
+      border-radius:18px;
+      padding:16px 18px;
+      border:2px solid #e8d3f4;
+      font-size:22px;
+      line-height:1.35;
+    }
 
-.progress{
-  color:var(--muted);
-  font-size:14px;
-  margin-top:6px;
-}
+    .stimulus-shell{
+      margin-top:18px;
+      border:8px dotted #e8d3f4;
+      border-radius:20px;
+      min-height:500px;
+      display:grid;
+      grid-template-columns:100px 1fr 100px;
+      gap:12px;
+      align-items:center;
+      padding:22px;
+      background:transparent;
+    }
 
-.image-box{
-  background:#fff;
-  border-radius:24px;
-  padding:20px;
-  margin:20px 0;
-  min-height:460px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  border:3px dashed #dbeafe;
-}
+    .nav-btn{
+      width:82px;
+      height:82px;
+      border-radius:50%;
+      border:8px solid var(--teal);
+      background:#f3b5da;
+      color:var(--teal);
+      font-size:48px;
+      font-weight:700;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 auto;
+      box-shadow:var(--shadow);
+    }
 
-.image-box img{
-  max-width:100%;
-  max-height:560px;
-  object-fit:contain;
-  display:block;
-}
+    .stimulus-wrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:420px;
+      padding:10px;
+    }
 
-.answers{
-  background:#f8fafc;
-  border:1px solid #dbeafe;
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:10px;
-}
+    .stimulus-wrap img{
+      max-width:100%;
+      max-height:420px;
+      object-fit:contain;
+      display:block;
+    }
 
-.summary{
-  background:#f8fafc;
-  border:1px solid #dbeafe;
-  padding:14px;
-  border-radius:16px;
-  margin-top:10px;
-}
+    .bottom-row{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:20px;
+      align-items:end;
+    }
 
-.mono{
-  font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  word-break:break-word;
-}
+    .progress-group{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-width:520px;
+    }
 
-.small{
-  color:var(--muted);
-  font-size:14px;
-  margin-top:12px;
-}
+    .progress-bar{
+      height:38px;
+      border-radius:999px;
+      background:#fff;
+      border:4px solid #f0a8d6;
+      overflow:hidden;
+    }
 
-.pill{
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:999px;
-  background:#fff7ed;
-  color:#9a3412;
-  font-size:13px;
-  font-weight:700;
-  border:1px solid #fed7aa;
-}
+    .progress-fill{
+      height:100%;
+      width:0%;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          var(--teal) 0 28px,
+          #ffffff 28px 32px
+        );
+      transition:width .15s ease;
+    }
 
-@media (max-width:700px){
-  .grid{grid-template-columns:1fr}
-  .sd{font-size:24px}
-  .image-box{min-height:320px}
-  .wrap{padding:16px}
-}
-</style>
+    .trial-label{
+      font-size:28px;
+      color:#111;
+    }
+
+    .score-row{
+      display:flex;
+      align-items:center;
+      gap:22px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+
+    .icon-btn{
+      width:110px;
+      height:110px;
+      border:none;
+      border-radius:50%;
+      font-size:56px;
+      color:#fff;
+      cursor:pointer;
+      box-shadow:var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .correct-btn{ background:var(--green); }
+    .incorrect-btn{ background:var(--red); }
+
+    .skip-btn{
+      border:none;
+      border-radius:24px;
+      padding:18px 28px;
+      font-size:26px;
+      font-weight:700;
+      background:#94a3b8;
+      color:#fff;
+      cursor:pointer;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-title{
+      margin:0;
+      text-align:center;
+      font-size:clamp(44px, 5vw, 88px);
+      line-height:1;
+      color:var(--teal);
+      text-transform:uppercase;
+      font-weight:900;
+      text-shadow: 6px 6px 0 var(--pink);
+    }
+
+    .summary-box{
+      background:#fff;
+      border-radius:20px;
+      padding:22px 24px;
+      margin-top:24px;
+      font-size:28px;
+      line-height:1.45;
+      border:2px solid #e9d5ff;
+    }
+
+    .summary-actions{
+      margin-top:24px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:16px;
+      justify-content:center;
+    }
+
+    .summary-btn{
+      border:none;
+      border-radius:24px;
+      padding:18px 28px;
+      font-size:24px;
+      font-weight:700;
+      cursor:pointer;
+      color:#fff;
+      box-shadow:var(--shadow);
+    }
+
+    .menu-btn{
+      background:linear-gradient(90deg, var(--teal), var(--pink));
+    }
+
+    .download-btn{
+      background:#7c3aed;
+    }
+
+    .restart-btn{
+      background:#60a5fa;
+    }
+
+    @media (max-width: 1100px){
+      .setup-shell{
+        grid-template-columns:1fr;
+      }
+      .flower-col{
+        flex-direction:row;
+        justify-content:center;
+        font-size:74px;
+        gap:24px;
+        padding-top:0;
+      }
+      .trial-top{
+        grid-template-columns:60px 1fr;
+      }
+      .trial-top .answers-btn{
+        grid-column:1 / -1;
+        justify-self:end;
+      }
+      .stimulus-shell{
+        grid-template-columns:70px 1fr 70px;
+        min-height:420px;
+      }
+      .bottom-row{
+        grid-template-columns:1fr;
+      }
+      .score-row{
+        justify-content:center;
+      }
+    }
+
+    @media (max-width: 700px){
+      .page{
+        padding:18px 14px 24px;
+      }
+      .screen{
+        padding:18px 16px 22px;
+        min-height:auto;
+      }
+      .bubble{
+        min-height:82px;
+        padding:0 20px;
+        font-size:34px;
+      }
+      .select-wrap::after{
+        font-size:44px;
+      }
+      .stimulus-shell{
+        grid-template-columns:1fr;
+        gap:16px;
+      }
+      .nav-btn{
+        width:70px;
+        height:70px;
+        font-size:38px;
+      }
+      .stimulus-wrap img{
+        max-height:280px;
+      }
+      .trial-label{
+        font-size:22px;
+      }
+      .icon-btn{
+        width:86px;
+        height:86px;
+        font-size:42px;
+      }
+      .skip-btn, .answers-btn, .start-btn, .summary-btn{
+        font-size:20px;
+      }
+    }
+  </style>
 </head>
-
 <body>
-<div class="wrap">
-
-  <div class="topbar">
-    <div class="brand">
-      <div class="brand-badge"></div>
-      <div>
-        <h1>Tacting Games</h1>
-        <p>Pick a set, run trials, and download data.</p>
-      </div>
-    </div>
-    <div class="pill" id="gamePill">Loading...</div>
-  </div>
-
-  <div id="startScreen" class="card">
-    <h2 id="gameTitle">Tacting Games</h2>
-    <p><strong>SD:</strong> <span id="sdLabel"></span></p>
-
-    <div class="grid">
-      <div>
-        <label>Client Name</label>
-        <input id="clientName">
-      </div>
-
-      <div>
-        <label>Select Set</label>
-        <select id="setSelect">
-          <option value="all">All</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Presentation Order</label>
-        <select id="orderSelect">
-          <option value="random">Random</option>
-          <option value="ordered">In Order</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <button id="startBtn" class="btn-primary">Start Game</button>
-      <button id="menuBtnStart" class="btn-outline">Main Menu</button>
-    </div>
-
-    <div id="startMessage" class="small"></div>
-  </div>
-
-  <div id="gameScreen" class="card hidden">
-    <div class="top">
-      <div>
-        <div id="sdText" class="sd"></div>
-        <div id="progress" class="progress"></div>
-      </div>
-
-      <div class="btn-row" style="margin-top:0;">
-        <button id="menuBtn" class="btn-outline">Main Menu</button>
-        <button id="backBtn" class="btn-gray">Back</button>
-        <button id="answersBtn" class="btn-outline">Show Acceptable Responses</button>
-        <button id="endBtn" class="btn-outline">End</button>
-      </div>
-    </div>
-
-    <div id="answersBox" class="answers hidden">
-      <strong>Acceptable responses:</strong>
-      <div id="answersText" style="margin-top:8px;"></div>
-    </div>
-
-    <div class="image-box">
-      <img id="image" alt="target">
-    </div>
-
-    <div class="score-row">
-      <button id="correctBtn" class="btn-good">Correct (Independent)</button>
-      <button id="incorrectBtn" class="btn-bad">Incorrect</button>
-      <button id="skipBtn" class="btn-gray">Skip</button>
-    </div>
-
-    <div id="gameMessage" class="small"></div>
-  </div>
-
-  <div id="summaryScreen" class="card hidden">
-    <h2>Session Summary</h2>
-
-    <div id="summaryStats" class="summary"></div>
-
-    <div class="summary">
-      <strong>Targets Missed</strong>
-      <div id="missedTargets" class="mono" style="margin-top:8px;"></div>
-    </div>
-
-    <div class="btn-row">
-      <button id="menuBtn2" class="btn-outline">Main Menu</button>
-      <button id="downloadBtn" class="btn-primary">Download CSV</button>
-      <button id="restartBtn" class="btn-gray">Back to Start</button>
-    </div>
-  </div>
-
-</div>
-
-<script>
-const GAME_CONFIG = {
-  nouns: {
-    title: "🎯 Tacting Nouns",
-    sd: "What is it?",
-    json: "noun_targets.json",
-    pill: "Nouns"
-  },
-  actions: {
-    title: "🏃 Tacting Actions",
-    sd: "What are they doing?",
-    json: "action_targets.json",
-    pill: "Actions"
-  },
-  prepositions: {
-    title: "📍 Tacting Prepositions",
-    sd: "Where is the ball?",
-    json: "preposition_targets.json",
-    pill: "Prepositions"
-  },
-  pronouns: {
-    title: "🧍 Tacting Pronouns",
-    sd: "Who is doing the action?",
-    json: "pronoun_targets.json",
-    pill: "Pronouns"
-  },
-  combos: {
-    title: "🗣️ Tacting Noun-Verb Combos",
-    sd: "Tell me what is happening here",
-    json: "combo_targets.json",
-    pill: "Combos"
-  }
-};
-
-let gameType = "";
-let config = null;
-let targets = [];
-let trials = [];
-let responses = [];
-let index = 0;
-
-function getGameType(){
-  const params = new URLSearchParams(window.location.search);
-  return params.get("game") || "nouns";
-}
-
-function shuffle(a){
-  const arr = [...a];
-  for(let i = arr.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function csvEscape(value){
-  const s = String(value ?? "");
-  return '"' + s.replace(/"/g, '""') + '"';
-}
-
-function showScreen(screenId){
-  document.getElementById("startScreen").classList.add("hidden");
-  document.getElementById("gameScreen").classList.add("hidden");
-  document.getElementById("summaryScreen").classList.add("hidden");
-  document.getElementById(screenId).classList.remove("hidden");
-}
-
-function populateSets(){
-  const setSelect = document.getElementById("setSelect");
-  const uniqueSets = [...new Set(targets.map(t => t.set).filter(Boolean))];
-  uniqueSets.forEach(setName => {
-    const opt = document.createElement("option");
-    opt.value = setName;
-    opt.textContent = setName.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase());
-    setSelect.appendChild(opt);
-  });
-}
-
-async function loadTargets(){
-  try{
-
-    document.getElementById("startMessage").textContent =
-      `Trying to load ${config.json}...`;
-
-    const res = await fetch(config.json);
-
-    if(!res.ok){
-      throw new Error(`Could not load ${config.json} (status ${res.status})`);
-    }
-
-    targets = await res.json();
-
-    if(!Array.isArray(targets)){
-      throw new Error(`${config.json} did not load as an array.`);
-    }
-
-    document.getElementById("startMessage").textContent =
-      `Loaded ${targets.length} targets from ${config.json}.`;
-
-    populateSets();
-
-  }catch(error){
-
-    document.getElementById("startMessage").textContent =
-      error.message;
-
-    console.error(error);
-
-  }
-}
-
-function buildTrials(){
-  const set = document.getElementById("setSelect").value;
-  const order = document.getElementById("orderSelect").value;
-
-  let selected = targets;
-  if(set !== "all"){
-    selected = targets.filter(t => t.set === set);
-  }
-
-  let built = [];
-
-  selected.forEach(t => {
-    const assetList = Array.isArray(t.assets) ? t.assets : [t.asset];
-    assetList.forEach((asset, i) => {
-      built.push({
-        id: t.id,
-        label: t.label,
-        set: t.set || "",
-        asset: asset,
-        acceptable_responses: t.acceptable_responses || [t.label],
-        exemplar: i + 1,
-        custom_sd: t.sd || ""
-      });
-    });
-  });
-
-  if(order === "random"){
-    built = shuffle(built);
-  }
-
-  return built;
-}
-
-function getTrialSD(trial){
-  if(gameType === "pronouns"){
-    return trial.custom_sd || config.sd;
-  }
-  return config.sd;
-}
-
-function renderTrial(){
-  const trial = trials[index];
-  if(!trial){
-    endSession();
-    return;
-  }
-
-  document.getElementById("sdText").textContent = getTrialSD(trial);
-  document.getElementById("progress").textContent =
-    `Trial ${index + 1} of ${trials.length} | ${trial.label}`;
-
-  document.getElementById("image").src = trial.asset;
-  document.getElementById("answersText").textContent = trial.acceptable_responses.join(", ");
-  document.getElementById("answersBox").classList.add("hidden");
-  document.getElementById("gameMessage").textContent = "";
-
-  document.getElementById("image").onerror = () => {
-    document.getElementById("gameMessage").textContent = `Missing file: ${trial.asset}`;
-  };
-}
-
-function recordResponse(result){
-  const t = trials[index];
-  responses[index] = {
-    client: document.getElementById("clientName").value.trim(),
-    game_type: gameType,
-    sd: getTrialSD(t),
-    set_name: document.getElementById("setSelect").value,
-    presentation_order: document.getElementById("orderSelect").value,
-    target_id: t.id,
-    label: t.label,
-    asset: t.asset,
-    exemplar_number: t.exemplar,
-    acceptable_responses: t.acceptable_responses.join(" | "),
-    result: result,
-    time: new Date().toISOString()
-  };
-
-  index++;
-  renderTrial();
-}
-
-function skipTrial(){
-  const t = trials[index];
-  responses[index] = {
-    client: document.getElementById("clientName").value.trim(),
-    game_type: gameType,
-    sd: getTrialSD(t),
-    set_name: document.getElementById("setSelect").value,
-    presentation_order: document.getElementById("orderSelect").value,
-    target_id: t.id,
-    label: t.label,
-    asset: t.asset,
-    exemplar_number: t.exemplar,
-    acceptable_responses: t.acceptable_responses.join(" | "),
-    result: "skipped",
-    time: new Date().toISOString()
-  };
-
-  index++;
-  renderTrial();
-}
-
-function goBack(){
-  if(index > 0){
-    index--;
-    renderTrial();
-  }
-}
-
-function endSession(){
-  showScreen("summaryScreen");
-
-  const completed = responses.filter(Boolean);
-  const total = completed.length;
-  const correct = completed.filter(r => r.result === "correct_independent").length;
-  const incorrect = completed.filter(r => r.result === "incorrect").length;
-  const skipped = completed.filter(r => r.result === "skipped").length;
-  const accuracy = total ? ((correct / total) * 100).toFixed(1) : "0.0";
-
-  document.getElementById("summaryStats").innerHTML = `
-    <div><strong>Total scored trials:</strong> ${total}</div>
-    <div><strong>Correct (Independent):</strong> ${correct}</div>
-    <div><strong>Incorrect:</strong> ${incorrect}</div>
-    <div><strong>Skipped:</strong> ${skipped}</div>
-    <div><strong>Accuracy:</strong> ${accuracy}%</div>
-  `;
-
-  const missed = completed
-    .filter(r => r.result === "incorrect")
-    .map(r => `${r.label}${r.exemplar_number ? ` (exemplar ${r.exemplar_number})` : ""}`);
-
-  document.getElementById("missedTargets").textContent = missed.length ? missed.join(", ") : "None";
-}
-
-function downloadCSV(){
-  const rows = responses.filter(Boolean);
-  if(!rows.length) return;
-
-  const headers = [
-    "client",
-    "game_type",
-    "sd",
-    "set_name",
-    "presentation_order",
-    "target_id",
-    "label",
-    "asset",
-    "exemplar_number",
-    "acceptable_responses",
-    "result",
-    "time"
-  ];
-
-  let csv = headers.join(",") + "\n";
-  rows.forEach(row => {
-    csv += headers.map(h => csvEscape(row[h])).join(",") + "\n";
-  });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  const clientName = document.getElementById("clientName").value.trim() || "client";
-  a.download = `${clientName}_${gameType}_data.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function goToMainMenu(){
-  window.location.href = "index.html";
-}
-
-function init(){
-  gameType = getGameType();
-  config = GAME_CONFIG[gameType] || GAME_CONFIG.nouns;
-
-  document.getElementById("gameTitle").textContent = config.title;
-  document.getElementById("sdLabel").textContent = config.sd;
-  document.getElementById("sdText").textContent = config.sd;
-  document.getElementById("gamePill").textContent = config.pill;
-
-  document.getElementById("startBtn").onclick = () => {
-    trials = buildTrials();
-    responses = [];
-    index = 0;
-
-    if(!trials.length){
-      document.getElementById("startMessage").textContent = "No trials found for that set.";
-      return;
-    }
-
-    showScreen("gameScreen");
-    renderTrial();
-  };
-
-  document.getElementById("menuBtnStart").onclick = goToMainMenu;
-  document.getElementById("menuBtn").onclick = goToMainMenu;
-  document.getElementById("menuBtn2").onclick = goToMainMenu;
-
-  document.getElementById("correctBtn").onclick = () => recordResponse("correct_independent");
-  document.getElementById("incorrectBtn").onclick = () => recordResponse("incorrect");
-  document.getElementById("skipBtn").onclick = skipTrial;
-  document.getElementById("backBtn").onclick = goBack;
-  document.getElementById("endBtn").onclick = endSession;
-  document.getElementById("answersBtn").onclick = () => {
-    document.getElementById("answersBox").classList.toggle("hidden");
-  };
-  document.getElementById("downloadBtn").onclick = downloadCSV;
-  document.getElementById("restartBtn").onclick = () => location.reload();
-
-  loadTargets();
-}
-
-init();
-</script>
-</body>
-</html>
+  <div class="page">
+
+    <!-- START SCREEN -->
+    <section id="startScreen" class="screen">
+      <button class="home-btn" id="menuBtnStart" title="Main Menu">⌂</button>
+      <h
