@@ -289,6 +289,7 @@ button:active{transform:translateY(1px)}
 
     <div class="btn-row">
       <button id="startBtn" class="btn-primary">Start Game</button>
+      <button id="menuBtnStart" class="btn-outline">Main Menu</button>
     </div>
 
     <div id="startMessage" class="small"></div>
@@ -302,10 +303,12 @@ button:active{transform:translateY(1px)}
       </div>
 
       <div class="btn-row" style="margin-top:0;">
-  <button id="backBtn" class="btn-gray">Back</button>
-  <button id="answersBtn" class="btn-outline">Show Acceptable Responses</button>
-  <button id="endBtn" class="btn-outline">End</button>
-</div>
+        <button id="menuBtn" class="btn-outline">Main Menu</button>
+        <button id="backBtn" class="btn-gray">Back</button>
+        <button id="answersBtn" class="btn-outline">Show Acceptable Responses</button>
+        <button id="endBtn" class="btn-outline">End</button>
+      </div>
+    </div>
 
     <div id="answersBox" class="answers hidden">
       <strong>Acceptable responses:</strong>
@@ -336,10 +339,10 @@ button:active{transform:translateY(1px)}
     </div>
 
     <div class="btn-row">
-  <button id="menuBtn2" class="btn-outline">Main Menu</button>
-  <button id="downloadBtn" class="btn-primary">Download CSV</button>
-  <button id="restartBtn" class="btn-gray">Back to Start</button>
-</div>
+      <button id="menuBtn2" class="btn-outline">Main Menu</button>
+      <button id="downloadBtn" class="btn-primary">Download CSV</button>
+      <button id="restartBtn" class="btn-gray">Back to Start</button>
+    </div>
   </div>
 
 </div>
@@ -604,6 +607,10 @@ function downloadCSV(){
   URL.revokeObjectURL(url);
 }
 
+function goToMainMenu(){
+  window.location.href = "index.html";
+}
+
 function init(){
   gameType = getGameType();
   config = GAME_CONFIG[gameType] || GAME_CONFIG.nouns;
@@ -627,6 +634,10 @@ function init(){
     renderTrial();
   };
 
+  document.getElementById("menuBtnStart").onclick = goToMainMenu;
+  document.getElementById("menuBtn").onclick = goToMainMenu;
+  document.getElementById("menuBtn2").onclick = goToMainMenu;
+
   document.getElementById("correctBtn").onclick = () => recordResponse("correct_independent");
   document.getElementById("incorrectBtn").onclick = () => recordResponse("incorrect");
   document.getElementById("skipBtn").onclick = skipTrial;
@@ -638,14 +649,6 @@ function init(){
   document.getElementById("downloadBtn").onclick = downloadCSV;
   document.getElementById("restartBtn").onclick = () => location.reload();
 
-document.getElementById("menuBtn").onclick = () => {
-  window.location.href = "index.html";
-};
-
-document.getElementById("menuBtn2").onclick = () => {
-  window.location.href = "index.html";
-};
-  
   loadTargets();
 }
 
