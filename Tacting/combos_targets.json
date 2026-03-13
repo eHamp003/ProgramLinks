@@ -1,0 +1,16 @@
+[
+  {
+    "id": "dog_eating",
+    "label": "dog eating",
+    "set": "set_1",
+    "acceptable_responses": ["dog eating", "the dog is eating"],
+    "asset": "assets/combos/dog_eating.gif"
+  },
+  {
+    "id": "boy_running",
+    "label": "boy running",
+    "set": "set_1",
+    "acceptable_responses": ["boy running", "the boy is running"],
+    "asset": "assets/combos/boy_running.gif"
+  }
+]
