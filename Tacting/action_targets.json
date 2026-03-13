@@ -1,35 +1,112 @@
 [
-  {
-    "id": "jumping",
-    "label": "jumping",
-    "set": "set_1",
-    "acceptable_responses": ["jumping", "is jumping"],
-    "assets": [
-      "assets/actions/jumping_1.gif",
-      "assets/actions/jumping_2.gif",
-      "assets/actions/jumping_3.gif"
-    ]
-  },
-  {
-    "id": "running",
-    "label": "running",
-    "set": "set_1",
-    "acceptable_responses": ["running", "is running"],
-    "assets": [
-      "assets/actions/running_1.gif",
-      "assets/actions/running_2.gif",
-      "assets/actions/running_3.gif"
-    ]
-  },
-  {
-    "id": "eating",
-    "label": "eating",
-    "set": "set_1",
-    "acceptable_responses": ["eating", "is eating"],
-    "assets": [
-      "assets/actions/eating_1.gif",
-      "assets/actions/eating_2.gif",
-      "assets/actions/eating_3.gif"
-    ]
-  }
+{
+"id":"jumping",
+"label":"jumping",
+"set":"actions",
+"acceptable_responses":["jumping","is jumping"],
+"assets":[
+"assets/actions/jumping_1.gif",
+"assets/actions/jumping_2.gif",
+"assets/actions/jumping_3.gif"
+]
+},
+{
+"id":"running",
+"label":"running",
+"set":"actions",
+"acceptable_responses":["running","is running"],
+"assets":[
+"assets/actions/running_1.gif",
+"assets/actions/running_2.gif",
+"assets/actions/running_3.gif"
+]
+},
+{
+"id":"eating",
+"label":"eating",
+"set":"actions",
+"acceptable_responses":["eating","is eating"],
+"assets":[
+"assets/actions/eating_1.gif",
+"assets/actions/eating_2.gif",
+"assets/actions/eating_3.gif"
+]
+},
+{
+"id":"drinking",
+"label":"drinking",
+"set":"actions",
+"acceptable_responses":["drinking","is drinking"],
+"assets":[
+"assets/actions/drinking_1.gif",
+"assets/actions/drinking_2.gif",
+"assets/actions/drinking_3.gif"
+]
+},
+{
+"id":"sleeping",
+"label":"sleeping",
+"set":"actions",
+"acceptable_responses":["sleeping","is sleeping"],
+"assets":[
+"assets/actions/sleeping_1.gif",
+"assets/actions/sleeping_2.gif",
+"assets/actions/sleeping_3.gif"
+]
+},
+{
+"id":"clapping",
+"label":"clapping",
+"set":"actions",
+"acceptable_responses":["clapping","is clapping"],
+"assets":[
+"assets/actions/clapping_1.gif",
+"assets/actions/clapping_2.gif",
+"assets/actions/clapping_3.gif"
+]
+},
+{
+"id":"swimming",
+"label":"swimming",
+"set":"actions",
+"acceptable_responses":["swimming","is swimming"],
+"assets":[
+"assets/actions/swimming_1.gif",
+"assets/actions/swimming_2.gif",
+"assets/actions/swimming_3.gif"
+]
+},
+{
+"id":"drawing",
+"label":"drawing",
+"set":"actions",
+"acceptable_responses":["drawing","is drawing"],
+"assets":[
+"assets/actions/drawing_1.gif",
+"assets/actions/drawing_2.gif",
+"assets/actions/drawing_3.gif"
+]
+},
+{
+"id":"throwing",
+"label":"throwing",
+"set":"actions",
+"acceptable_responses":["throwing","is throwing"],
+"assets":[
+"assets/actions/throwing_1.gif",
+"assets/actions/throwing_2.gif",
+"assets/actions/throwing_3.gif"
+]
+},
+{
+"id":"kicking",
+"label":"kicking",
+"set":"actions",
+"acceptable_responses":["kicking","is kicking"],
+"assets":[
+"assets/actions/kicking_1.gif",
+"assets/actions/kicking_2.gif",
+"assets/actions/kicking_3.gif"
+]
+}
 ]
