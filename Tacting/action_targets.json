@@ -1,0 +1,13 @@
+[
+  {
+    "id": "jumping",
+    "label": "jumping",
+    "set": "set_1",
+    "acceptable_responses": ["jumping", "is jumping"],
+    "assets": [
+      "assets/actions/jumping_1.gif",
+      "assets/actions/jumping_2.gif",
+      "assets/actions/jumping_3.gif"
+    ]
+  }
+]
