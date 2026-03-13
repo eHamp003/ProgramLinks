@@ -77,17 +77,6 @@
 ]
 },
 {
-"id":"drawing",
-"label":"drawing",
-"set":"actions",
-"acceptable_responses":["drawing","is drawing"],
-"assets":[
-"assets/actions/drawing_1.gif",
-"assets/actions/drawing_2.gif",
-"assets/actions/drawing_3.gif"
-]
-},
-{
 "id":"throwing",
 "label":"throwing",
 "set":"actions",
