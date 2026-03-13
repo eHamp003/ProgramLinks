@@ -1,88 +1,222 @@
 [
-{
-"id":"jumping",
-"label":"jumping",
-"set":"actions",
-"acceptable_responses":["jumping","is jumping"],
-"assets":[
-"assets/actions/jumping_1.gif",
-"assets/actions/jumping_2.gif",
-"assets/actions/jumping_3.gif"
-]
-},
-{
-"id":"running",
-"label":"running",
-"set":"actions",
-"acceptable_responses":["running","is running"],
-"assets":[
-"assets/actions/running_1.gif",
-"assets/actions/running_2.gif",
-"assets/actions/running_3.gif"
-]
-},
-{
-"id":"eating",
-"label":"eating",
-"set":"actions",
-"acceptable_responses":["eating","is eating"],
-"assets":[
-"assets/actions/eating_1.gif",
-"assets/actions/eating_2.gif",
-"assets/actions/eating_3.gif"
-]
-},
-{
-"id":"drinking",
-"label":"drinking",
-"set":"actions",
-"acceptable_responses":["drinking","is drinking"],
-"assets":[
-"assets/actions/drinking_1.gif",
-"assets/actions/drinking_2.gif",
-"assets/actions/drinking_3.gif"
-]
-},
-{
-"id":"sleeping",
-"label":"sleeping",
-"set":"actions",
-"acceptable_responses":["sleeping","is sleeping"],
-"assets":[
-"assets/actions/sleeping_1.gif",
-"assets/actions/sleeping_2.gif",
-"assets/actions/sleeping_3.gif"
-]
-},
-{
-"id":"clapping",
-"label":"clapping",
-"set":"actions",
-"acceptable_responses":["clapping","is clapping"],
-"assets":[
-"assets/actions/clapping_1.gif",
-"assets/actions/clapping_2.gif",
-"assets/actions/clapping_3.gif"
-]
-},
-{
-"id":"swimming",
-"label":"swimming",
-"set":"actions",
-"acceptable_responses":["swimming","is swimming"],
-"assets":[
-"assets/actions/swimming_1.gif",
-"assets/actions/swimming_2.gif",
-"assets/actions/swimming_3.gif"
-]
-},
-{
-"id":"throwing",
-"label":"throwing",
-"set":"actions",
-"acceptable_responses":["throwing","is throwing"],
-"assets":[
-"assets/actions/throwing_1.gif",
-"assets/actions/throwing_2.gif",
-"assets/actions/throwing_3.gif"
+  {
+    "id": "brushing",
+    "label": "brushing",
+    "set": "set_1",
+    "acceptable_responses": ["brushing", "is brushing"],
+    "assets": [
+      "assets/actions/brushing_1.gif",
+      "assets/actions/brushing_2.gif",
+      "assets/actions/brushing_3.gif"
+    ]
+  },
+  {
+    "id": "clapping",
+    "label": "clapping",
+    "set": "set_1",
+    "acceptable_responses": ["clapping", "is clapping"],
+    "assets": [
+      "assets/actions/clapping_1.gif",
+      "assets/actions/clapping_2.gif",
+      "assets/actions/clapping_3.gif"
+    ]
+  },
+  {
+    "id": "closing",
+    "label": "closing",
+    "set": "set_1",
+    "acceptable_responses": ["closing", "is closing"],
+    "assets": [
+      "assets/actions/closing_1.gif",
+      "assets/actions/closing_2.gif",
+      "assets/actions/closing_3.gif"
+    ]
+  },
+  {
+    "id": "coloring",
+    "label": "coloring",
+    "set": "set_1",
+    "acceptable_responses": ["coloring", "is coloring"],
+    "assets": [
+      "assets/actions/coloring_1.gif",
+      "assets/actions/coloring_2.gif",
+      "assets/actions/coloring_3.gif"
+    ]
+  },
+  {
+    "id": "crying",
+    "label": "crying",
+    "set": "set_1",
+    "acceptable_responses": ["crying", "is crying"],
+    "assets": [
+      "assets/actions/crying_1.gif",
+      "assets/actions/crying_2.gif",
+      "assets/actions/crying_3.gif"
+    ]
+  },
+  {
+    "id": "drinking",
+    "label": "drinking",
+    "set": "set_1",
+    "acceptable_responses": ["drinking", "is drinking"],
+    "assets": [
+      "assets/actions/drinking_1.gif",
+      "assets/actions/drinking_2.gif",
+      "assets/actions/drinking_3.gif"
+    ]
+  },
+  {
+    "id": "eating",
+    "label": "eating",
+    "set": "set_1",
+    "acceptable_responses": ["eating", "is eating"],
+    "assets": [
+      "assets/actions/eating_1.gif",
+      "assets/actions/eating_2.gif",
+      "assets/actions/eating_3.gif"
+    ]
+  },
+  {
+    "id": "jumping",
+    "label": "jumping",
+    "set": "set_2",
+    "acceptable_responses": ["jumping", "is jumping"],
+    "assets": [
+      "assets/actions/jumping_1.gif",
+      "assets/actions/jumping_2.gif",
+      "assets/actions/jumping_3.gif"
+    ]
+  },
+  {
+    "id": "laughing",
+    "label": "laughing",
+    "set": "set_2",
+    "acceptable_responses": ["laughing", "is laughing"],
+    "assets": [
+      "assets/actions/laughing_1.gif",
+      "assets/actions/laughing_2.gif",
+      "assets/actions/laughing_3.gif"
+    ]
+  },
+  {
+    "id": "opening",
+    "label": "opening",
+    "set": "set_2",
+    "acceptable_responses": ["opening", "is opening"],
+    "assets": [
+      "assets/actions/opening_1.gif",
+      "assets/actions/opening_2.gif",
+      "assets/actions/opening_3.gif"
+    ]
+  },
+  {
+    "id": "reading",
+    "label": "reading",
+    "set": "set_2",
+    "acceptable_responses": ["reading", "is reading"],
+    "assets": [
+      "assets/actions/reading_1.gif",
+      "assets/actions/reading_2.gif",
+      "assets/actions/reading_3.gif"
+    ]
+  },
+  {
+    "id": "running",
+    "label": "running",
+    "set": "set_2",
+    "acceptable_responses": ["running", "is running"],
+    "assets": [
+      "assets/actions/running_1.gif",
+      "assets/actions/running_2.gif",
+      "assets/actions/running_3.gif"
+    ]
+  },
+  {
+    "id": "sitting",
+    "label": "sitting",
+    "set": "set_2",
+    "acceptable_responses": ["sitting", "is sitting"],
+    "assets": [
+      "assets/actions/sitting_1.gif",
+      "assets/actions/sitting_2.gif",
+      "assets/actions/sitting_3.gif"
+    ]
+  },
+  {
+    "id": "sleeping",
+    "label": "sleeping",
+    "set": "set_2",
+    "acceptable_responses": ["sleeping", "is sleeping"],
+    "assets": [
+      "assets/actions/sleeping_1.gif",
+      "assets/actions/sleeping_2.gif",
+      "assets/actions/sleeping_3.gif"
+    ]
+  },
+  {
+    "id": "standing",
+    "label": "standing",
+    "set": "set_3",
+    "acceptable_responses": ["standing", "is standing"],
+    "assets": [
+      "assets/actions/standing_1.gif",
+      "assets/actions/standing_2.gif",
+      "assets/actions/standing_3.gif"
+    ]
+  },
+  {
+    "id": "throwing",
+    "label": "throwing",
+    "set": "set_3",
+    "acceptable_responses": ["throwing", "is throwing"],
+    "assets": [
+      "assets/actions/throwing_1.gif",
+      "assets/actions/throwing_2.gif",
+      "assets/actions/throwing_3.gif"
+    ]
+  },
+  {
+    "id": "walking",
+    "label": "walking",
+    "set": "set_3",
+    "acceptable_responses": ["walking", "is walking"],
+    "assets": [
+      "assets/actions/walking_1.gif",
+      "assets/actions/walking_2.gif",
+      "assets/actions/walking_3.gif"
+    ]
+  },
+  {
+    "id": "washing",
+    "label": "washing",
+    "set": "set_3",
+    "acceptable_responses": ["washing", "is washing"],
+    "assets": [
+      "assets/actions/washing_1.gif",
+      "assets/actions/washing_2.gif",
+      "assets/actions/washing_3.gif"
+    ]
+  },
+  {
+    "id": "waving",
+    "label": "waving",
+    "set": "set_3",
+    "acceptable_responses": ["waving", "is waving"],
+    "assets": [
+      "assets/actions/waving_1.gif",
+      "assets/actions/waving_2.gif",
+      "assets/actions/waving_3.gif"
+    ]
+  },
+  {
+    "id": "writing",
+    "label": "writing",
+    "set": "set_3",
+    "acceptable_responses": ["writing", "is writing"],
+    "assets": [
+      "assets/actions/writing_1.gif",
+      "assets/actions/writing_2.gif",
+      "assets/actions/writing_3.gif"
+    ]
+  }
 ]
