@@ -1,35 +1,134 @@
 [
-  {
-    "id": "apple",
-    "label": "apple",
-    "set": "set_1",
-    "acceptable_responses": ["apple"],
-    "assets": [
-      "assets/nouns/apple_1.png",
-      "assets/nouns/apple_2.png",
-      "assets/nouns/apple_3.png"
-    ]
-  },
-  {
-    "id": "banana",
-    "label": "banana",
-    "set": "set_1",
-    "acceptable_responses": ["banana"],
-    "assets": [
-      "assets/nouns/banana_1.png",
-      "assets/nouns/banana_2.png",
-      "assets/nouns/banana_3.png"
-    ]
-  },
-  {
-    "id": "orange",
-    "label": "orange",
-    "set": "set_1",
-    "acceptable_responses": ["orange"],
-    "assets": [
-      "assets/nouns/orange_1.png",
-      "assets/nouns/orange_2.png",
-      "assets/nouns/orange_3.png"
-    ]
-  }
+{
+"id":"apple",
+"label":"apple",
+"set":"food",
+"acceptable_responses":["apple"],
+"assets":[
+"assets/nouns/apple_1.png",
+"assets/nouns/apple_2.png",
+"assets/nouns/apple_3.png"
+]
+},
+{
+"id":"banana",
+"label":"banana",
+"set":"food",
+"acceptable_responses":["banana"],
+"assets":[
+"assets/nouns/banana_1.png",
+"assets/nouns/banana_2.png",
+"assets/nouns/banana_3.png"
+]
+},
+{
+"id":"orange",
+"label":"orange",
+"set":"food",
+"acceptable_responses":["orange"],
+"assets":[
+"assets/nouns/orange_1.png",
+"assets/nouns/orange_2.png",
+"assets/nouns/orange_3.png"
+]
+},
+{
+"id":"car",
+"label":"car",
+"set":"vehicles",
+"acceptable_responses":["car"],
+"assets":[
+"assets/nouns/car_1.png",
+"assets/nouns/car_2.png",
+"assets/nouns/car_3.png"
+]
+},
+{
+"id":"bus",
+"label":"bus",
+"set":"vehicles",
+"acceptable_responses":["bus"],
+"assets":[
+"assets/nouns/bus_1.png",
+"assets/nouns/bus_2.png",
+"assets/nouns/bus_3.png"
+]
+},
+{
+"id":"train",
+"label":"train",
+"set":"vehicles",
+"acceptable_responses":["train"],
+"assets":[
+"assets/nouns/train_1.png",
+"assets/nouns/train_2.png",
+"assets/nouns/train_3.png"
+]
+},
+{
+"id":"dog",
+"label":"dog",
+"set":"animals",
+"acceptable_responses":["dog"],
+"assets":[
+"assets/nouns/dog_1.png",
+"assets/nouns/dog_2.png",
+"assets/nouns/dog_3.png"
+]
+},
+{
+"id":"cat",
+"label":"cat",
+"set":"animals",
+"acceptable_responses":["cat"],
+"assets":[
+"assets/nouns/cat_1.png",
+"assets/nouns/cat_2.png",
+"assets/nouns/cat_3.png"
+]
+},
+{
+"id":"bird",
+"label":"bird",
+"set":"animals",
+"acceptable_responses":["bird"],
+"assets":[
+"assets/nouns/bird_1.png",
+"assets/nouns/bird_2.png",
+"assets/nouns/bird_3.png"
+]
+},
+{
+"id":"hat",
+"label":"hat",
+"set":"clothing",
+"acceptable_responses":["hat"],
+"assets":[
+"assets/nouns/hat_1.png",
+"assets/nouns/hat_2.png",
+"assets/nouns/hat_3.png"
+]
+},
+{
+"id":"shirt",
+"label":"shirt",
+"set":"clothing",
+"acceptable_responses":["shirt"],
+"assets":[
+"assets/nouns/shirt_1.png",
+"assets/nouns/shirt_2.png",
+"assets/nouns/shirt_3.png"
+]
+},
+{
+"id":"shoes",
+"label":"shoes",
+"set":"clothing",
+"acceptable_responses":["shoes","shoe"],
+"assets":[
+"assets/nouns/shoes_1.png",
+"assets/nouns/shoes_2.png",
+"assets/nouns/shoes_3.png"
+]
+}
 ]
