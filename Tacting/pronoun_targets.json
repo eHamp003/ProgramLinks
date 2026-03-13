@@ -54,7 +54,7 @@
     "label": "they",
     "set": "set_1",
     "sd": "Who is sleeping?",
-    "acceptable_responses": ["they", "they are sleeping", "they are",
+    "acceptable_responses": ["they", "they are sleeping", "they are"],
     "assets": [
       "assets/pronouns/they_2.gif"
     ]
