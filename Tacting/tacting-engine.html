@@ -3,47 +3,91 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tacting Game</title>
+<title>Tacting Games</title>
 
 <style>
 :root{
-  --bg:#fef9c3;
-  --panel:#ffffff;
-  --panel2:#e0f2fe;
-  --text:#1e293b;
-  --muted:#64748b;
-  --accent:#f59e0b;
-  --good:#22c55e;
+  --bg1:#7dd3fc;
+  --bg2:#a7f3d0;
+  --panel:#ffffffee;
+  --panel2:#f8fafc;
+  --text:#0f172a;
+  --muted:#475569;
+  --accent:#7c3aed;
+  --accent2:#f97316;
+  --good:#16a34a;
   --bad:#ef4444;
-  --border:#93c5fd;
+  --border:#cbd5e1;
+  --shadow:0 18px 40px rgba(2,6,23,.18);
 }
 
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:var(--bg);
+  font-family:ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color:var(--text);
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,.35), transparent 30%),
+    linear-gradient(135deg, var(--bg1), var(--bg2));
 }
 
 .wrap{
-  max-width:1000px;
-  margin:auto;
-  padding:20px;
+  max-width:1100px;
+  margin:0 auto;
+  padding:24px;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  margin-bottom:18px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.brand-badge{
+  width:52px;
+  height:52px;
+  border-radius:18px;
+  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  box-shadow:var(--shadow);
+}
+
+.brand h1{
+  margin:0;
+  font-size:28px;
+  line-height:1.05;
+}
+
+.brand p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:14px;
 }
 
 .card{
   background:var(--panel);
-  border-radius:16px;
-  padding:20px;
-  border:2px solid var(--border);
-  margin-top:20px;
+  backdrop-filter: blur(10px);
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:24px;
+  padding:22px;
+  box-shadow:var(--shadow);
 }
 
 .hidden{display:none}
 
-h1,h2{margin-top:0}
+h2{
+  margin:0 0 14px;
+  font-size:24px;
+}
 
 .grid{
   display:grid;
@@ -53,25 +97,25 @@ h1,h2{margin-top:0}
 
 label{
   display:block;
-  margin-bottom:6px;
+  font-size:14px;
   color:var(--muted);
+  margin:0 0 6px;
 }
 
-input,select{
+input, select{
   width:100%;
-  padding:10px;
-  border-radius:10px;
+  padding:12px 14px;
+  border-radius:16px;
   border:1px solid var(--border);
-  background:var(--panel2);
+  background:#fff;
+  color:var(--text);
+  font:inherit;
+  outline:none;
 }
 
-button{
-  padding:12px 16px;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-  color:white;
-  font-size:16px;
+input:focus, select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(124,58,237,.12);
 }
 
 .btn-row{
@@ -81,79 +125,115 @@ button{
   margin-top:16px;
 }
 
-.btn-primary{background:var(--accent)}
-.btn-good{background:var(--good)}
-.btn-bad{background:var(--bad)}
-.btn-gray{background:#60a5fa}
+button{
+  border:none;
+  border-radius:16px;
+  padding:12px 16px;
+  cursor:pointer;
+  color:#fff;
+  font:inherit;
+  font-weight:700;
+  box-shadow:var(--shadow);
+  transition:transform .08s ease, opacity .12s ease;
+}
+
+button:hover{opacity:.96}
+button:active{transform:translateY(1px)}
+
+.btn-primary{background:linear-gradient(135deg, var(--accent), #9f67ff)}
+.btn-good{background:linear-gradient(135deg, #22c55e, var(--good))}
+.btn-bad{background:linear-gradient(135deg, #fb7185, var(--bad))}
+.btn-gray{background:linear-gradient(135deg, #60a5fa, #3b82f6)}
 .btn-outline{
-  background:white;
-  border:2px solid var(--border);
+  background:#fff;
   color:var(--text);
+  border:2px solid #dbeafe;
+  box-shadow:none;
 }
 
 .top{
   display:flex;
   justify-content:space-between;
-  align-items:center;
+  align-items:flex-start;
+  gap:16px;
   flex-wrap:wrap;
-  gap:12px;
 }
 
 .sd{
   font-size:32px;
-  font-weight:bold;
+  font-weight:900;
+  line-height:1.1;
+  letter-spacing:.2px;
 }
 
 .progress{
   color:var(--muted);
   font-size:14px;
+  margin-top:6px;
 }
 
 .image-box{
-  background:white;
-  border-radius:16px;
+  background:#fff;
+  border-radius:24px;
   padding:20px;
   margin:20px 0;
-  min-height:420px;
+  min-height:460px;
   display:flex;
   justify-content:center;
   align-items:center;
+  border:3px dashed #dbeafe;
 }
 
 .image-box img{
   max-width:100%;
-  max-height:500px;
+  max-height:560px;
   object-fit:contain;
+  display:block;
 }
 
 .answers{
-  background:var(--panel2);
-  padding:12px;
-  border-radius:10px;
+  background:#f8fafc;
+  border:1px solid #dbeafe;
+  border-radius:16px;
+  padding:14px;
   margin-bottom:10px;
 }
 
 .summary{
-  background:var(--panel2);
-  padding:12px;
-  border-radius:10px;
+  background:#f8fafc;
+  border:1px solid #dbeafe;
+  padding:14px;
+  border-radius:16px;
   margin-top:10px;
 }
 
 .mono{
-  font-family:monospace;
+  font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   word-break:break-word;
 }
 
 .small{
   color:var(--muted);
   font-size:14px;
+  margin-top:12px;
+}
+
+.pill{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#fff7ed;
+  color:#9a3412;
+  font-size:13px;
+  font-weight:700;
+  border:1px solid #fed7aa;
 }
 
 @media (max-width:700px){
   .grid{grid-template-columns:1fr}
   .sd{font-size:24px}
-  .image-box{min-height:300px}
+  .image-box{min-height:320px}
+  .wrap{padding:16px}
 }
 </style>
 </head>
@@ -161,85 +241,96 @@ button{
 <body>
 <div class="wrap">
 
-<div id="startScreen" class="card">
-  <h1 id="gameTitle">Tacting Game</h1>
-  <p><strong>SD:</strong> <span id="sdLabel"></span></p>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-badge"></div>
+      <div>
+        <h1>Tacting Games</h1>
+        <p>Pick a set, run trials, and download data.</p>
+      </div>
+    </div>
+    <div class="pill" id="gamePill">Loading...</div>
+  </div>
 
-  <div class="grid">
-    <div>
-      <label>Client Name</label>
-      <input id="clientName">
+  <div id="startScreen" class="card">
+    <h2 id="gameTitle">Tacting Games</h2>
+    <p><strong>SD:</strong> <span id="sdLabel"></span></p>
+
+    <div class="grid">
+      <div>
+        <label>Client Name</label>
+        <input id="clientName">
+      </div>
+
+      <div>
+        <label>Select Set</label>
+        <select id="setSelect">
+          <option value="all">All</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Presentation Order</label>
+        <select id="orderSelect">
+          <option value="random">Random</option>
+          <option value="ordered">In Order</option>
+        </select>
+      </div>
     </div>
 
-    <div>
-      <label>Select Set</label>
-      <select id="setSelect">
-        <option value="all">All</option>
-      </select>
+    <div class="btn-row">
+      <button id="startBtn" class="btn-primary">Start Game</button>
     </div>
 
-    <div>
-      <label>Presentation Order</label>
-      <select id="orderSelect">
-        <option value="random">Random</option>
-        <option value="ordered">In Order</option>
-      </select>
-    </div>
+    <div id="startMessage" class="small"></div>
   </div>
 
-  <div class="btn-row">
-    <button id="startBtn" class="btn-primary">Start Game</button>
-  </div>
+  <div id="gameScreen" class="card hidden">
+    <div class="top">
+      <div>
+        <div id="sdText" class="sd"></div>
+        <div id="progress" class="progress"></div>
+      </div>
 
-  <div id="startMessage" class="small"></div>
-</div>
-
-<div id="gameScreen" class="card hidden">
-  <div class="top">
-    <div>
-      <div id="sdText" class="sd"></div>
-      <div id="progress" class="progress"></div>
+      <div class="btn-row" style="margin-top:0;">
+        <button id="backBtn" class="btn-gray">Back</button>
+        <button id="answersBtn" class="btn-outline">Show Acceptable Responses</button>
+        <button id="endBtn" class="btn-outline">End</button>
+      </div>
     </div>
 
-    <div class="btn-row" style="margin-top:0;">
-      <button id="backBtn" class="btn-gray">Back</button>
-      <button id="answersBtn" class="btn-outline">Show Acceptable Responses</button>
-      <button id="endBtn" class="btn-outline">End</button>
+    <div id="answersBox" class="answers hidden">
+      <strong>Acceptable responses:</strong>
+      <div id="answersText" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="image-box">
+      <img id="image" alt="target">
+    </div>
+
+    <div class="btn-row">
+      <button id="correctBtn" class="btn-good">Correct (Independent)</button>
+      <button id="incorrectBtn" class="btn-bad">Incorrect</button>
+    </div>
+
+    <div id="gameMessage" class="small"></div>
+  </div>
+
+  <div id="summaryScreen" class="card hidden">
+    <h2>Session Summary</h2>
+
+    <div id="summaryStats" class="summary"></div>
+
+    <div class="summary">
+      <strong>Targets Missed</strong>
+      <div id="missedTargets" class="mono" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="btn-row">
+      <button id="downloadBtn" class="btn-primary">Download CSV</button>
+      <button id="restartBtn" class="btn-gray">Back to Start</button>
     </div>
   </div>
-
-  <div id="answersBox" class="answers hidden">
-    <strong>Acceptable responses:</strong>
-    <div id="answersText"></div>
-  </div>
-
-  <div class="image-box">
-    <img id="image" alt="target">
-  </div>
-
-  <div class="btn-row">
-    <button id="correctBtn" class="btn-good">Correct (Independent)</button>
-    <button id="incorrectBtn" class="btn-bad">Incorrect</button>
-  </div>
-
-  <div id="gameMessage" class="small"></div>
-</div>
-
-<div id="summaryScreen" class="card hidden">
-  <h2>Session Summary</h2>
-
-  <div id="summaryStats" class="summary"></div>
-
-  <div class="summary">
-    <strong>Targets Missed</strong>
-    <div id="missedTargets" class="mono"></div>
-  </div>
-
-  <div class="btn-row">
-    <button id="downloadBtn" class="btn-primary">Download CSV</button>
-    <button id="restartBtn" class="btn-gray">Back to Start</button>
-  </div>
-</div>
 
 </div>
 
@@ -248,27 +339,32 @@ const GAME_CONFIG = {
   nouns: {
     title: "🎯 Tacting Nouns",
     sd: "What is it?",
-    json: "noun_targets.json"
+    json: "noun_targets.json",
+    pill: "Nouns"
   },
   actions: {
     title: "🏃 Tacting Actions",
     sd: "What are they doing?",
-    json: "action_targets.json"
+    json: "action_targets.json",
+    pill: "Actions"
   },
   prepositions: {
     title: "📍 Tacting Prepositions",
     sd: "Where is the ball?",
-    json: "preposition_targets.json"
+    json: "preposition_targets.json",
+    pill: "Prepositions"
   },
   pronouns: {
     title: "🧍 Tacting Pronouns",
-    sd: "Who is it?",
-    json: "pronoun_targets.json"
+    sd: "Who is doing the action?",
+    json: "pronoun_targets.json",
+    pill: "Pronouns"
   },
   combos: {
     title: "🗣️ Tacting Noun-Verb Combos",
-    sd: "Tell me what's happening?",
-    json: "combo_targets.json"
+    sd: "Tell me what is happening here",
+    json: "combo_targets.json",
+    pill: "Combos"
   }
 };
 
@@ -349,7 +445,8 @@ function buildTrials(){
         set: t.set || "",
         asset: asset,
         acceptable_responses: t.acceptable_responses || [t.label],
-        exemplar: i + 1
+        exemplar: i + 1,
+        custom_sd: t.sd || ""
       });
     });
   });
@@ -361,6 +458,13 @@ function buildTrials(){
   return built;
 }
 
+function getTrialSD(trial){
+  if(gameType === "pronouns"){
+    return trial.custom_sd || config.sd;
+  }
+  return config.sd;
+}
+
 function renderTrial(){
   const trial = trials[index];
   if(!trial){
@@ -368,7 +472,7 @@ function renderTrial(){
     return;
   }
 
-  document.getElementById("sdText").textContent = config.sd;
+  document.getElementById("sdText").textContent = getTrialSD(trial);
   document.getElementById("progress").textContent =
     `Trial ${index + 1} of ${trials.length} | ${trial.label}`;
 
@@ -387,7 +491,7 @@ function recordResponse(result){
   responses[index] = {
     client: document.getElementById("clientName").value.trim(),
     game_type: gameType,
-    sd: config.sd,
+    sd: getTrialSD(t),
     set_name: document.getElementById("setSelect").value,
     presentation_order: document.getElementById("orderSelect").value,
     target_id: t.id,
@@ -452,9 +556,9 @@ function downloadCSV(){
     "time"
   ];
 
-  let csv = headers.join(",") + "\n";
+  let csv = headers.join(",") + "\\n";
   rows.forEach(row => {
-    csv += headers.map(h => csvEscape(row[h])).join(",") + "\n";
+    csv += headers.map(h => csvEscape(row[h])).join(",") + "\\n";
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
@@ -474,6 +578,7 @@ function init(){
   document.getElementById("gameTitle").textContent = config.title;
   document.getElementById("sdLabel").textContent = config.sd;
   document.getElementById("sdText").textContent = config.sd;
+  document.getElementById("gamePill").textContent = config.pill;
 
   document.getElementById("startBtn").onclick = () => {
     trials = buildTrials();
